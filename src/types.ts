@@ -13,9 +13,13 @@ export interface FileNode {
   isOpen?: boolean;
 }
 
+// src/types.ts update
 export interface TelemetryData {
   cpu: number;
   memory: number;
   throughput: number;
-  upload: number;
+  latency: number; // NFR-01
+  integrityScore: number; // FR-04
 }
+
+export type TrafficState = 'BLUE_POSTGRES' | 'GREEN_MONGO'; // FR-05

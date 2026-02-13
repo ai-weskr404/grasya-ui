@@ -663,6 +663,9 @@ export default function App() {
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [treeData, setTreeData] = useState<FileNode[]>(DB_SCHEMA);
 
+  // REMOVED: integrityProgress state
+  // REMOVED: verificationResult state (and its rendering)
+
   // --- NEW: History State for Graphs ---
   const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
   const [telemetry, setTelemetry] = useState({
@@ -671,6 +674,41 @@ export default function App() {
     throughput: 0,
     latency: 2,
   });
+
+  const [advisoryState, setAdvisoryState] = useState<
+    "neutral" | "ready" | "rollback"
+  >("neutral");
+
+  // REFACTORED: Effect to handle advisory state based on dummy drift result
+  const handleIntegrityResult = (result: {
+    source: string;
+    target: string;
+    drift: number;
+  }) => {
+    if (result.drift === 0) {
+      setAdvisoryState("ready");
+      addLog(
+        "[SYSTEM ADVISORY]: Integrity Verified. Safe to switch traffic to GREEN.",
+        "success",
+      );
+    } else {
+      setAdvisoryState("rollback");
+      addLog(
+        "[SYSTEM ADVISORY]: Drift detected. Cutover NOT recommended.",
+        "error",
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (telemetry.latency > 200 && advisoryState !== "rollback") {
+      setAdvisoryState("rollback");
+      addLog(
+        "[SYSTEM ADVISORY]: High latency detected. Consider rollback.",
+        "error",
+      );
+    }
+  }, [telemetry.latency, advisoryState]);
 
   const addLog = (msg: string, type: LogEntry["type"]) => {
     setLogs((prev) => [
@@ -684,13 +722,35 @@ export default function App() {
     ]);
   };
 
-  const handleVerifyIntegrity = () => {
-    if (!isConnected) return alert("System offline.");
-    addLog("INITIATING RECONCILIATION SERVICE...", "info");
-    setTimeout(
-      () => addLog("INTEGRITY CONFIRMED: Merkle Roots Match.", "success"),
-      2800,
+  const runIntegrityProcess = (type: "verify" | "drift") => {
+    // Provide immediate feedback in logs
+    addLog(
+      type === "verify"
+        ? "AUDIT: Starting Merkle Tree verification..."
+        : "AUDIT: Checking for drift...",
+      "info",
     );
+
+    // Simulate async process without progress bar
+    setTimeout(() => {
+      const drift = type === "drift" ? Math.floor(Math.random() * 2) : 0;
+
+      const result = {
+        source: "0xA91F23AB",
+        target: drift === 0 ? "0xA91F23AB" : "0xFF12BC99",
+        drift,
+      };
+
+      // Handle logic internally without setting state for UI display
+      handleIntegrityResult(result);
+
+      addLog(
+        drift === 0
+          ? "INTEGRITY VERIFIED: Merkle roots match."
+          : "DRIFT DETECTED: Root hash mismatch.",
+        drift === 0 ? "success" : "error",
+      );
+    }, 2000); // 2 second delay to simulate work
   };
 
   const handleOpenTab = (tabName: string) => {
@@ -740,7 +800,10 @@ export default function App() {
 
         const newCpu = Math.floor(Math.random() * 30) + 20;
         const newMem = Math.floor(Math.random() * 20) + 40;
-        const newLatency = Math.floor(Math.random() * 50) + 5;
+        const newLatency =
+          Math.random() < 0.15
+            ? Math.floor(Math.random() * 400) + 150 // spike
+            : Math.floor(Math.random() * 80) + 10; // normal
 
         // Update Scalar
         setTelemetry({
@@ -823,20 +886,32 @@ export default function App() {
                 icon={isConnected ? Square : Server}
                 label={isConnected ? "Disconnect" : "Connect"}
                 onClick={handleConnectClick}
-                color={isConnected ? "text-red-600" : "text-slate-700"}
               />
-              <div className="flex flex-col gap-1">
-                <RibbonBtn icon={RefreshCw} label="Refresh" variant="small" />
-                <RibbonBtn
-                  icon={Settings}
-                  label="Global Opts"
-                  variant="small"
-                />
-              </div>
+              <RibbonBtn
+                icon={RefreshCw}
+                label="Refresh"
+                variant="small"
+                onClick={() => {
+                  addLog(
+                    "SYSTEM: Refreshing Object Explorer & Telemetry...",
+                    "info",
+                  );
+                  setTelemetryHistory([]);
+                }}
+              />
             </RibbonGroup>
+
             <RibbonGroup label="Definition">
-              <RibbonBtn icon={FileText} label="New Job" />
-              <RibbonBtn icon={Save} label="Save Meta" variant="large" />
+              <RibbonBtn
+                icon={FileText}
+                label="New Job"
+                onClick={() => {
+                  setLogs([]);
+                  setTelemetryHistory([]);
+                  setIsRunning(false);
+                  addLog("NEW MIGRATION JOB INITIALIZED.", "info");
+                }}
+              />
             </RibbonGroup>
           </>
         );
@@ -888,9 +963,15 @@ export default function App() {
             <RibbonBtn
               icon={ShieldCheck}
               label="Verify"
-              onClick={handleVerifyIntegrity}
+              // CHANGED: Run process directly
+              onClick={() => runIntegrityProcess("verify")}
             />
-            <RibbonBtn icon={Search} label="Drift Check" />
+            <RibbonBtn
+              icon={Search}
+              label="Drift Check"
+              // CHANGED: Run process directly
+              onClick={() => runIntegrityProcess("drift")}
+            />
           </RibbonGroup>
         );
       case "view":
@@ -1116,6 +1197,17 @@ export default function App() {
               {trafficState === "BLUE_POSTGRES"
                 ? "Blue (Primary)"
                 : "Green (Target)"}
+            </span>
+          )}
+          {advisoryState !== "neutral" && (
+            <span
+              className={`ml-4 font-bold animate-pulse ${
+                advisoryState === "ready" ? "text-green-300" : "text-red-300"
+              }`}
+            >
+              {advisoryState === "ready"
+                ? "READY FOR CUTOVER"
+                : "ROLLBACK ADVISED"}
             </span>
           )}
         </div>

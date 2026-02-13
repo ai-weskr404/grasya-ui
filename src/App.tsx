@@ -333,159 +333,212 @@ const SchemaMapTab = ({
 };
 
 // --- FEATURE: Config View ---
-// --- FEATURE: Config View ---
-const ConfigViewTab = () => (
-  <div className="p-6 h-full flex flex-col bg-slate-50">
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <Settings size={18} className="text-slate-600" /> Schema Configuration
-        </h2>
-      </div>
-      <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 shadow-sm transition-colors">
-        <Save size={12} /> Apply Configuration
-      </button>
-    </div>
+const ConfigViewTab = () => {
+  const [activeConfigTab, setActiveConfigTab] = useState<
+    "runtime" | "network" | "mapping"
+  >("runtime");
 
-    <div className="flex-1 flex gap-4 overflow-hidden">
-      {/* LEFT PANEL — ENTERPRISE SETTINGS */}
-      <div className="w-1/3 bg-white border border-slate-300 rounded shadow-sm p-4 overflow-y-auto">
-        <h3 className="text-xs font-bold text-slate-700 uppercase mb-4 border-b pb-2">
-          Global Runtime Settings
-        </h3>
-
-        <div className="space-y-4 text-xs">
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              Naming Convention Strategy
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>snake_case (user_id)</option>
-              <option>camelCase (userId)</option>
-              <option>PascalCase (UserId)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              maxRetries
-            </label>
-            <input
-              type="number"
-              defaultValue={5}
-              className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              retryBackoffInMs
-            </label>
-            <input
-              type="number"
-              defaultValue={2000}
-              className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              requestTimeoutInMs
-            </label>
-            <input
-              type="number"
-              defaultValue={15000}
-              className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              batchSize
-            </label>
-            <input
-              type="number"
-              defaultValue={500}
-              className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              enableIdempotency
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>true</option>
-              <option>false</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              enableSchemaValidation
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>true</option>
-              <option>false</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              logLevel
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>INFO</option>
-              <option>DEBUG</option>
-              <option>WARN</option>
-              <option>ERROR</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              enableDeadLetterQueue
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>true</option>
-              <option>false</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              defaultTargetDatabase
-            </label>
-            <input
-              type="text"
-              defaultValue="mongo_prod_cluster"
-              className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-slate-600 block mb-1">
-              themeSelection
-            </label>
-            <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-              <option>light</option>
-              <option>dark</option>
-              <option>system</option>
-            </select>
-          </div>
+  return (
+    <div className="p-6 h-full flex flex-col bg-slate-50 overflow-hidden">
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-4 shrink-0">
+        <div>
+          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <Settings size={18} className="text-slate-600" />
+            Schema Configuration
+          </h2>
         </div>
+        <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 shadow-sm transition-colors">
+          <Save size={12} /> Apply Configuration
+        </button>
       </div>
 
-      {/* RIGHT PANEL — REALISTIC TRANSFORM CONFIG */}
-      <div className="flex-1 bg-slate-900 rounded shadow-inner flex flex-col border border-slate-700 overflow-hidden">
-        <div className="bg-slate-800 px-4 py-1 text-[10px] text-slate-400 flex justify-between border-b border-slate-700">
-          <span>schema_transform.production.json</span>
-          <span>JSON</span>
+      {/* MAIN LAYOUT */}
+      <div className="flex-1 flex gap-4 overflow-hidden">
+        {/* LEFT PANEL — TABBED SETTINGS */}
+        <div className="w-1/3 bg-white border border-slate-300 rounded shadow-sm flex flex-col overflow-hidden">
+          {/* TAB HEADER */}
+          <div className="flex border-b border-slate-200 text-[11px] font-medium bg-slate-100 shrink-0">
+            {[
+              { id: "runtime", label: "Runtime" },
+              { id: "network", label: "Network" },
+              { id: "mapping", label: "Data Mapping" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveConfigTab(tab.id as any)}
+                className={`flex-1 py-2 transition-colors ${
+                  activeConfigTab === tab.id
+                    ? "bg-white border-b-2 border-blue-600 text-blue-700"
+                    : "text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* TAB CONTENT — FIXED HEIGHT / NO SCROLL */}
+          <div className="flex-1 p-4 text-xs overflow-hidden">
+            {/* RUNTIME TAB */}
+            {activeConfigTab === "runtime" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    Naming Convention Strategy
+                  </label>
+                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                    <option>snake_case (user_id)</option>
+                    <option>camelCase (userId)</option>
+                    <option>PascalCase (UserId)</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-medium text-slate-600 block mb-1">
+                      maxRetries
+                    </label>
+                    <input
+                      type="number"
+                      defaultValue={5}
+                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-medium text-slate-600 block mb-1">
+                      retryBackoffInMs
+                    </label>
+                    <input
+                      type="number"
+                      defaultValue={2000}
+                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-medium text-slate-600 block mb-1">
+                      batchSize
+                    </label>
+                    <input
+                      type="number"
+                      defaultValue={500}
+                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-medium text-slate-600 block mb-1">
+                      logLevel
+                    </label>
+                    <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                      <option>INFO</option>
+                      <option>DEBUG</option>
+                      <option>WARN</option>
+                      <option>ERROR</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    enableIdempotency
+                  </label>
+                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                    <option>true</option>
+                    <option>false</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* NETWORK TAB */}
+            {activeConfigTab === "network" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    requestTimeoutInMs
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={15000}
+                    className="w-full p-2 border border-slate-200 rounded bg-slate-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    enableDeadLetterQueue
+                  </label>
+                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                    <option>true</option>
+                    <option>false</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    defaultTargetDatabase
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue="mongo_prod_cluster"
+                    className="w-full p-2 border border-slate-200 rounded bg-slate-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    themeSelection
+                  </label>
+                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                    <option>light</option>
+                    <option>dark</option>
+                    <option>system</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* DATA MAPPING TAB */}
+            {activeConfigTab === "mapping" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="font-medium text-slate-600 block mb-1">
+                    enableSchemaValidation
+                  </label>
+                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
+                    <option>true</option>
+                    <option>false</option>
+                  </select>
+                </div>
+
+                <div className="bg-slate-100 border border-slate-200 rounded p-3 text-[11px] font-mono text-slate-600">
+                  Field mappings are defined in the JSON configuration panel.
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 text-[11px] text-blue-800">
+                  Operation Mode: <strong>upsert</strong> <br />
+                  Primary Keys enforced per collection.
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        <textarea
-          className="flex-1 bg-transparent text-green-400 font-mono text-[11px] p-4 focus:outline-none resize-none leading-relaxed"
-          defaultValue={`{
+        {/* RIGHT PANEL — JSON CONFIG (UNCHANGED BEHAVIOR) */}
+        <div className="flex-1 bg-slate-900 rounded shadow-inner flex flex-col border border-slate-700 overflow-hidden">
+          <div className="bg-slate-800 px-4 py-1 text-[10px] text-slate-400 flex justify-between border-b border-slate-700 shrink-0">
+            <span>schema_transform.production.json</span>
+            <span>JSON</span>
+          </div>
+
+          <textarea
+            className="flex-1 bg-transparent text-green-400 font-mono text-[11px] p-4 focus:outline-none resize-none leading-relaxed"
+            defaultValue={`{
   "version": "1.2.0",
   "environment": "production",
   "maxRetries": 5,
@@ -496,41 +549,14 @@ const ConfigViewTab = () => (
   "enableSchemaValidation": true,
   "enableDeadLetterQueue": true,
   "logLevel": "INFO",
-  "defaultTargetDatabase": "mongo_prod_cluster",
-  "collections": [
-    {
-      "source": "public.orders",
-      "target": "orders",
-      "primaryKey": "id",
-      "operationMode": "upsert",
-      "fieldMappings": {
-        "order_id": "orderId",
-        "user_id": "userId",
-        "total_amount": "totalAmount",
-        "created_at": "createdAt",
-        "updated_at": "updatedAt",
-        "order_status": "status"
-      }
-    },
-    {
-      "source": "public.users",
-      "target": "users",
-      "primaryKey": "id",
-      "operationMode": "upsert",
-      "fieldMappings": {
-        "first_name": "firstName",
-        "last_name": "lastName",
-        "email_address": "email",
-        "created_at": "createdAt"
-      }
-    }
-  ]
+  "defaultTargetDatabase": "mongo_prod_cluster"
 }`}
-        />
+          />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- REUSED: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
@@ -1076,9 +1102,7 @@ export default function App() {
             {isConnected ? "Ready" : "Disconnected"}
           </span>
           {isRunning && (
-            <span className="animate-pulse text-yellow-300">
-              ● Migrating...
-            </span>
+            <span className="animate-pulse text-yellow-300">Migrating...</span>
           )}
           {isConnected && (
             <span

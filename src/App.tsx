@@ -44,7 +44,8 @@ import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 
 import { RibbonGroup, RibbonBtn } from "./components/ui/Ribbon";
-import { ConnectionDialog } from "./components/modals/ConnectionDialog";
+import { MigrationWizard } from "./components/modals/ConnectionDialog";
+import { ConfigDialog } from "./components/modals/ConfigDialog";
 import { MonitorView } from "./components/views/MonitorView";
 
 // --- HELPER: Generate Mock Rows ---
@@ -332,232 +333,6 @@ const SchemaMapTab = ({
   );
 };
 
-// --- FEATURE: Config View ---
-const ConfigViewTab = () => {
-  const [activeConfigTab, setActiveConfigTab] = useState<
-    "runtime" | "network" | "mapping"
-  >("runtime");
-
-  return (
-    <div className="p-6 h-full flex flex-col bg-slate-50 overflow-hidden">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Settings size={18} className="text-slate-600" />
-            Schema Configuration
-          </h2>
-        </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 shadow-sm transition-colors">
-          <Save size={12} /> Apply Configuration
-        </button>
-      </div>
-
-      {/* MAIN LAYOUT */}
-      <div className="flex-1 flex gap-4 overflow-hidden">
-        {/* LEFT PANEL — TABBED SETTINGS */}
-        <div className="w-1/3 bg-white border border-slate-300 rounded shadow-sm flex flex-col overflow-hidden">
-          {/* TAB HEADER */}
-          <div className="flex border-b border-slate-200 text-[11px] font-medium bg-slate-100 shrink-0">
-            {[
-              { id: "runtime", label: "Runtime" },
-              { id: "network", label: "Network" },
-              { id: "mapping", label: "Data Mapping" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveConfigTab(tab.id as any)}
-                className={`flex-1 py-2 transition-colors ${
-                  activeConfigTab === tab.id
-                    ? "bg-white border-b-2 border-blue-600 text-blue-700"
-                    : "text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* TAB CONTENT — FIXED HEIGHT / NO SCROLL */}
-          <div className="flex-1 p-4 text-xs overflow-hidden">
-            {/* RUNTIME TAB */}
-            {activeConfigTab === "runtime" && (
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    Naming Convention Strategy
-                  </label>
-                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                    <option>snake_case (user_id)</option>
-                    <option>camelCase (userId)</option>
-                    <option>PascalCase (UserId)</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-medium text-slate-600 block mb-1">
-                      maxRetries
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={5}
-                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium text-slate-600 block mb-1">
-                      retryBackoffInMs
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={2000}
-                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-medium text-slate-600 block mb-1">
-                      batchSize
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={500}
-                      className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium text-slate-600 block mb-1">
-                      logLevel
-                    </label>
-                    <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                      <option>INFO</option>
-                      <option>DEBUG</option>
-                      <option>WARN</option>
-                      <option>ERROR</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    enableIdempotency
-                  </label>
-                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                    <option>true</option>
-                    <option>false</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* NETWORK TAB */}
-            {activeConfigTab === "network" && (
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    requestTimeoutInMs
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={15000}
-                    className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    enableDeadLetterQueue
-                  </label>
-                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                    <option>true</option>
-                    <option>false</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    defaultTargetDatabase
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="mongo_prod_cluster"
-                    className="w-full p-2 border border-slate-200 rounded bg-slate-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    themeSelection
-                  </label>
-                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                    <option>light</option>
-                    <option>dark</option>
-                    <option>system</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* DATA MAPPING TAB */}
-            {activeConfigTab === "mapping" && (
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="font-medium text-slate-600 block mb-1">
-                    enableSchemaValidation
-                  </label>
-                  <select className="w-full p-2 border border-slate-200 rounded bg-slate-50">
-                    <option>true</option>
-                    <option>false</option>
-                  </select>
-                </div>
-
-                <div className="bg-slate-100 border border-slate-200 rounded p-3 text-[11px] font-mono text-slate-600">
-                  Field mappings are defined in the JSON configuration panel.
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded p-3 text-[11px] text-blue-800">
-                  Operation Mode: <strong>upsert</strong> <br />
-                  Primary Keys enforced per collection.
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT PANEL — JSON CONFIG (UNCHANGED BEHAVIOR) */}
-        <div className="flex-1 bg-slate-900 rounded shadow-inner flex flex-col border border-slate-700 overflow-hidden">
-          <div className="bg-slate-800 px-4 py-1 text-[10px] text-slate-400 flex justify-between border-b border-slate-700 shrink-0">
-            <span>schema_transform.production.json</span>
-            <span>JSON</span>
-          </div>
-
-          <textarea
-            className="flex-1 bg-transparent text-green-400 font-mono text-[11px] p-4 focus:outline-none resize-none leading-relaxed"
-            defaultValue={`{
-  "version": "1.2.0",
-  "environment": "production",
-  "maxRetries": 5,
-  "retryBackoffInMs": 2000,
-  "requestTimeoutInMs": 15000,
-  "batchSize": 500,
-  "enableIdempotency": true,
-  "enableSchemaValidation": true,
-  "enableDeadLetterQueue": true,
-  "logLevel": "INFO",
-  "defaultTargetDatabase": "mongo_prod_cluster"
-}`}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // --- REUSED: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
   <div className="p-6 h-full flex flex-col bg-slate-50">
@@ -647,6 +422,7 @@ export default function App() {
   >("home");
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isAwsEnabled, setIsAwsEnabled] = useState(true);
 
@@ -985,7 +761,7 @@ export default function App() {
             <RibbonBtn
               icon={FileJson}
               label="Schema Config"
-              onClick={() => handleOpenTab("Schema Config")}
+              onClick={() => setShowConfigDialog(true)}
             />
             <RibbonBtn
               icon={AlertOctagon}
@@ -1002,12 +778,16 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-200 overflow-hidden font-sans text-slate-900 selection:bg-blue-200 relative">
-      <ConnectionDialog
-        show={showConnectDialog}
-        onClose={() => setShowConnectDialog(false)}
-        onConfirm={handleConfirmConnect}
-        isAwsEnabled={isAwsEnabled}
-        setIsAwsEnabled={setIsAwsEnabled}
+      {showConnectDialog && (
+        <MigrationWizard
+          onClose={() => setShowConnectDialog(false)}
+          onFinish={handleConfirmConnect} // <--- Wire it here
+        />
+      )}
+
+      <ConfigDialog
+        isOpen={showConfigDialog}
+        onClose={() => setShowConfigDialog(false)}
       />
 
       {/* TOP BAR */}
@@ -1158,7 +938,6 @@ export default function App() {
               {activeWorkspaceTab === "Dead Letter Queue" && (
                 <DeadLetterQueueTab />
               )}
-              {activeWorkspaceTab === "Schema Config" && <ConfigViewTab />}
             </div>
 
             {/* RIGHT PANEL: TELEMETRY (Replaced with new Component) */}

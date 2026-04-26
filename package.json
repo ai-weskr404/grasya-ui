@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "dev:desktop": "electron-vite dev",
-    "build:desktop": "electron-vite build",
+    "dev:desktop": "electron-vite dev --config electron/electron.vite.config.ts",
+    "build:desktop": "electron-vite build --config electron/electron.vite.config.ts",
     "dist": "npm run build:desktop && electron-builder"
   },
   "dependencies": {

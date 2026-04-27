@@ -6,18 +6,24 @@ export default defineConfig({
   main: {
     build: {
       rollupOptions: {
-        input: resolve(__dirname, "electron/main.cjs"),
+        input: resolve(__dirname, "main.cjs"),
       },
     },
   },
   preload: {
     build: {
       rollupOptions: {
-        input: resolve(__dirname, "electron/preload.cjs"),
+        input: resolve(__dirname, "preload.cjs"),
       },
     },
   },
   renderer: {
+    root: resolve(__dirname, ".."),
+    build: {
+      rollupOptions: {
+        input: resolve(__dirname, "../index.html"),
+      },
+    },
     plugins: [react()],
   },
 });

@@ -22,7 +22,7 @@ function requireMain() {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, "preload.cjs")
+        preload: path.join(__dirname, "../preload/preload.mjs")
       }
     });
     if (isDev) {

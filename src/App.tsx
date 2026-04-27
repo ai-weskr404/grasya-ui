@@ -790,24 +790,6 @@ export default function App() {
         onClose={() => setShowConfigDialog(false)}
       />
 
-      {/* TOP BAR */}
-      <div className="h-8 bg-slate-900 flex items-center px-4 justify-between select-none shrink-0">
-        <div className="flex items-center gap-2">
-          <Database className="text-blue-400 w-4 h-4" />
-          <span className="text-xs text-slate-200 font-semibold tracking-wide">
-            G.R.A.S.Y.A. Enterprise Manager{" "}
-            {isConnected
-              ? "- [PostgreSQL -> Mongo -> AWS]"
-              : "- [No Connection]"}
-          </span>
-        </div>
-        <div className="flex gap-4">
-          <div className="w-3 h-3 rounded-full bg-slate-600 hover:bg-slate-500"></div>
-          <div className="w-3 h-3 rounded-full bg-slate-600 hover:bg-slate-500"></div>
-          <div className="w-3 h-3 rounded-full bg-red-900 hover:bg-red-600"></div>
-        </div>
-      </div>
-
       {/* RIBBON */}
       <div className="bg-slate-100 border-b border-slate-300 shadow-sm flex flex-col shrink-0">
         <div className="flex px-2 pt-1 gap-1 border-b border-slate-300 bg-slate-50">

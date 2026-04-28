@@ -12,11 +12,19 @@ import {
 // --- Types & Interfaces ---
 interface WizardState {
   source: {
-    connectorName: string;
+    name: string;
     host: string;
     port: string;
-    database: string;
+    dbname: string;
     user: string;
+    password: string;
+    topicPrefix: string;
+    includedSchema: string;
+    replicationUser: string;
+    replicationPassword: string;
+    slotName: string;
+    publicationName: string;
+    snapshotMode: string;
   };
   selectedTables: string[];
   target: {
@@ -60,20 +68,19 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         Step 1: Source Connection
       </h3>
       <p className="text-xs text-slate-500 mb-2">
-        Configure your initial source database connection. Table selection will
-        occur in the next step.
+        Start with the required PostgreSQL connection details. Advanced CDC
+        options are pre-filled with safe defaults and can be adjusted in the
+        next step.
       </p>
 
       <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
-        <label className="text-right pr-3 text-slate-600">
-          Connector Name:
-        </label>
+        <label className="text-right pr-3 text-slate-600">Source Name:</label>
         <input
-          name="connectorName"
-          value={data.source.connectorName}
+          name="name"
+          value={data.source.name}
           onChange={handleChange}
           className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
-          placeholder="e.g. source-postgres"
+          placeholder="e.g. ecommerse-postgres-source"
         />
 
         <label className="text-right pr-3 text-slate-600">Host / Server:</label>
@@ -97,8 +104,8 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
 
         <label className="text-right pr-3 text-slate-600">Database Name:</label>
         <input
-          name="database"
-          value={data.source.database}
+          name="dbname"
+          value={data.source.dbname}
           onChange={handleChange}
           className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
         />
@@ -107,6 +114,15 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         <input
           name="user"
           value={data.source.user}
+          onChange={handleChange}
+          className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+        />
+
+        <label className="text-right pr-3 text-slate-600">Password:</label>
+        <input
+          name="password"
+          type="password"
+          value={data.source.password}
           onChange={handleChange}
           className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
         />
@@ -149,7 +165,7 @@ const Step2Tables: React.FC<StepProps> = ({ data, updateData }) => {
         selected by default.
       </p>
 
-      <div className="border border-slate-300 rounded bg-white overflow-hidden flex flex-col flex-1 min-h-[200px]">
+      <div className="border border-slate-300 rounded bg-white overflow-hidden flex flex-col flex-1 min-h-[220px]">
         <div className="bg-slate-50 p-2 border-b flex justify-between items-center text-xs">
           <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
             <input
@@ -164,7 +180,7 @@ const Step2Tables: React.FC<StepProps> = ({ data, updateData }) => {
             {MOCK_DETECTED_TABLES.length})
           </label>
         </div>
-        <div className="overflow-y-auto p-2 flex-1">
+        <div className="overflow-hidden p-2 flex-1">
           {MOCK_DETECTED_TABLES.map((table) => (
             <label
               key={table}
@@ -188,7 +204,9 @@ const Step2Tables: React.FC<StepProps> = ({ data, updateData }) => {
 
 // --- Step 3: Target Configuration ---
 const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     updateData("target", { ...data.target, [e.target.name]: e.target.value });
   };
 
@@ -252,12 +270,110 @@ const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
   );
 };
 
-// --- Step 4: Cloud Replication ---
-const Step4Cloud: React.FC<StepProps> = ({ data, updateData }) => {
+const Step4CaptureSettings: React.FC<StepProps> = ({ data, updateData }) => {
+  const handleSourceChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    updateData("source", { ...data.source, [e.target.name]: e.target.value });
+  };
+
   return (
     <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <h3 className="font-semibold text-slate-700 border-b pb-2">
-        Step 4: Cloud Replication
+        Step 4: Capture Settings
+      </h3>
+      <p className="text-xs text-slate-500 mb-2">
+        Required CDC fields with defaults from backend requirements. Adjust only
+        if needed.
+      </p>
+
+      <div className="bg-slate-50/80 border border-slate-200 rounded p-3">
+        <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
+          <label className="text-right pr-3 text-slate-600">
+            Topic Prefix:
+          </label>
+          <input
+            name="topicPrefix"
+            value={data.source.topicPrefix}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">
+            Included Schema:
+          </label>
+          <input
+            name="includedSchema"
+            value={data.source.includedSchema}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">
+            Replication User:
+          </label>
+          <input
+            name="replicationUser"
+            value={data.source.replicationUser}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">
+            Replication Password:
+          </label>
+          <input
+            name="replicationPassword"
+            type="password"
+            value={data.source.replicationPassword}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">Slot Name:</label>
+          <input
+            name="slotName"
+            value={data.source.slotName}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">
+            Publication Name:
+          </label>
+          <input
+            name="publicationName"
+            value={data.source.publicationName}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          />
+
+          <label className="text-right pr-3 text-slate-600">
+            Snapshot Mode:
+          </label>
+          <select
+            name="snapshotMode"
+            value={data.source.snapshotMode}
+            onChange={handleSourceChange}
+            className="border border-slate-300 p-1.5 rounded focus:border-blue-500 outline-none bg-white"
+          >
+            <option value="initial">initial</option>
+            <option value="always">always</option>
+            <option value="never">never</option>
+            <option value="initial_only">initial_only</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Step 5: Cloud Replication ---
+const Step5Cloud: React.FC<StepProps> = ({ data, updateData }) => {
+  return (
+    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+      <h3 className="font-semibold text-slate-700 border-b pb-2">
+        Step 5: Cloud Replication
       </h3>
       <p className="text-xs text-slate-500 mb-4">
         Finalize your overarching replication environment.
@@ -312,7 +428,7 @@ const Step4Cloud: React.FC<StepProps> = ({ data, updateData }) => {
         </h4>
         <p>
           Review your settings. Clicking 'Finish' will initialize the{" "}
-          {data.source.connectorName || "source"} connector with{" "}
+          {data.source.name || "source"} connector with{" "}
           {data.selectedTables.length} tables selected.
         </p>
       </div>
@@ -326,11 +442,25 @@ export const MigrationWizard: React.FC<{
   onFinish: () => void;
 }> = ({ onClose, onFinish }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   // Centralized State
   const [wizardData, setWizardData] = useState<WizardState>({
-    source: { connectorName: "", host: "", port: "", database: "", user: "" },
+    source: {
+      name: "ecommerse-postgres-source",
+      host: "postgres-db",
+      port: "5432",
+      dbname: "testDB",
+      user: "myuser",
+      password: "mypassword",
+      topicPrefix: "ecom",
+      includedSchema: "public",
+      replicationUser: "debezium",
+      replicationPassword: "Grasya123",
+      slotName: "ecom_slot",
+      publicationName: "grasya_pub",
+      snapshotMode: "initial",
+    },
     selectedTables: [],
     target: { uri: "", port: "", user: "", database: "" },
     cloud: { enabled: false, region: "us-east-1", bucket: "" },
@@ -361,7 +491,11 @@ export const MigrationWizard: React.FC<{
       case 3:
         return <Step3Target data={wizardData} updateData={updateData} />;
       case 4:
-        return <Step4Cloud data={wizardData} updateData={updateData} />;
+        return (
+          <Step4CaptureSettings data={wizardData} updateData={updateData} />
+        );
+      case 5:
+        return <Step5Cloud data={wizardData} updateData={updateData} />;
       default:
         return null;
     }
@@ -369,7 +503,7 @@ export const MigrationWizard: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center backdrop-blur-sm">
-      <div className="w-[600px] h-[500px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
+      <div className="w-[640px] h-[560px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
         {/* Header */}
         <div className="h-12 bg-slate-50 flex items-center justify-between px-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -393,6 +527,7 @@ export const MigrationWizard: React.FC<{
               "Source Config",
               "Table Selection",
               "Target DB",
+              "Capture Settings",
               "Cloud Sync",
             ].map((label, idx) => {
               const stepNum = idx + 1;
@@ -415,7 +550,7 @@ export const MigrationWizard: React.FC<{
           </div>
 
           {/* Step Content Area */}
-          <div className="flex-1 p-6 bg-white overflow-y-auto">
+          <div className="flex-1 p-6 bg-white overflow-hidden">
             {renderStep()}
           </div>
         </div>

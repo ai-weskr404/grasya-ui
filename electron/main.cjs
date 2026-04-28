@@ -1,12 +1,33 @@
+let mainWindow;
+let splashWindow;
+
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
 const isDev = !app.isPackaged;
 
-function createWindow() {
-  const win = new BrowserWindow({
+const { pathToFileURL } = require("url");
+
+function createSplash() {
+  splashWindow = new BrowserWindow({
+    width: 420,
+    height: 260,
+    useContentSize: true,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    show: true,
+    backgroundColor: "#111111",
+  });
+
+  splashWindow.loadFile(path.join(app.getAppPath(), "electron", "splash.html"));
+}
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    show: false,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -14,29 +35,21 @@ function createWindow() {
     },
   });
 
-  // const rendererDevUrl = process.env.ELECTRON_RENDERER_DEV_URL;
-  // if (rendererDevUrl) {
-  //   win.loadURL(rendererDevUrl);
-  //   win.webContents.openDevTools();
-  // } else {
-  //   win.loadFile(path.join(__dirname, "../renderer/index.html"));
-  // }
-
   if (isDev) {
-    win.loadURL("http://localhost:5173");
-    win.webContents.openDevTools();
+    mainWindow.loadURL("http://localhost:5173");
   } else {
-    win.loadFile(path.join(__dirname, "../dist/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
+
+  mainWindow.once("ready-to-show", () => {
+    if (splashWindow && !splashWindow.isDestroyed()) splashWindow.close();
+    mainWindow.show();
+
+    if (isDev) mainWindow.webContents.openDevTools();
+  });
 }
 
 app.whenReady().then(() => {
-  createWindow();
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
-
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  createSplash();
+  createMainWindow();
 });

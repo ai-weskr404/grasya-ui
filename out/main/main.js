@@ -1,5 +1,6 @@
 import require$$0 from "electron";
 import require$$1 from "path";
+import require$$2 from "url";
 import __cjs_mod__ from "node:module";
 const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
@@ -12,13 +13,30 @@ var hasRequiredMain;
 function requireMain() {
   if (hasRequiredMain) return main$1;
   hasRequiredMain = 1;
+  let mainWindow;
+  let splashWindow;
   const { app, BrowserWindow } = require$$0;
   const path = require$$1;
   const isDev = !app.isPackaged;
-  function createWindow() {
-    const win = new BrowserWindow({
+  const { pathToFileURL } = require$$2;
+  function createSplash() {
+    splashWindow = new BrowserWindow({
+      width: 420,
+      height: 260,
+      useContentSize: true,
+      frame: false,
+      resizable: false,
+      alwaysOnTop: true,
+      show: true,
+      backgroundColor: "#111111"
+    });
+    splashWindow.loadFile(path.join(app.getAppPath(), "electron", "splash.html"));
+  }
+  function createMainWindow() {
+    mainWindow = new BrowserWindow({
       width: 1280,
       height: 800,
+      show: false,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -26,20 +44,19 @@ function requireMain() {
       }
     });
     if (isDev) {
-      win.loadURL("http://localhost:5173");
-      win.webContents.openDevTools();
+      mainWindow.loadURL("http://localhost:5173");
     } else {
-      win.loadFile(path.join(__dirname, "../dist/index.html"));
+      mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
     }
+    mainWindow.once("ready-to-show", () => {
+      if (splashWindow && !splashWindow.isDestroyed()) splashWindow.close();
+      mainWindow.show();
+      if (isDev) mainWindow.webContents.openDevTools();
+    });
   }
   app.whenReady().then(() => {
-    createWindow();
-    app.on("activate", () => {
-      if (BrowserWindow.getAllWindows().length === 0) createWindow();
-    });
-  });
-  app.on("window-all-closed", () => {
-    if (process.platform !== "darwin") app.quit();
+    createSplash();
+    createMainWindow();
   });
   return main$1;
 }

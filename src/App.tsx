@@ -45,7 +45,6 @@ import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 
 import { RibbonGroup, RibbonBtn } from "./components/ui/Ribbon";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
-import { ConfigDialog } from "./components/modals/ConfigDialog";
 import { MonitorView } from "./components/views/MonitorView";
 
 // --- HELPER: Generate Mock Rows ---
@@ -82,7 +81,7 @@ const TelemetryPanel = ({ telemetry, history, trafficState, onClose }: any) => {
     <div
       className={`bg-slate-50 border-l border-slate-300 shadow-xl z-30 transition-all duration-300
       ${isCollapsed ? "w-8" : "w-[240px]"} 
-      flex flex-col`}
+      h-full flex flex-col`}
     >
       {/* HEADER */}
       <div className="h-6 bg-slate-200 border-b border-slate-300 flex items-center justify-between px-2 shrink-0">
@@ -318,7 +317,7 @@ const SchemaMapTab = ({
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-green-600">
-                        SENT
+                        ✓ committed
                       </span>
                     )}
                   </div>
@@ -333,33 +332,14 @@ const SchemaMapTab = ({
   );
 };
 
-// --- REUSED: Dead Letter Queue ---
+// --- COMPONENT: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
-  <div className="p-6 h-full flex flex-col bg-slate-50">
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h2 className="text-lg font-bold text-red-700 flex items-center gap-2">
-          <AlertOctagon size={18} /> Dead Letter Queue (DLQ)
-        </h2>
-      </div>
-    </div>
-    <div className="border border-red-200 rounded bg-white shadow-sm flex-1 overflow-auto">
-      <table className="w-full text-left text-[11px]">
-        <thead className="bg-red-50 text-red-900 border-b border-red-100">
-          <tr>
-            <th className="p-2 font-bold">Timestamp</th>
-            <th className="p-2 font-bold">Topic</th>
-            <th className="p-2 font-bold">Error</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="p-2 text-slate-500">10:42:15.002</td>
-            <td className="p-2 font-mono">db.server1.inventory</td>
-            <td className="p-2 text-red-600 font-medium">Validation Failed</td>
-          </tr>
-        </tbody>
-      </table>
+  <div className="h-full bg-slate-50 p-6 flex flex-col">
+    <h2 className="text-lg font-semibold text-slate-800 mb-4">
+      Dead Letter Queue
+    </h2>
+    <div className="border border-red-200 bg-red-50 rounded p-4 text-sm text-red-700">
+      No dead letters currently.
     </div>
   </div>
 );
@@ -416,13 +396,107 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
   );
 };
 
+const SchemaConfigWorkspaceTab = () => {
+  const [activeConfigTab, setActiveConfigTab] = useState<
+    "runtime" | "network" | "mapping"
+  >("runtime");
+
+  return (
+    <div className="h-full bg-slate-50 flex flex-col">
+      <div className="h-8 border-b border-slate-300 bg-slate-100 flex items-center justify-between px-3 shrink-0">
+        <span className="text-[12px] font-semibold text-slate-700">
+          Schema Configuration
+        </span>
+        <div className="flex items-center gap-2">
+          <button className="h-6 px-3 text-[11px] border border-slate-400 bg-white hover:bg-slate-50 rounded-sm">
+            Validate
+          </button>
+          <button className="h-6 px-3 text-[11px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm">
+            Apply Configuration
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 p-3 overflow-hidden flex gap-3">
+        <div className="w-[40%] bg-white border border-slate-300 rounded-sm flex flex-col overflow-hidden">
+          <div className="h-8 bg-slate-200 border-b border-slate-300 flex text-[11px]">
+            {[
+              { id: "runtime", label: "Runtime" },
+              { id: "network", label: "Network" },
+              { id: "mapping", label: "Data Mapping" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveConfigTab(tab.id as any)}
+                className={`flex-1 border-r border-slate-300 last:border-r-0 ${
+                  activeConfigTab === tab.id
+                    ? "bg-white text-slate-900 font-semibold"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex-1 p-3 text-xs overflow-y-auto">
+            {activeConfigTab === "runtime" && (
+              <div className="space-y-3">
+                <div className="bg-slate-100 border border-slate-300 rounded-sm p-2">
+                  Configure retry policies, log level, and batch behavior.
+                </div>
+                <label className="block text-slate-600">
+                  maxRetries
+                  <input
+                    type="number"
+                    defaultValue={5}
+                    className="w-full mt-1 p-1.5 border border-slate-300 rounded-sm bg-white"
+                  />
+                </label>
+              </div>
+            )}
+            {activeConfigTab === "network" && (
+              <div className="space-y-3">
+                <label className="block text-slate-600">
+                  requestTimeoutInMs
+                  <input
+                    type="number"
+                    defaultValue={15000}
+                    className="w-full mt-1 p-1.5 border border-slate-300 rounded-sm bg-white"
+                  />
+                </label>
+              </div>
+            )}
+            {activeConfigTab === "mapping" && (
+              <div className="space-y-3">
+                <div className="bg-sky-50 border border-sky-200 rounded-sm p-2 text-sky-800">
+                  Mapping mode: upsert with primary key constraints.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex-1 bg-white border border-slate-300 rounded-sm flex flex-col overflow-hidden">
+          <div className="h-7 bg-slate-200 border-b border-slate-300 px-3 flex items-center justify-between text-[11px] text-slate-600">
+            <span>schema_transform.production.json</span>
+            <span>JSON</span>
+          </div>
+          <textarea
+            className="flex-1 font-mono text-[11px] p-3 resize-none focus:outline-none bg-white text-slate-700"
+            defaultValue={`{\n  "version": "1.2.0",\n  "environment": "production",\n  "maxRetries": 5,\n  "retryBackoffInMs": 2000,\n  "requestTimeoutInMs": 15000,\n  "batchSize": 500,\n  "enableIdempotency": true,\n  "enableSchemaValidation": true,\n  "enableDeadLetterQueue": true,\n  "logLevel": "INFO",\n  "defaultTargetDatabase": "mongo_prod_cluster"\n}`}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<
     "home" | "migration" | "integrity" | "view"
   >("home");
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
-  const [showConfigDialog, setShowConfigDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isAwsEnabled, setIsAwsEnabled] = useState(true);
 
@@ -761,7 +835,7 @@ export default function App() {
             <RibbonBtn
               icon={FileJson}
               label="Schema Config"
-              onClick={() => setShowConfigDialog(true)}
+              onClick={() => handleOpenTab("Schema Configuration")}
             />
             <RibbonBtn
               icon={AlertOctagon}
@@ -784,11 +858,6 @@ export default function App() {
           onFinish={handleConfirmConnect} // <--- Wire it here
         />
       )}
-
-      <ConfigDialog
-        isOpen={showConfigDialog}
-        onClose={() => setShowConfigDialog(false)}
-      />
 
       {/* RIBBON */}
       <div className="bg-slate-100 border-b border-slate-300 shadow-sm flex flex-col shrink-0">
@@ -920,21 +989,25 @@ export default function App() {
               {activeWorkspaceTab === "Dead Letter Queue" && (
                 <DeadLetterQueueTab />
               )}
-            </div>
 
-            {/* RIGHT PANEL: TELEMETRY (Replaced with new Component) */}
-            {isConnected &&
-              activeWorkspaceTab !== "Start Page" &&
-              showRightPanel && (
-                <TelemetryPanel
-                  telemetry={telemetry}
-                  history={telemetryHistory}
-                  trafficState={trafficState}
-                  onClose={() => setShowRightPanel(false)}
-                />
+              {activeWorkspaceTab === "Schema Configuration" && (
+                <SchemaConfigWorkspaceTab />
               )}
+            </div>
           </div>
         </div>
+
+        {/* RIGHT PANEL: TELEMETRY */}
+        {isConnected &&
+          activeWorkspaceTab !== "Start Page" &&
+          showRightPanel && (
+            <TelemetryPanel
+              telemetry={telemetry}
+              history={telemetryHistory}
+              trafficState={trafficState}
+              onClose={() => setShowRightPanel(false)}
+            />
+          )}
       </div>
 
       {/* STATUS BAR */}

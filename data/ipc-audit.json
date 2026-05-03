@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-05-02T00:00:00Z",
+  "scannedFiles": [
+    "electron/preload.cjs",
+    "electron/main.cjs",
+    "electron/electron.vite.config.ts",
+    "src/App.tsx",
+    "src/components/modals/ConnectionDialog.tsx",
+    "src/components/modals/ConfigDialog.tsx",
+    "src/components/ui/Ribbon.tsx",
+    "src/components/ui/TreeNode.tsx",
+    "src/components/ui/TelemetryBar.tsx",
+    "src/components/views/MonitorView.tsx"
+  ],
+  "preload": {
+    "path": "electron/preload.cjs",
+    "exposes": {
+      "desktop": ["ping"]
+    },
+    "snippet": "const { contextBridge } = require('electron');\n\ncontextBridge.exposeInMainWorld('desktop', {\n  ping: () => 'pong',\n});"
+  },
+  "main": {
+    "path": "electron/main.cjs",
+    "ipcMainUsage": false,
+    "preloadConfigured": "../preload/preload.mjs",
+    "note": "main.cjs sets preload to '../preload/preload.mjs', but electron.vite.config.ts builds preload.cjs (electron/preload.cjs). In dev electron-vite uses electron.vite.config.ts; verify preload path for packaging."
+  },
+  "renderer": {
+    "ipcUsageDetected": false,
+    "exposedAPIsUsed": [],
+    "filesChecked": [
+      "src/App.tsx",
+      "src/components/modals/ConnectionDialog.tsx",
+      "src/components/modals/ConfigDialog.tsx",
+      "src/components/ui/Ribbon.tsx",
+      "src/components/ui/TreeNode.tsx",
+      "src/components/ui/TelemetryBar.tsx",
+      "src/components/views/MonitorView.tsx"
+    ],
+    "note": "No direct use of 'window.desktop', 'window.api', or 'ipcRenderer' was detected in these files. UI currently runs with in-process React state and local event handlers."
+  },
+  "stateManagementSummary": {
+    "pattern": "Local React state",
+    "details": "App uses React useState in src/App.tsx for workspace and UI state; state is passed as props to child components. No Redux, MobX, or global central store detected."
+  },
+  "risks": [
+    "Preload path mismatch between main.cjs and electron.vite.config.ts may cause packaged app preload not found.",
+    "If new Blueprint wrappers require native actions (save, run, open), preload currently only exposes 'ping' — additional API surface will be required.",
+    "No IPC usage in renderer reduces risk: wrappers can be implemented without changing existing IPC contracts."
+  ],
+  "recommendations": [
+    "Do not change existing IPC payloads; implement wrappers that forward props/events to existing handlers.",
+    "If additional native actions are needed, extend preload with a minimal, strongly-typed API (e.g., desktop.runQuery, desktop.openConnection) and add corresponding main handlers.",
+    "Align preload path in main.cjs to electron/preload.cjs (or ensure packaged build includes preload at the configured path) to avoid runtime failures after packaging."
+  ],
+  "conclusion": "Renderer currently does not depend on IPC; state is local React state and will be preserved by wrapper components. Proceeding with the Blueprint UI refactor is low-risk regarding IPC, but verify preload path parity for packaging."
+}

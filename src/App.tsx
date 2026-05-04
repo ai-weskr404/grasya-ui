@@ -507,6 +507,7 @@ export default function App() {
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [activeTableContext, setActiveTableContext] = useState("public.orders");
+  const [diagramTables, setDiagramTables] = useState<TableDef[]>([]);
 
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [treeData, setTreeData] = useState<FileNode[]>(DB_SCHEMA);

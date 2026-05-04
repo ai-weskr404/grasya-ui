@@ -2,7 +2,7 @@ import type{ LogEntry, FileNode } from '../types';
 
 export const INITIAL_LOGS: LogEntry[] = [
   { id: 1, timestamp: '10:00:01', message: 'System initialization started...', type: 'info' },
-  { id: 2, timestamp: '10:00:02', message: 'Loading drivers: pg-native, mongodb-core, aws-sdk', type: 'info' },
+  { id: 2, timestamp: '10:00:02', message: 'Loading drivers: pg-native, mongodb-core, mongodb-driver', type: 'info' },
   { id: 3, timestamp: '10:00:03', message: 'Waiting for connection...', type: 'info' },
 ];
 
@@ -26,8 +26,8 @@ export const DB_SCHEMA: FileNode[] = [
     ]
   },
   {
-    id: 'cld', name: 'AWS_S3 (Data Lake)', type: 'folder', children: [
-       { id: 'b1', name: 'bucket-grasya-prod', type: 'folder', children: [] }
+    id: 'cld', name: 'MongoDB_Storage (Archive)', type: 'folder', children: [
+       { id: 'b1', name: 'storage-grasya-prod', type: 'folder', children: [] }
     ]
   }
 ];

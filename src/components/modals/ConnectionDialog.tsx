@@ -33,8 +33,8 @@ interface WizardState {
   };
   cloud: {
     enabled: boolean;
-    region: string;
-    bucket: string;
+    clusterRegion: string;
+    storageBucket: string;
   };
 }
 
@@ -372,16 +372,16 @@ const Step5Cloud: React.FC<StepProps> = ({ data, updateData }) => {
             }
             className="accent-orange-500 w-4 h-4"
           />
-          Enable AWS Cloud Replication
+          Enable MongoDB Atlas Cloud Replication
         </label>
 
         {data.cloud.enabled && (
           <div className="grid grid-cols-[100px_1fr] gap-y-3 items-center text-xs pl-6 animate-in slide-in-from-top-2">
-            <label className="text-slate-600">AWS Region:</label>
+            <label className="text-slate-600">Cluster Region:</label>
             <select
-              value={data.cloud.region}
+              value={data.cloud.clusterRegion}
               onChange={(e) =>
-                updateData("cloud", { ...data.cloud, region: e.target.value })
+                updateData("cloud", { ...data.cloud, clusterRegion: e.target.value })
               }
               className="border border-slate-300 p-1.5 rounded focus:border-orange-500 outline-none bg-white"
             >
@@ -390,14 +390,14 @@ const Step5Cloud: React.FC<StepProps> = ({ data, updateData }) => {
               <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
             </select>
 
-            <label className="text-slate-600">S3 Bucket:</label>
+            <label className="text-slate-600">MongoDB Storage Bucket:</label>
             <input
-              value={data.cloud.bucket}
+              value={data.cloud.storageBucket}
               onChange={(e) =>
-                updateData("cloud", { ...data.cloud, bucket: e.target.value })
+                updateData("cloud", { ...data.cloud, storageBucket: e.target.value })
               }
               className="border border-slate-300 p-1.5 rounded focus:border-orange-500 outline-none bg-white"
-              placeholder="my-datalake-bucket"
+              placeholder="my-mongodb-storage-bucket"
             />
           </div>
         )}
@@ -445,7 +445,7 @@ export const MigrationWizard: React.FC<{
     },
     selectedTables: [],
     target: { uri: "", port: "", user: "", database: "" },
-    cloud: { enabled: false, region: "us-east-1", bucket: "" },
+    cloud: { enabled: false, clusterRegion: "us-east-1", storageBucket: "" },
   });
 
   const updateData = (stepKey: keyof WizardState, newData: any) => {

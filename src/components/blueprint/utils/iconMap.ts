@@ -10,7 +10,7 @@ export const iconMap: Record<string, string> = {
   code: "code",
   flash: "flash",
   "flow-branch": "flow-branch",
-  server: "server",
+  server: "database",
   refresh: "refresh",
   document: "document",
   play: "play",
@@ -24,7 +24,7 @@ export const iconMap: Record<string, string> = {
   th: "th",
 
   // Mappings for lucide/react icons (PascalCase names)
-  Server: "server",
+  Server: "database",
   Database: "database",
   Cloud: "cloud",
   Check: "tick",

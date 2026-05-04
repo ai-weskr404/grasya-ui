@@ -795,7 +795,7 @@ export default function App() {
             <div className="flex-1 overflow-y-auto p-2">
               {!isConnected ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
-                  <Icon icon="server" size={32} />
+                  <Icon icon="database" size={32} />
                   <span className="text-xs mt-2">Not Connected</span>
                 </div>
               ) : (

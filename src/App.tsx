@@ -45,7 +45,6 @@ const generateMockRows = (count: number) => {
   }));
 };
 
-
 const defaultColumns = [
   { name: "id", type: "int", isPrimary: true, notNull: true },
   { name: "created_at", type: "timestamp", notNull: true },
@@ -210,7 +209,7 @@ const TelemetryPanel = ({ telemetry, history, trafficState, onClose }: any) => {
                 : "bg-green-50 border-green-200"
             }`}
           >
-            <Icon icon="flow-branch" size={12} />
+            <Icon icon="swap-horizontal" size={12} />
             <span className="font-bold">
               {trafficState === "BLUE_POSTGRES"
                 ? "Blue (Source)"
@@ -773,7 +772,7 @@ export default function App() {
       {/* RIBBON — Narrow single-tier ribbon, all groups visible */}
       <div className="bg-slate-100 border-b border-slate-300 shadow-sm flex shrink-0">
         <div className="w-full">
-        <MenuBar context={menuContext} commands={commands} />
+          <MenuBar context={menuContext} commands={commands} />
         </div>
       </div>
 
@@ -795,7 +794,7 @@ export default function App() {
             <div className="flex-1 overflow-y-auto p-2">
               {!isConnected ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
-                  <Icon icon="database" size={32} />
+                  <Icon icon="linked-squares" size={32} />
                   <span className="text-xs mt-2">Not Connected</span>
                 </div>
               ) : (

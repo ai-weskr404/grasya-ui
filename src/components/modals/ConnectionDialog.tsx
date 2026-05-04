@@ -216,7 +216,8 @@ const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
         to the chosen sink connector.
       </p>
 
-      <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
+      <div className="bg-blue-50/50 p-3 rounded border border-blue-100 mb-2">
+        <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
           <label className="text-right pr-3 text-slate-600 font-medium">
             Host URI:
           </label>
@@ -255,6 +256,7 @@ const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
             onChange={handleChange}
             placeholder="target_db"
           />
+        </div>
       </div>
     </div>
   );
@@ -277,8 +279,9 @@ const Step4CaptureSettings: React.FC<StepProps> = ({ data, updateData }) => {
         if needed.
       </p>
 
-      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
-        <label className="text-right pr-3 text-slate-600">
+      <div className="bg-slate-50/80 border border-slate-200 rounded p-3">
+        <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
+          <label className="text-right pr-3 text-slate-600">
             Topic Prefix:
           </label>
           <BPInput
@@ -334,16 +337,17 @@ const Step4CaptureSettings: React.FC<StepProps> = ({ data, updateData }) => {
           <label className="text-right pr-3 text-slate-600">
             Snapshot Mode:
           </label>
-        <BPSelect
-          name="snapshotMode"
-          value={data.source.snapshotMode}
-          onChange={handleSourceChange}
-        >
-          <option value="initial">initial</option>
-          <option value="always">always</option>
-          <option value="never">never</option>
-          <option value="initial_only">initial_only</option>
-        </BPSelect>
+          <BPSelect
+            name="snapshotMode"
+            value={data.source.snapshotMode}
+            onChange={handleSourceChange}
+          >
+            <option value="initial">initial</option>
+            <option value="always">always</option>
+            <option value="never">never</option>
+            <option value="initial_only">initial_only</option>
+          </BPSelect>
+        </div>
       </div>
     </div>
   );
@@ -370,7 +374,6 @@ const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
         Configure your MongoDB Atlas destination settings for the migration output.
       </p>
 
-      <div className="space-y-3">
       <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
         <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
           <label className="text-right pr-3 text-slate-600 pt-2">Connection URI:</label>
@@ -540,7 +543,7 @@ export const MigrationWizard: React.FC<{
 
   return (
     <BPDialog isOpen onClose={onClose} className="migration-wizard-dialog">
-      <div className="w-[820px] h-[720px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
+      <div className="w-[640px] h-[560px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
         {/* Header */}
         <div className="h-12 bg-slate-50 flex items-center justify-between px-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -588,7 +591,7 @@ export const MigrationWizard: React.FC<{
           </div>
 
           {/* Step Content Area */}
-          <div className="flex-1 p-8 bg-white overflow-hidden">
+          <div className="flex-1 p-6 bg-white overflow-hidden">
             {renderStep()}
           </div>
         </div>

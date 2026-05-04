@@ -19,9 +19,7 @@ import {
 import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 
-import { RibbonGroup, RibbonBtn } from "./components/ui/Ribbon";
-import NarrowRibbon from "./components/blueprint/ribbon/NarrowRibbon";
-import RibbonDivider from "./components/blueprint/ribbon/RibbonDivider";
+import { MenuBar } from "./menu";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
 
@@ -704,131 +702,40 @@ export default function App() {
     );
   };
 
-  const renderRibbonContent = () => {
-    switch (activeTab) {
-      case "home":
-        return (
-          <>
-            <RibbonGroup label="Server">
-              <RibbonBtn
-                icon={isConnected ? "stop" : "server"}
-                label={isConnected ? "Disconnect" : "Connect"}
-                primary
-                onClick={handleConnectClick}
-              />
-              <RibbonBtn
-                icon={"refresh"}
-                label="Refresh"
-                variant="small"
-                onClick={() => {
-                  addLog(
-                    "SYSTEM: Refreshing Object Explorer & Telemetry...",
-                    "info",
-                  );
-                  setTelemetryHistory([]);
-                }}
-              />
-            </RibbonGroup>
+  const commands = {
+    NEW_JOB: () => {
+      setLogs([]);
+      setTelemetryHistory([]);
+      setIsRunning(false);
+      addLog("NEW JOB INITIALIZED", "info");
+    },
 
-            <RibbonGroup label="Definition">
-              <RibbonBtn
-                icon={"document"}
-                label="New Job"
-                primary
-                onClick={() => {
-                  setLogs([]);
-                  setTelemetryHistory([]);
-                  setIsRunning(false);
-                  addLog("NEW MIGRATION JOB INITIALIZED.", "info");
-                }}
-              />
-            </RibbonGroup>
-          </>
-        );
-      case "migration":
-        return (
-          <>
-            <RibbonGroup label="Execution">
-              <RibbonBtn
-                icon={"play"}
-                label={"Execute"}
-                primary
-                onClick={() => !isRunning && toggleRun()}
-                active={isRunning}
-                color="text-green-600"
-              />
-              <RibbonBtn
-                icon={"pause"}
-                label="Pause"
-                onClick={() => isRunning && toggleRun()}
-                color="text-amber-600"
-              />
-              <RibbonBtn
-                icon={"stop"}
-                label="Kill"
-                color="text-red-600"
-                onClick={killProcess}
-              />
-            </RibbonGroup>
-            <RibbonGroup label="Traffic Control">
-              <RibbonBtn
-                icon={"flow-branch"}
-                label={
-                  trafficState === "BLUE_POSTGRES"
-                    ? "Cutover (Green)"
-                    : "Rollback (Blue)"
-                }
-                color={
-                  trafficState === "BLUE_POSTGRES"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-                onClick={handleCutover}
-              />
-            </RibbonGroup>
-          </>
-        );
-      case "integrity":
-        return (
-          <RibbonGroup label="Audit">
-            <RibbonBtn
-              icon={"shield"}
-              label="Verify"
-              // CHANGED: Run process directly
-              onClick={() => runIntegrityProcess("verify")}
-            />
-            <RibbonBtn
-              icon={"search"}
-              label="Drift Check"
-              // CHANGED: Run process directly
-              onClick={() => runIntegrityProcess("drift")}
-            />
-          </RibbonGroup>
-        );
-      case "view":
-        return (
-          <RibbonGroup label="Panels">
-            <RibbonBtn
-              icon={"eraser"}
-              label="Clear Logs"
-              onClick={() => setLogs([])}
-            />
-            <RibbonBtn
-              icon={"code"}
-              label="Schema Config"
-              onClick={() => handleOpenTab("Schema Configuration")}
-            />
-            <RibbonBtn
-              icon={"warning-sign"}
-              label="Dead Letters"
-              onClick={() => handleOpenTab("Dead Letter Queue")}
-              color="text-red-600"
-            />
-          </RibbonGroup>
-        );
-      default:
-        return null;
-    }
+    CONNECT: handleConnectClick,
+
+    REFRESH: () => {
+      setTelemetryHistory([]);
+      addLog("SYSTEM: Refreshing...", "info");
+    },
+
+    RUN: () => !isRunning && toggleRun(),
+    PAUSE: () => isRunning && toggleRun(),
+    KILL: killProcess,
+
+    CUTOVER: handleCutover,
+
+    VERIFY: () => runIntegrityProcess("verify"),
+    DRIFT: () => runIntegrityProcess("drift"),
+
+    CLEAR_LOGS: () => setLogs([]),
+
+    OPEN_SCHEMA: () => handleOpenTab("Schema Configuration"),
+    OPEN_DLQ: () => handleOpenTab("Dead Letter Queue"),
+  };
+
+  const menuContext = {
+    isConnected,
+    isRunning,
+    trafficState,
   };
 
   return (
@@ -843,125 +750,7 @@ export default function App() {
       {/* RIBBON — Narrow single-tier ribbon, all groups visible */}
       <div className="bg-slate-100 border-b border-slate-300 shadow-sm flex shrink-0">
         <div className="w-full">
-          <NarrowRibbon>
-            <RibbonGroup label="Server">
-              <RibbonBtn
-                icon={isConnected ? "stop" : "server"}
-                label={isConnected ? "Disconnect" : "Connect"}
-                primary
-                onClick={handleConnectClick}
-              />
-              <RibbonBtn
-                icon={"refresh"}
-                label="Refresh"
-                onClick={() => {
-                  addLog(
-                    "SYSTEM: Refreshing Object Explorer & Telemetry...",
-                    "info",
-                  );
-                  setTelemetryHistory([]);
-                }}
-              />
-            </RibbonGroup>
-
-            <RibbonDivider />
-
-            <RibbonGroup label="Definition">
-              <RibbonBtn
-                icon={"document"}
-                label={"New Job"}
-                primary
-                onClick={() => {
-                  setLogs([]);
-                  setTelemetryHistory([]);
-                  setIsRunning(false);
-                  addLog("NEW MIGRATION JOB INITIALIZED.", "info");
-                }}
-              />
-            </RibbonGroup>
-
-            <RibbonDivider />
-
-            <RibbonGroup label="Execution">
-              <RibbonBtn
-                icon={"play"}
-                label={"Execute"}
-                primary
-                onClick={() => !isRunning && toggleRun()}
-                active={isRunning}
-                color="text-green-600"
-              />
-              <RibbonBtn
-                icon={"pause"}
-                label="Pause"
-                onClick={() => isRunning && toggleRun()}
-                color="text-amber-600"
-              />
-              <RibbonBtn
-                icon={"stop"}
-                label="Kill"
-                color="text-red-600"
-                onClick={killProcess}
-              />
-            </RibbonGroup>
-
-            <RibbonDivider />
-
-            <RibbonGroup label="Traffic Control">
-              <RibbonBtn
-                icon={"flow-branch"}
-                label={
-                  trafficState === "BLUE_POSTGRES"
-                    ? "Cutover (Green)"
-                    : "Rollback (Blue)"
-                }
-                color={
-                  trafficState === "BLUE_POSTGRES"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-                onClick={handleCutover}
-              />
-            </RibbonGroup>
-
-            <RibbonDivider />
-
-            <RibbonGroup label="Audit">
-              <RibbonBtn
-                icon={"shield"}
-                label="Verify"
-                onClick={() => runIntegrityProcess("verify")}
-              />
-              <RibbonBtn
-                icon={"search"}
-                label="Drift Check"
-                onClick={() => runIntegrityProcess("drift")}
-              />
-            </RibbonGroup>
-
-            <RibbonDivider />
-
-            <RibbonGroup label="Panels">
-              <RibbonBtn
-                icon={"eraser"}
-                label="Clear Logs"
-                onClick={() => setLogs([])}
-              />
-              <RibbonBtn
-                icon={"code"}
-                label="Schema Config"
-                onClick={() => handleOpenTab("Schema Configuration")}
-              />
-              <RibbonBtn
-                icon={"warning-sign"}
-                label="Dead Letters"
-                onClick={() => handleOpenTab("Dead Letter Queue")}
-                color="text-red-600"
-              />
-            </RibbonGroup>
-
-            <div className="flex-1" />
-          </NarrowRibbon>
+        <MenuBar context={menuContext} commands={commands} />
         </div>
       </div>
 

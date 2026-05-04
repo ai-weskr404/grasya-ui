@@ -20,6 +20,8 @@ import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 
 import { MenuBar } from "./menu";
+import DiagramPane from "./components/erd/DiagramPane";
+import type { TableDef } from "./components/erd/types";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
 
@@ -42,6 +44,26 @@ const generateMockRows = (count: number) => {
     lsn: `0/${(160000 + i).toString(16).toUpperCase()}`,
   }));
 };
+
+
+const defaultColumns = [
+  { name: "id", type: "int", isPrimary: true, notNull: true },
+  { name: "created_at", type: "timestamp", notNull: true },
+  { name: "updated_at", type: "timestamp", notNull: false },
+  { name: "status", type: "varchar", notNull: false },
+];
+
+const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] =>
+  selectedTables.map((name, idx) => ({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
+    name,
+    schema: "dbo",
+    columns: defaultColumns.map((col, cIdx) => ({
+      ...col,
+      name: cIdx === 0 ? `${name}_id` : col.name,
+      isForeign: cIdx === 1 && idx > 0,
+    })),
+  }));
 
 // --- COMPONENT: New Telemetry Panel with Graphs ---
 const TelemetryPanel = ({ telemetry, history, trafficState, onClose }: any) => {
@@ -672,10 +694,13 @@ export default function App() {
     }
   };
 
-  const handleConfirmConnect = () => {
+  const handleConfirmConnect = (selectedTables: string[]) => {
     setShowConnectDialog(false);
     setIsConnected(true);
+    const nextDiagramTables = mapSelectedTablesToDiagram(selectedTables);
+    setDiagramTables(nextDiagramTables);
     handleOpenTab("Monitor: PG -> Mongo -> AWS");
+    handleOpenTab("ERD Diagram");
     addLog("Connected to PostgreSQL, MongoDB Atlas, and AWS S3.", "success");
   };
 
@@ -859,6 +884,10 @@ export default function App() {
                   isRunning={isRunning}
                   tableName={activeTableContext}
                 />
+              )}
+
+              {activeWorkspaceTab === "ERD Diagram" && (
+                <DiagramPane tables={diagramTables} />
               )}
 
               {activeWorkspaceTab === "Dead Letter Queue" && (

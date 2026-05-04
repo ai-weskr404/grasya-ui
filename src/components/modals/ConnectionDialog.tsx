@@ -421,7 +421,7 @@ const Step5Cloud: React.FC<StepProps> = ({ data, updateData }) => {
 // --- Main Wizard Controller ---
 export const MigrationWizard: React.FC<{
   onClose: () => void;
-  onFinish: () => void;
+  onFinish: (selectedTables: string[]) => void;
 }> = ({ onClose, onFinish }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -460,7 +460,7 @@ export const MigrationWizard: React.FC<{
   const handleFinish = () => {
     console.log("Submitting Payload:", wizardData);
     // API Call goes here
-    onFinish();
+    onFinish(wizardData.selectedTables);
   };
 
   // Step Router

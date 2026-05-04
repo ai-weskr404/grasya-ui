@@ -176,7 +176,8 @@ export const MenuBar = ({
   commands: Record<string, () => void>;
 }) => {
   return (
-    <div className="flex gap-1 px-2 py-1 bg-slate-100 border-b border-slate-300">
+    <div className="bg-[#f5f7f9] border-b border-slate-300">
+      <div className="h-8 flex items-center gap-3 px-3 text-[13px] border-b border-slate-200">
       {MENU_CONFIG.map((menu) => (
         <Popover
           key={menu.id}
@@ -190,6 +191,16 @@ export const MenuBar = ({
           </span>
         </Popover>
       ))}
+      </div>
+      <div className="h-9 flex items-center gap-1 px-3">
+        <button className="toolbar-btn" onClick={commands.CONNECT}>
+          <span className="dot" />{context.isConnected ? "Connected" : "Connection"}
+        </button>
+        <button className="toolbar-btn" onClick={commands.RUN}>▶ Run</button>
+        <button className="toolbar-btn" onClick={commands.PAUSE}>⏸ Pause</button>
+        <button className="toolbar-btn" onClick={commands.KILL}>■ Stop</button>
+        <button className="toolbar-btn" onClick={commands.CUTOVER}>⇄ Cutover</button>
+      </div>
     </div>
   );
 };

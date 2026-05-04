@@ -490,9 +490,6 @@ const SchemaConfigWorkspaceTab = () => {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<
-    "home" | "migration" | "integrity" | "view"
-  >("home");
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);

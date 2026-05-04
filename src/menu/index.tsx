@@ -1,172 +1,9 @@
-import React from "react";
-import { Menu, MenuItem, Divider, Popover, Position } from "@blueprintjs/core";
-
-/* =========================
-   TYPES
-========================= */
-
-export type MenuAction =
-  | "NEW_JOB"
-  | "CONNECT"
-  | "REFRESH"
-  | "RUN"
-  | "PAUSE"
-  | "KILL"
-  | "CUTOVER"
-  | "VERIFY"
-  | "DRIFT"
-  | "CLEAR_LOGS"
-  | "OPEN_SCHEMA"
-  | "OPEN_DLQ";
+import { Icon } from "@blueprintjs/core";
 
 export interface MenuContext {
   isConnected: boolean;
   isRunning: boolean;
-  trafficState: "BLUE_POSTGRES" | "GREEN_MONGO";
 }
-
-export interface MenuItemConfig {
-  id: string;
-  label?: string;
-  icon?: string;
-  action?: MenuAction;
-  divider?: boolean;
-  children?: MenuItemConfig[];
-
-  disabled?: (ctx: MenuContext) => boolean;
-  visible?: (ctx: MenuContext) => boolean;
-}
-
-/* =========================
-   CONFIG
-========================= */
-
-export const MENU_CONFIG: MenuItemConfig[] = [
-  {
-    id: "file",
-    label: "File",
-    children: [
-      {
-        id: "new",
-        label: "New Job",
-        icon: "document",
-        action: "NEW_JOB",
-      },
-      {
-        id: "connect",
-        label: "Connect / Disconnect",
-        icon: "database",
-        action: "CONNECT",
-      },
-    ],
-  },
-  {
-    id: "migration",
-    label: "Migration",
-    children: [
-      {
-        id: "run",
-        label: "Execute",
-        icon: "play",
-        action: "RUN",
-        disabled: (ctx) => ctx.isRunning || !ctx.isConnected,
-      },
-      {
-        id: "pause",
-        label: "Pause",
-        icon: "pause",
-        action: "PAUSE",
-        disabled: (ctx) => !ctx.isRunning,
-      },
-      {
-        id: "kill",
-        label: "Kill",
-        icon: "stop",
-        action: "KILL",
-      },
-      { id: "d1", divider: true },
-      {
-        id: "cutover",
-        label: "Cutover / Rollback",
-        icon: "flow-branch",
-        action: "CUTOVER",
-      },
-    ],
-  },
-  {
-    id: "integrity",
-    label: "Integrity",
-    children: [
-      {
-        id: "verify",
-        label: "Verify",
-        icon: "shield",
-        action: "VERIFY",
-      },
-      {
-        id: "drift",
-        label: "Drift Check",
-        icon: "search",
-        action: "DRIFT",
-      },
-    ],
-  },
-  {
-    id: "view",
-    label: "View",
-    children: [
-      {
-        id: "logs",
-        label: "Clear Logs",
-        icon: "console",
-        action: "CLEAR_LOGS",
-      },
-      {
-        id: "schema",
-        label: "Schema Config",
-        icon: "layout",
-        action: "OPEN_SCHEMA",
-      },
-      {
-        id: "dlq",
-        label: "Dead Letter Queue",
-        icon: "warning-sign",
-        action: "OPEN_DLQ",
-      },
-    ],
-  },
-];
-
-const renderMenuItems = (
-  items: MenuItemConfig[],
-  ctx: MenuContext,
-  commands: Record<string, () => void>
-) => {
-  return items.map((item) => {
-    if (item.visible && !item.visible(ctx)) return null;
-    if (item.divider) return <Divider key={item.id} />;
-
-    const disabled = item.disabled?.(ctx);
-
-    if (item.children) {
-      return (
-        <MenuItem key={item.id} text={item.label}>
-          {renderMenuItems(item.children, ctx, commands)}
-        </MenuItem>
-      );
-    }
-
-    return (
-      <MenuItem
-        key={item.id}
-        icon={item.icon as any}
-        text={item.label}
-        disabled={disabled}
-        onClick={() => item.action && commands[item.action]?.()}
-      />
-    );
-  });
-};
 
 export const MenuBar = ({
   context,
@@ -176,30 +13,28 @@ export const MenuBar = ({
   commands: Record<string, () => void>;
 }) => {
   return (
-    <div className="bg-[#f5f7f9] border-b border-slate-300">
-      <div className="h-8 flex items-center gap-3 px-3 text-[13px] border-b border-slate-200">
-      {MENU_CONFIG.map((menu) => (
-        <Popover
-          key={menu.id}
-          content={
-            <Menu>{renderMenuItems(menu.children || [], context, commands)}</Menu>
-          }
-          position={Position.BOTTOM_LEFT}
-        >
-          <span className="px-2 py-1 text-[12px] cursor-pointer hover:bg-slate-200 rounded">
-            {menu.label}
-          </span>
-        </Popover>
-      ))}
+    <div className="border-b border-slate-300 bg-[#f3f4f6]">
+      <div className="h-8 flex items-center gap-1 px-2 border-b border-slate-200">
+        <button className="ribbon-icon-btn" title="New Job" onClick={commands.NEW_JOB}><Icon icon="document" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Refresh" onClick={commands.REFRESH}><Icon icon="refresh" size={13} /></button>
+        <span className="ribbon-sep" />
+        <button className="ribbon-icon-btn" title="Connect" onClick={commands.CONNECT}><Icon icon="database" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Run" onClick={commands.RUN} disabled={!context.isConnected || context.isRunning}><Icon icon="play" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Pause" onClick={commands.PAUSE} disabled={!context.isRunning}><Icon icon="pause" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Stop" onClick={commands.KILL}><Icon icon="stop" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Cutover" onClick={commands.CUTOVER}><Icon icon="flow-branch" size={13} /></button>
+        <span className="ribbon-sep" />
+        <button className="ribbon-icon-btn" title="Verify" onClick={commands.VERIFY}><Icon icon="shield" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Drift" onClick={commands.DRIFT}><Icon icon="search" size={13} /></button>
+        <button className="ribbon-icon-btn" title="Schema" onClick={commands.OPEN_SCHEMA}><Icon icon="layout" size={13} /></button>
+        <button className="ribbon-icon-btn" title="DLQ" onClick={commands.OPEN_DLQ}><Icon icon="warning-sign" size={13} /></button>
       </div>
-      <div className="h-9 flex items-center gap-1 px-3">
-        <button className="toolbar-btn" onClick={commands.CONNECT}>
-          <span className="dot" />{context.isConnected ? "Connected" : "Connection"}
-        </button>
-        <button className="toolbar-btn" onClick={commands.RUN}>▶ Run</button>
-        <button className="toolbar-btn" onClick={commands.PAUSE}>⏸ Pause</button>
-        <button className="toolbar-btn" onClick={commands.KILL}>■ Stop</button>
-        <button className="toolbar-btn" onClick={commands.CUTOVER}>⇄ Cutover</button>
+      <div className="h-8 flex items-center px-2 gap-2">
+        <button className="toolbar-btn" onClick={commands.CONNECT}><span className="dot" />{context.isConnected ? "Connected" : "Connect"}</button>
+        <button className="toolbar-btn" onClick={commands.RUN}>Run</button>
+        <button className="toolbar-btn" onClick={commands.PAUSE}>Pause</button>
+        <button className="toolbar-btn" onClick={commands.KILL}>Stop</button>
+        <button className="toolbar-btn" onClick={commands.CUTOVER}>Cutover</button>
       </div>
     </div>
   );

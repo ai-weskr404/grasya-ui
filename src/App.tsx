@@ -492,7 +492,7 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [isAwsEnabled, setIsAwsEnabled] = useState(true);
+  const [isAtlasEnabled, setIsAwsEnabled] = useState(true);
 
   const [trafficState, setTrafficState] = useState<
     "BLUE_POSTGRES" | "GREEN_MONGO"
@@ -696,9 +696,9 @@ export default function App() {
     setIsConnected(true);
     const nextDiagramTables = mapSelectedTablesToDiagram(selectedTables);
     setDiagramTables(nextDiagramTables);
-    handleOpenTab("Monitor: PG -> Mongo -> AWS");
+    handleOpenTab("Monitor: PG -> Mongo -> Atlas");
     handleOpenTab("ERD Diagram");
-    addLog("Connected to PostgreSQL, MongoDB Atlas, and AWS S3.", "success");
+    addLog("Connected to PostgreSQL, MongoDB Atlas, and MongoDB Atlas Storage.", "success");
   };
 
   const toggleRun = () => {
@@ -867,11 +867,11 @@ export default function App() {
                 </div>
               )}
 
-              {activeWorkspaceTab === "Monitor: PG -> Mongo -> AWS" && (
+              {activeWorkspaceTab === "Monitor: PG -> Mongo -> Atlas" && (
                 <MonitorView
                   logs={logs}
                   isRunning={isRunning}
-                  isAwsEnabled={isAwsEnabled}
+                  isAtlasEnabled={isAtlasEnabled}
                   trafficState={trafficState}
                 />
               )}

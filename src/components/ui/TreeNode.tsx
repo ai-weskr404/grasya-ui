@@ -41,7 +41,7 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
           }
           size={14}
           className={`mr-1.5 ${
-            node.name.includes("AWS")
+            node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
               ? "text-orange-500"
               : node.type === "folder"
                 ? "text-yellow-500"

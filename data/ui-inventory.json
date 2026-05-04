@@ -61,7 +61,7 @@
           "description": "Document tabs rendered under the ribbon (Start Page, Monitor..., Live Map, Dead Letter Queue, Schema Configuration). Must be replaced by Document Switcher (popover + MRU).",
           "examples": [
             "Start Page",
-            "Monitor: PG -> Mongo -> AWS",
+            "Monitor: PG -> Mongo -> Atlas",
             "Live Map: <table>"
           ]
         },

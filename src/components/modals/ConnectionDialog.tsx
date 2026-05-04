@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Icon } from "@blueprintjs/core";
+import { Callout, Icon } from "@blueprintjs/core";
 import iconMap from "../blueprint/utils/iconMap";
 import BPDialog from "../blueprint/wrappers/BPDialog";
 import BPInput from "../blueprint/wrappers/BPInput";
@@ -31,10 +31,14 @@ interface WizardState {
     user: string;
     database: string;
   };
-  cloud: {
-    enabled: boolean;
-    region: string;
-    bucket: string;
+  atlas: {
+    uri: string;
+    database: string;
+    collection: string;
+    projectId?: string;
+    authMethod: "basic" | "x509";
+    username?: string;
+    password?: string;
   };
 }
 
@@ -71,7 +75,7 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         next step.
       </p>
 
-      <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
+      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-start text-xs">
         <label className="text-right pr-3 text-slate-600">Source Name:</label>
         <BPInput
           name="name"
@@ -212,47 +216,41 @@ const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
         to the chosen sink connector.
       </p>
 
-      <div className="bg-blue-50/50 p-3 rounded border border-blue-100 mb-2">
-        <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
-          <label className="text-right pr-3 text-slate-600 font-medium">
-            Host URI:
-          </label>
-          <BPInput
-            name="uri"
-            value={data.target.uri}
-            onChange={handleChange}
-            placeholder="mongodb+srv://..."
-          />
+      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
+        <label className="text-right pr-3 text-slate-600 font-medium">
+          Host URI:
+        </label>
+        <BPInput
+          name="uri"
+          value={data.target.uri}
+          onChange={handleChange}
+          placeholder="mongodb+srv://..."
+        />
 
-          <label className="text-right pr-3 text-slate-600 font-medium">
-            Port:
-          </label>
-          <BPInput
-            name="port"
-            value={data.target.port}
-            onChange={handleChange}
-            placeholder="27017"
-          />
+        <label className="text-right pr-3 text-slate-600 font-medium">
+          Port:
+        </label>
+        <BPInput
+          name="port"
+          value={data.target.port}
+          onChange={handleChange}
+          placeholder="27017"
+        />
 
-          <label className="text-right pr-3 text-slate-600 font-medium">
-            Username:
-          </label>
-          <BPInput
-            name="user"
-            value={data.target.user}
-            onChange={handleChange}
-          />
+        <label className="text-right pr-3 text-slate-600 font-medium">
+          Username:
+        </label>
+        <BPInput name="user" value={data.target.user} onChange={handleChange} />
 
-          <label className="text-right pr-3 text-slate-600 font-medium">
-            Target DB Name:
-          </label>
-          <BPInput
-            name="database"
-            value={data.target.database}
-            onChange={handleChange}
-            placeholder="target_db"
-          />
-        </div>
+        <label className="text-right pr-3 text-slate-600 font-medium">
+          Target DB Name:
+        </label>
+        <BPInput
+          name="database"
+          value={data.target.database}
+          onChange={handleChange}
+          placeholder="target_db"
+        />
       </div>
     </div>
   );
@@ -275,143 +273,183 @@ const Step4CaptureSettings: React.FC<StepProps> = ({ data, updateData }) => {
         if needed.
       </p>
 
-      <div className="bg-slate-50/80 border border-slate-200 rounded p-3">
-        <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
-          <label className="text-right pr-3 text-slate-600">
-            Topic Prefix:
-          </label>
-          <BPInput
-            name="topicPrefix"
-            value={data.source.topicPrefix}
-            onChange={handleSourceChange}
-          />
+      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
+        <label className="text-right pr-3 text-slate-600">Topic Prefix:</label>
+        <BPInput
+          name="topicPrefix"
+          value={data.source.topicPrefix}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">
-            Included Schema:
-          </label>
-          <BPInput
-            name="includedSchema"
-            value={data.source.includedSchema}
-            onChange={handleSourceChange}
-          />
+        <label className="text-right pr-3 text-slate-600">
+          Included Schema:
+        </label>
+        <BPInput
+          name="includedSchema"
+          value={data.source.includedSchema}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">
-            Replication User:
-          </label>
-          <BPInput
-            name="replicationUser"
-            value={data.source.replicationUser}
-            onChange={handleSourceChange}
-          />
+        <label className="text-right pr-3 text-slate-600">
+          Replication User:
+        </label>
+        <BPInput
+          name="replicationUser"
+          value={data.source.replicationUser}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">
-            Replication Password:
-          </label>
-          <BPInput
-            name="replicationPassword"
-            type="password"
-            value={data.source.replicationPassword}
-            onChange={handleSourceChange}
-          />
+        <label className="text-right pr-3 text-slate-600">
+          Replication Password:
+        </label>
+        <BPInput
+          name="replicationPassword"
+          type="password"
+          value={data.source.replicationPassword}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">Slot Name:</label>
-          <BPInput
-            name="slotName"
-            value={data.source.slotName}
-            onChange={handleSourceChange}
-          />
+        <label className="text-right pr-3 text-slate-600">Slot Name:</label>
+        <BPInput
+          name="slotName"
+          value={data.source.slotName}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">
-            Publication Name:
-          </label>
-          <BPInput
-            name="publicationName"
-            value={data.source.publicationName}
-            onChange={handleSourceChange}
-          />
+        <label className="text-right pr-3 text-slate-600">
+          Publication Name:
+        </label>
+        <BPInput
+          name="publicationName"
+          value={data.source.publicationName}
+          onChange={handleSourceChange}
+        />
 
-          <label className="text-right pr-3 text-slate-600">
-            Snapshot Mode:
-          </label>
-          <BPSelect
-            name="snapshotMode"
-            value={data.source.snapshotMode}
-            onChange={handleSourceChange}
-          >
-            <option value="initial">initial</option>
-            <option value="always">always</option>
-            <option value="never">never</option>
-            <option value="initial_only">initial_only</option>
-          </BPSelect>
-        </div>
+        <label className="text-right pr-3 text-slate-600">Snapshot Mode:</label>
+        <BPSelect
+          name="snapshotMode"
+          value={data.source.snapshotMode}
+          onChange={handleSourceChange}
+        >
+          <option value="initial">initial</option>
+          <option value="always">always</option>
+          <option value="never">never</option>
+          <option value="initial_only">initial_only</option>
+        </BPSelect>
       </div>
     </div>
   );
 };
 
-// --- Step 5: Cloud Replication ---
-const Step5Cloud: React.FC<StepProps> = ({ data, updateData }) => {
+// --- Step 5: MongoDB Atlas Configuration ---
+const isValidAtlasSrvUri = (uri: string) => uri.startsWith("mongodb+srv://");
+
+const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
+  const atlasUriValid = isValidAtlasSrvUri(data.atlas.uri);
+
+  const handleAtlasChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    updateData("atlas", { ...data.atlas, [e.target.name]: e.target.value });
+  };
+
   return (
     <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <h3 className="font-semibold text-slate-700 border-b pb-2">
-        Step 5: Cloud Replication
+        Step 5: MongoDB Atlas Configuration
       </h3>
-      <p className="text-xs text-slate-500 mb-4">
-        Finalize your overarching replication environment.
+      <p className="text-xs text-slate-500">
+        Configure your MongoDB Atlas destination settings for the migration output.
       </p>
 
-      <div
-        className={`border rounded p-4 transition-colors ${data.cloud.enabled ? "border-orange-300 bg-orange-50/30" : "border-slate-300 bg-slate-50"}`}
-      >
-        <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700 text-sm mb-4">
-          <input
-            type="checkbox"
-            checked={data.cloud.enabled}
-            onChange={(e) =>
-              updateData("cloud", { ...data.cloud, enabled: e.target.checked })
-            }
-            className="accent-orange-500 w-4 h-4"
-          />
-          Enable AWS Cloud Replication
-        </label>
-
-        {data.cloud.enabled && (
-          <div className="grid grid-cols-[100px_1fr] gap-y-3 items-center text-xs pl-6 animate-in slide-in-from-top-2">
-            <label className="text-slate-600">AWS Region:</label>
-            <select
-              value={data.cloud.region}
-              onChange={(e) =>
-                updateData("cloud", { ...data.cloud, region: e.target.value })
-              }
-              className="border border-slate-300 p-1.5 rounded focus:border-orange-500 outline-none bg-white"
-            >
-              <option value="us-east-1">us-east-1 (N. Virginia)</option>
-              <option value="eu-west-1">eu-west-1 (Ireland)</option>
-              <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
-            </select>
-
-            <label className="text-slate-600">S3 Bucket:</label>
-            <input
-              value={data.cloud.bucket}
-              onChange={(e) =>
-                updateData("cloud", { ...data.cloud, bucket: e.target.value })
-              }
-              className="border border-slate-300 p-1.5 rounded focus:border-orange-500 outline-none bg-white"
-              placeholder="my-datalake-bucket"
+      <div className="space-y-3">
+        <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
+          <label className="text-right pr-3 text-slate-600">Connection URI:</label>
+          <div className="space-y-1">
+            <BPInput
+              name="uri"
+              placeholder="mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/"
+              value={data.atlas.uri}
+              onChange={handleAtlasChange}
             />
+            <p className="text-[11px] text-slate-500">
+              Use your MongoDB Atlas cluster connection string (SRV format).
+            </p>
+            {!atlasUriValid && data.atlas.uri.trim().length > 0 && (
+              <p className="text-[11px] text-red-600">
+                Connection URI must start with "mongodb+srv://".
+              </p>
+            )}
           </div>
-        )}
+
+          <label className="text-right pr-3 text-slate-600">Database Name:</label>
+          <BPInput
+            name="database"
+            placeholder="Database Name"
+            value={data.atlas.database}
+            onChange={handleAtlasChange}
+          />
+
+          <label className="text-right pr-3 text-slate-600">Collection Name:</label>
+          <BPInput
+            name="collection"
+            placeholder="Collection Name"
+            value={data.atlas.collection}
+            onChange={handleAtlasChange}
+          />
+
+          <label className="text-right pr-3 text-slate-600">Project ID:</label>
+          <BPInput
+            name="projectId"
+            placeholder="Atlas Project ID (optional)"
+            value={data.atlas.projectId || ""}
+            onChange={handleAtlasChange}
+          />
+
+          <label className="text-right pr-3 text-slate-600">Auth Method:</label>
+          <BPSelect
+            name="authMethod"
+            value={data.atlas.authMethod}
+            onChange={handleAtlasChange}
+          >
+            <option value="basic">Username / Password</option>
+            <option value="x509">X.509 Certificate</option>
+          </BPSelect>
+
+          {data.atlas.authMethod === "basic" && (
+            <>
+              <label className="text-right pr-3 text-slate-600">Username:</label>
+              <BPInput
+                name="username"
+                placeholder="Username"
+                value={data.atlas.username || ""}
+                onChange={handleAtlasChange}
+              />
+
+              <label className="text-right pr-3 text-slate-600">Password:</label>
+              <BPInput
+                name="password"
+                type="password"
+                placeholder="Password"
+                value={data.atlas.password || ""}
+                onChange={handleAtlasChange}
+              />
+            </>
+          )}
+        </div>
+
+        <Callout intent="primary" className="text-xs mt-2">
+          Ensure your current IP address is added in MongoDB Atlas Network Access.
+        </Callout>
       </div>
 
-      <div className="mt-4 p-3 bg-slate-100 border border-slate-200 rounded text-xs text-slate-600">
+      <div className="mt-2 p-3 bg-slate-100 border border-slate-200 rounded text-xs text-slate-600">
         <h4 className="font-semibold mb-1 flex items-center gap-1">
-          <Icon icon={iconMap.Check} size={14} className="text-green-600" />{" "}
-          Ready to Deploy
+          <Icon icon={iconMap.Check} size={14} className="text-green-600" /> Ready to Deploy
         </h4>
         <p>
-          Review your settings. Clicking 'Finish' will initialize the{" "}
-          {data.source.name || "source"} connector with{" "}
-          {data.selectedTables.length} tables selected.
+          Atlas destination is prepared. Clicking "Finish" will initialize the
+          {" "}{data.source.name || "source"} connector with {data.selectedTables.length} tables selected.
         </p>
       </div>
     </div>
@@ -445,7 +483,15 @@ export const MigrationWizard: React.FC<{
     },
     selectedTables: [],
     target: { uri: "", port: "", user: "", database: "" },
-    cloud: { enabled: false, region: "us-east-1", bucket: "" },
+    atlas: {
+      uri: "",
+      database: "",
+      collection: "",
+      projectId: "",
+      authMethod: "basic",
+      username: "",
+      password: "",
+    },
   });
 
   const updateData = (stepKey: keyof WizardState, newData: any) => {
@@ -477,7 +523,7 @@ export const MigrationWizard: React.FC<{
           <Step4CaptureSettings data={wizardData} updateData={updateData} />
         );
       case 5:
-        return <Step5Cloud data={wizardData} updateData={updateData} />;
+        return <Step5Atlas data={wizardData} updateData={updateData} />;
       default:
         return null;
     }
@@ -485,7 +531,7 @@ export const MigrationWizard: React.FC<{
 
   return (
     <BPDialog isOpen onClose={onClose} className="migration-wizard-dialog">
-      <div className="w-[640px] h-[560px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
+      <div className="w-[820px] h-[720px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
         {/* Header */}
         <div className="h-12 bg-slate-50 flex items-center justify-between px-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -511,7 +557,7 @@ export const MigrationWizard: React.FC<{
               "Table Selection",
               "Target DB",
               "Capture Settings",
-              "Cloud Sync",
+              "Atlas Config",
             ].map((label, idx) => {
               const stepNum = idx + 1;
               const isActive = currentStep === stepNum;
@@ -533,7 +579,7 @@ export const MigrationWizard: React.FC<{
           </div>
 
           {/* Step Content Area */}
-          <div className="flex-1 p-6 bg-white overflow-hidden">
+          <div className="flex-1 p-8 bg-white overflow-hidden">
             {renderStep()}
           </div>
         </div>

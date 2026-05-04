@@ -75,7 +75,6 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         next step.
       </p>
 
-      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-start text-xs">
       <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
         <label className="text-right pr-3 text-slate-600">Source Name:</label>
         <BPInput

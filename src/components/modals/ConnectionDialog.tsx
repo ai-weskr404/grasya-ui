@@ -75,7 +75,7 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         next step.
       </p>
 
-      <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
+      <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
         <label className="text-right pr-3 text-slate-600">Source Name:</label>
         <BPInput
           name="name"
@@ -376,7 +376,7 @@ const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
 
       <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
         <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
-          <label className="text-right pr-3 text-slate-600">Connection URI:</label>
+          <label className="text-right pr-3 text-slate-600 pt-2">Connection URI:</label>
           <div className="space-y-1">
             <BPInput
               name="uri"
@@ -450,7 +450,7 @@ const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
           )}
         </div>
 
-        <Callout intent="primary" className="text-xs">
+        <Callout intent="primary" className="text-xs mt-2">
           Ensure your current IP address is added in MongoDB Atlas Network Access.
         </Callout>
       </div>

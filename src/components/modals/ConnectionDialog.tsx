@@ -371,6 +371,7 @@ const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
       </p>
 
       <div className="space-y-3">
+      <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
         <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
           <label className="text-right pr-3 text-slate-600 pt-2">Connection URI:</label>
           <div className="space-y-1">

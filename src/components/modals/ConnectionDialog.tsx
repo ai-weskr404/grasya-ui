@@ -75,6 +75,7 @@ const Step1Source: React.FC<StepProps> = ({ data, updateData }) => {
         next step.
       </p>
 
+      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-start text-xs">
       <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
         <label className="text-right pr-3 text-slate-600">Source Name:</label>
         <BPInput
@@ -216,7 +217,7 @@ const Step3Target: React.FC<StepProps> = ({ data, updateData }) => {
         to the chosen sink connector.
       </p>
 
-      <div className="grid grid-cols-[120px_1fr] gap-y-3 items-center text-xs">
+      <div className="grid grid-cols-[150px_1fr] gap-y-3 items-center text-xs">
         <label className="text-right pr-3 text-slate-600 font-medium">
           Host URI:
         </label>
@@ -364,7 +365,7 @@ const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
 
       <div className="space-y-3">
         <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
-          <label className="text-right pr-3 text-slate-600 pt-2">Connection URI:</label>
+          <label className="text-right pr-3 text-slate-600">Connection URI:</label>
           <div className="space-y-1">
             <BPInput
               name="uri"

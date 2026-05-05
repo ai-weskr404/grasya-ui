@@ -72,13 +72,18 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
   return (
     <div className="erd-viewport" onMouseDown={onDown} onMouseMove={onMove} onMouseUp={() => (dragRef.current = null)} onMouseLeave={() => (dragRef.current = null)}>
       <div className="erd-canvas" style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
+        {tables.map((table, i) => (
+          <div key={table.id} className="erd-node-wrap" style={{ left: positions[i].x, top: positions[i].y }}>
+            <TableNode data={table} />
+          </div>
+        ))}
         <svg className="erd-lines">
           <defs>
             <marker id="erd-one" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
-              <path d="M8,0 L8,10" stroke="#0f172a" strokeWidth="1.5" fill="none" />
+              <path d="M8,0 L8,10" stroke="#106ba3" strokeWidth="1.5" fill="none" />
             </marker>
             <marker id="erd-many" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto-start-reverse">
-              <path d="M2,6 L10,1 M2,6 L10,11" stroke="#0f172a" strokeWidth="1.4" fill="none" />
+              <path d="M2,6 L10,1 M2,6 L10,11" stroke="#106ba3" strokeWidth="1.4" fill="none" />
             </marker>
           </defs>
           {edges.map((edge, idx) => {
@@ -106,11 +111,6 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
             );
           })}
         </svg>
-        {tables.map((table, i) => (
-          <div key={table.id} className="erd-node-wrap" style={{ left: positions[i].x, top: positions[i].y }}>
-            <TableNode data={table} />
-          </div>
-        ))}
       </div>
     </div>
   );

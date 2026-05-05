@@ -58,12 +58,32 @@ const getTableKey = (tableName: string) =>
 
 const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
   const selected = new Set(selectedTables.map((table) => getTableKey(table)));
+  const orderedTableKeys = selectedTables.map((table) => getTableKey(table));
+  const previousTableLookup = new Map(
+    orderedTableKeys.map((tableKey, index) => [
+      tableKey,
+      orderedTableKeys[(index - 1 + orderedTableKeys.length) % orderedTableKeys.length],
+    ]),
+  );
 
   return selectedTables.map((name) => {
     const tableKey = getTableKey(name);
-    const relationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
+    const mappedRelationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
       selected.has(rel.referencesTable),
     );
+    const fallbackRelationship =
+      previousTableLookup.size > 1
+        ? {
+            fkColumn: `${previousTableLookup.get(tableKey)}_id`,
+            referencesTable: previousTableLookup.get(tableKey) ?? "",
+          }
+        : null;
+    const relationships =
+      mappedRelationships.length > 0
+        ? mappedRelationships
+        : fallbackRelationship && fallbackRelationship.referencesTable !== tableKey
+          ? [fallbackRelationship]
+          : [];
 
     const relationshipColumns = relationships.map((relationship) => ({
       name: relationship.fkColumn,

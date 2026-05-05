@@ -26,6 +26,10 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
           const targetIndex = tables.findIndex((candidate, idx) => {
             if (idx === tableIndex) return false;
             const candidateName = normalize(candidate.name);
+            const explicitTarget = normalize(fkCol.referencesTable ?? '');
+            if (explicitTarget) {
+              return candidateName === explicitTarget;
+            }
             return (
               candidateName === inferredBase ||
               candidateName === `${inferredBase}s` ||

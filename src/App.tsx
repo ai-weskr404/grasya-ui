@@ -48,12 +48,20 @@ const tableRelationshipMap: Record<string, { fkColumn: string; referencesTable: 
   payments: [{ fkColumn: "invoice_id", referencesTable: "invoices" }],
 };
 
+const getTableKey = (tableName: string) =>
+  tableName
+    .toLowerCase()
+    .split(".")
+    .filter(Boolean)
+    .at(-1)
+    ?.replace(/[^a-z0-9_]/g, "") ?? "";
+
 const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
-  const selected = new Set(selectedTables.map((table) => table.toLowerCase()));
+  const selected = new Set(selectedTables.map((table) => getTableKey(table)));
 
   return selectedTables.map((name) => {
-    const normalizedName = name.toLowerCase();
-    const relationships = (tableRelationshipMap[normalizedName] ?? []).filter((rel) =>
+    const tableKey = getTableKey(name);
+    const relationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
       selected.has(rel.referencesTable),
     );
 
@@ -66,11 +74,11 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
     }));
 
     return {
-      id: normalizedName.replace(/[^a-z0-9]+/g, "_"),
+      id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
       name,
       schema: "dbo",
       columns: [
-        { name: `${normalizedName}_id`, type: "int", isPrimary: true, notNull: true },
+        { name: `${tableKey}_id`, type: "int", isPrimary: true, notNull: true },
         ...relationshipColumns,
         ...defaultColumns.slice(1),
       ],

@@ -16,6 +16,13 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
 
   const edges = useMemo(() => {
     const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const tableKey = (value: string) =>
+      value
+        .toLowerCase()
+        .split('.')
+        .filter(Boolean)
+        .at(-1)
+        ?.replace(/[^a-z0-9]/g, '') ?? '';
 
     return tables.flatMap((table, tableIndex) => {
       const fkColumns = table.columns.filter((col) => col.isForeign);
@@ -25,7 +32,7 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
           const inferredBase = normalize(fkCol.name.replace(/_?id$/i, ''));
           const targetIndex = tables.findIndex((candidate, idx) => {
             if (idx === tableIndex) return false;
-            const candidateName = normalize(candidate.name);
+            const candidateName = tableKey(candidate.name);
             const explicitTarget = normalize(fkCol.referencesTable ?? '');
             if (explicitTarget) {
               return candidateName === explicitTarget;

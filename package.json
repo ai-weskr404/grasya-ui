@@ -14,6 +14,7 @@
   "dependencies": {
     "@blueprintjs/core": "^6.12.1",
     "@blueprintjs/icons": "^6.9.1",
+    "bootstrap-icons": "^1.13.1",
     "clsx": "^2.1.0",
     "electron-vite": "^5.0.0",
     "lucide-react": "^0.344.0",

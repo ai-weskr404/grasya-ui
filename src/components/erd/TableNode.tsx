@@ -1,5 +1,6 @@
-import { Icon } from '@blueprintjs/core';
-import type { TableDef } from './types';
+import { Icon } from "@blueprintjs/core";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import type { TableDef } from "./types";
 
 export default function TableNode({ data }: { data: TableDef }) {
   return (
@@ -13,10 +14,23 @@ export default function TableNode({ data }: { data: TableDef }) {
         {data.columns.map((col, idx) => (
           <div key={idx} className="table-node-row">
             <div className="table-node-row-left">
-              {col.isPrimary ? <Icon icon="key" size={12} color="#BF7326" /> : col.isForeign ? <Icon icon="link" size={12} color="#106BA3" /> : <div style={{ width: 12 }}></div>}
-              <span style={{ fontWeight: col.isPrimary ? 'bold' : 'normal' }}>{col.name}</span>
+              {col.isPrimary ? (
+                <i
+                  className="bi bi-key-fill"
+                  style={{ fontSize: 12, color: "#BF7326" }}
+                ></i>
+              ) : col.isForeign ? (
+                <Icon icon="th-derived" size={12} color="#106BA3" />
+              ) : (
+                <div style={{ width: 12 }}></div>
+              )}
+
+              <span style={{ fontWeight: col.isPrimary ? "bold" : "normal" }}>
+                {col.name}
+              </span>
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
               <span className="table-node-type">{col.type}</span>
               {col.notNull && <span className="table-node-tag">NOT NULL</span>}
             </div>

@@ -37,7 +37,10 @@ const defaultColumns = [
   { name: "status", type: "varchar", notNull: false },
 ];
 
-const tableRelationshipMap: Record<string, { fkColumn: string; referencesTable: string }[]> = {
+const tableRelationshipMap: Record<
+  string,
+  { fkColumn: string; referencesTable: string }[]
+> = {
   orders: [{ fkColumn: "customer_id", referencesTable: "customers" }],
   order_items: [
     { fkColumn: "order_id", referencesTable: "orders" },
@@ -77,14 +80,16 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
   const previousTableLookup = new Map(
     orderedTableKeys.map((tableKey, index) => [
       tableKey,
-      orderedTableKeys[(index - 1 + orderedTableKeys.length) % orderedTableKeys.length],
+      orderedTableKeys[
+        (index - 1 + orderedTableKeys.length) % orderedTableKeys.length
+      ],
     ]),
   );
 
   return normalizedTables.map((name) => {
     const tableKey = getTableKey(name);
-    const mappedRelationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
-      selected.has(rel.referencesTable),
+    const mappedRelationships = (tableRelationshipMap[tableKey] ?? []).filter(
+      (rel) => selected.has(rel.referencesTable),
     );
     const fallbackRelationship =
       previousTableLookup.size > 1
@@ -96,7 +101,8 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
     const relationships =
       mappedRelationships.length > 0
         ? mappedRelationships
-        : fallbackRelationship && fallbackRelationship.referencesTable !== tableKey
+        : fallbackRelationship &&
+            fallbackRelationship.referencesTable !== tableKey
           ? [fallbackRelationship]
           : [];
 
@@ -241,12 +247,7 @@ const DeadLetterQueueTab = () => (
 );
 
 // --- COMPONENT: Internal Tree Node ---
-const InternalTreeNode = ({
-  node,
-  level,
-  onToggle,
-  onSelect,
-}: any) => {
+const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
   const isLeaf = !node.children;
   const isDatabaseRoot = level === 0;
 
@@ -254,7 +255,7 @@ const InternalTreeNode = ({
     if (isDatabaseRoot) return "database";
     if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
     if (node.type === "table") return "th";
-    if (node.type === "view") return "eye-open";
+    if (node.type === "view") return "table";
     if (node.type === "proc") return "function";
     return "document";
   };
@@ -288,20 +289,14 @@ const InternalTreeNode = ({
             )}
           </>
         )}
-        <Icon
-          icon={getNodeIcon()}
-          size={12}
-          className={getNodeColorClass()}
-        />
-        <span className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}>
+        <Icon icon={getNodeIcon()} size={12} className={getNodeColorClass()} />
+        <span
+          className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}
+        >
           {node.name}
         </span>
-        {currentNodeFromPostgres && (
-          <span className="ml-1 text-[10px] uppercase tracking-wide text-emerald-700 bg-emerald-100 px-1 rounded">
-            PostgreSQL
-          </span>
-        )}
       </div>
+
       {node.isOpen && node.children && (
         <div>
           {node.children.map((child: any) => (
@@ -311,7 +306,6 @@ const InternalTreeNode = ({
               level={level + 1}
               onToggle={onToggle}
               onSelect={onSelect}
-              isFromPostgres={currentNodeFromPostgres}
             />
           ))}
         </div>
@@ -462,7 +456,6 @@ export default function App() {
     }
   };
 
-
   const addLog = (msg: string, type: LogEntry["type"]) => {
     setLogs((prev) => [
       ...prev,
@@ -566,7 +559,6 @@ export default function App() {
         ];
         const actionMsg = actions[Math.floor(Math.random() * actions.length)];
         addLog(actionMsg, "info");
-
       }, 1000); // Ticking every 1 second for smoother charts
     }
     return () => clearInterval(interval);
@@ -587,9 +579,15 @@ export default function App() {
     const normalizedSelectedTables = Array.isArray(selectedTables)
       ? normalizeSelectedTables(selectedTables)
       : [];
-    const fallbackTables = ["public.users", "public.transactions", "public.inventory_items"];
+    const fallbackTables = [
+      "public.users",
+      "public.transactions",
+      "public.inventory_items",
+    ];
     const tablesForDiagram =
-      normalizedSelectedTables.length > 0 ? normalizedSelectedTables : fallbackTables;
+      normalizedSelectedTables.length > 0
+        ? normalizedSelectedTables
+        : fallbackTables;
 
     setShowConnectDialog(false);
     setIsConnected(true);
@@ -606,7 +604,10 @@ export default function App() {
         "warning",
       );
     }
-    addLog("Connected to PostgreSQL, MongoDB Atlas, and MongoDB Atlas Storage.", "success");
+    addLog(
+      "Connected to PostgreSQL, MongoDB Atlas, and MongoDB Atlas Storage.",
+      "success",
+    );
   };
 
   const toggleRun = () => {
@@ -690,7 +691,11 @@ export default function App() {
                 Object Explorer
               </span>
               <div className="flex items-center gap-1">
-                <Icon icon="pin" size={12} className="text-slate-500 cursor-pointer" />
+                <Icon
+                  icon="pin"
+                  size={12}
+                  className="text-slate-500 cursor-pointer"
+                />
                 <Icon
                   icon="cross"
                   size={12}
@@ -712,7 +717,11 @@ export default function App() {
                 className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
                 title="Collapse all"
               >
-                <Icon icon="collapse-all" size={12} className="text-slate-600" />
+                <Icon
+                  icon="collapse-all"
+                  size={12}
+                  className="text-slate-600"
+                />
               </button>
               <button
                 className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
@@ -827,7 +836,6 @@ export default function App() {
             </div>
           </div>
         </div>
-
       </div>
 
       {/* STATUS BAR */}

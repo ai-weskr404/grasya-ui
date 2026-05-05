@@ -226,17 +226,31 @@ const DeadLetterQueueTab = () => (
 );
 
 // --- COMPONENT: Internal Tree Node ---
-const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
+const InternalTreeNode = ({
+  node,
+  level,
+  onToggle,
+  onSelect,
+  isFromPostgres = false,
+}: any) => {
   const isLeaf = !node.children;
   const isDatabaseRoot = level === 0;
+  const currentNodeFromPostgres =
+    isFromPostgres || node.name.toUpperCase().includes("SRC_POSTGRES");
 
   const getNodeIcon = () => {
     if (isDatabaseRoot) return "database";
-    if (!isLeaf) return "folder-close";
+    if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
     if (node.type === "table") return "th";
     if (node.type === "view") return "eye-open";
     if (node.type === "proc") return "function";
     return "document";
+  };
+
+  const getNodeColorClass = () => {
+    if (!isLeaf) return "text-amber-500";
+    if (node.type === "view") return "text-blue-500";
+    return "";
   };
 
   return (
@@ -265,13 +279,16 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
         <Icon
           icon={getNodeIcon()}
           size={12}
-          className={isLeaf ? "text-blue-500" : "text-amber-500"}
+          className={getNodeColorClass()}
         />
-        <span
-          className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}
-        >
+        <span className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}>
           {node.name}
         </span>
+        {currentNodeFromPostgres && (
+          <span className="ml-1 text-[10px] uppercase tracking-wide text-emerald-700 bg-emerald-100 px-1 rounded">
+            PostgreSQL
+          </span>
+        )}
       </div>
       {node.isOpen && node.children && (
         <div>
@@ -282,6 +299,7 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
               level={level + 1}
               onToggle={onToggle}
               onSelect={onSelect}
+              isFromPostgres={currentNodeFromPostgres}
             />
           ))}
         </div>

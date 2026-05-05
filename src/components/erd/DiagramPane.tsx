@@ -102,11 +102,13 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
                   markerStart="url(#erd-many)"
                   markerEnd="url(#erd-one)"
                 />
-                <foreignObject x={labelX} y={labelY} width="240" height="24">
-                  <div className="inline-flex rounded bg-white/85 px-1.5 py-0.5 text-xs font-medium text-blue-900 shadow-sm ring-1 ring-slate-200">
-                    {edge.label}
-                  </div>
-                </foreignObject>
+                <text
+                  x={labelX}
+                  y={labelY + 12}
+                  className="fill-blue-900 text-[11px] font-semibold"
+                >
+                  - 1:M -
+                </text>
               </g>
             );
           })}

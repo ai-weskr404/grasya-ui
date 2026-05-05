@@ -37,17 +37,54 @@ const defaultColumns = [
   { name: "status", type: "varchar", notNull: false },
 ];
 
-const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] =>
-  selectedTables.map((name, idx) => ({
-    id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
-    name,
-    schema: "dbo",
-    columns: defaultColumns.map((col, cIdx) => ({
-      ...col,
-      name: cIdx === 0 ? `${name}_id` : col.name,
-      isForeign: cIdx === 1 && idx > 0,
-    })),
-  }));
+const tableRelationshipMap: Record<string, { fkColumn: string; referencesTable: string }[]> = {
+  orders: [{ fkColumn: "customer_id", referencesTable: "customers" }],
+  order_items: [
+    { fkColumn: "order_id", referencesTable: "orders" },
+    { fkColumn: "product_id", referencesTable: "products" },
+  ],
+  products: [{ fkColumn: "category_id", referencesTable: "categories" }],
+  invoices: [{ fkColumn: "order_id", referencesTable: "orders" }],
+  payments: [{ fkColumn: "invoice_id", referencesTable: "invoices" }],
+};
+
+const getTableKey = (tableName: string) =>
+  tableName
+    .toLowerCase()
+    .split(".")
+    .filter(Boolean)
+    .at(-1)
+    ?.replace(/[^a-z0-9_]/g, "") ?? "";
+
+const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
+  const selected = new Set(selectedTables.map((table) => getTableKey(table)));
+
+  return selectedTables.map((name) => {
+    const tableKey = getTableKey(name);
+    const relationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
+      selected.has(rel.referencesTable),
+    );
+
+    const relationshipColumns = relationships.map((relationship) => ({
+      name: relationship.fkColumn,
+      type: "int",
+      isForeign: true,
+      notNull: true,
+      referencesTable: relationship.referencesTable,
+    }));
+
+    return {
+      id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
+      name,
+      schema: "dbo",
+      columns: [
+        { name: `${tableKey}_id`, type: "int", isPrimary: true, notNull: true },
+        ...relationshipColumns,
+        ...defaultColumns.slice(1),
+      ],
+    };
+  });
+};
 
 // --- FEATURE COMPONENT: Live Schema Map Tab ---
 const SchemaMapTab = ({

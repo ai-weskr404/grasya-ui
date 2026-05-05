@@ -4,6 +4,7 @@ export interface ColumnDef {
   isPrimary?: boolean;
   isForeign?: boolean;
   notNull?: boolean;
+  referencesTable?: string;
 }
 
 export interface TableDef {

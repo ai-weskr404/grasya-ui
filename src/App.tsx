@@ -231,12 +231,9 @@ const InternalTreeNode = ({
   level,
   onToggle,
   onSelect,
-  isFromPostgres = false,
 }: any) => {
   const isLeaf = !node.children;
   const isDatabaseRoot = level === 0;
-  const currentNodeFromPostgres =
-    isFromPostgres || node.name.toUpperCase().includes("SRC_POSTGRES");
 
   const getNodeIcon = () => {
     if (isDatabaseRoot) return "database";

@@ -281,6 +281,11 @@ const InternalTreeNode = ({
         <span className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}>
           {node.name}
         </span>
+        {currentNodeFromPostgres && (
+          <span className="ml-1 text-[10px] uppercase tracking-wide text-emerald-700 bg-emerald-100 px-1 rounded">
+            PostgreSQL
+          </span>
+        )}
       </div>
       {node.isOpen && node.children && (
         <div>
@@ -291,6 +296,7 @@ const InternalTreeNode = ({
               level={level + 1}
               onToggle={onToggle}
               onSelect={onSelect}
+              isFromPostgres={currentNodeFromPostgres}
             />
           ))}
         </div>

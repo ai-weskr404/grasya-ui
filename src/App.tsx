@@ -56,9 +56,24 @@ const getTableKey = (tableName: string) =>
     .at(-1)
     ?.replace(/[^a-z0-9_]/g, "") ?? "";
 
+const normalizeSelectedTables = (selectedTables: string[]): string[] => {
+  const seen = new Set<string>();
+
+  return selectedTables
+    .map((table) => table?.trim())
+    .filter((table): table is string => Boolean(table))
+    .filter((table) => {
+      const tableKey = getTableKey(table);
+      if (!tableKey || seen.has(tableKey)) return false;
+      seen.add(tableKey);
+      return true;
+    });
+};
+
 const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
-  const selected = new Set(selectedTables.map((table) => getTableKey(table)));
-  const orderedTableKeys = selectedTables.map((table) => getTableKey(table));
+  const normalizedTables = normalizeSelectedTables(selectedTables);
+  const selected = new Set(normalizedTables.map((table) => getTableKey(table)));
+  const orderedTableKeys = normalizedTables.map((table) => getTableKey(table));
   const previousTableLookup = new Map(
     orderedTableKeys.map((tableKey, index) => [
       tableKey,
@@ -66,7 +81,7 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
     ]),
   );
 
-  return selectedTables.map((name) => {
+  return normalizedTables.map((name) => {
     const tableKey = getTableKey(name);
     const mappedRelationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
       selected.has(rel.referencesTable),
@@ -570,7 +585,7 @@ export default function App() {
 
   const handleConfirmConnect = (selectedTables?: string[]) => {
     const normalizedSelectedTables = Array.isArray(selectedTables)
-      ? selectedTables.filter(Boolean)
+      ? normalizeSelectedTables(selectedTables)
       : [];
     const fallbackTables = ["public.users", "public.transactions", "public.inventory_items"];
     const tablesForDiagram =
@@ -581,7 +596,10 @@ export default function App() {
     const nextDiagramTables = mapSelectedTablesToDiagram(tablesForDiagram);
     setDiagramTables(nextDiagramTables);
     handleOpenTab("Monitor: PG -> Mongo -> Atlas");
-    handleOpenTab("ERD Diagram");
+    setActiveWorkspaceTab("ERD Diagram");
+    if (!workspaceTabs.includes("ERD Diagram")) {
+      setWorkspaceTabs((prev) => [...prev, "ERD Diagram"]);
+    }
     if (normalizedSelectedTables.length === 0) {
       addLog(
         "No tables selected in wizard. Loaded default PostgreSQL tables for the ERD view.",

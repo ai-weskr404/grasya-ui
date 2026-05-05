@@ -4,7 +4,6 @@
     "filesScanned": [
       "src/App.tsx",
       "src/components/ui/Ribbon.tsx",
-      "src/components/ui/TelemetryBar.tsx",
       "src/components/ui/TreeNode.tsx",
       "src/components/modals/ConfigDialog.tsx",
       "src/components/modals/ConnectionDialog.tsx",
@@ -19,7 +18,12 @@
         {
           "type": "TopNavTabs",
           "description": "Primary top navigation tabs (Home, Migration, Integrity, View) rendered as horizontal buttons. These must be removed and replaced by single-tier ribbon group selector.",
-          "labels": ["Home", "Migration", "Integrity", "View"]
+          "labels": [
+            "Home",
+            "Migration",
+            "Integrity",
+            "View"
+          ]
         },
         {
           "type": "RibbonUsage",
@@ -34,26 +38,30 @@
             "Panels"
           ],
           "actionExamples": [
-            { "icon": "server", "label": "Connect / Disconnect" },
-            { "icon": "refresh", "label": "Refresh" },
-            { "icon": "document", "label": "New Job" },
-            { "icon": "play", "label": "Execute" },
-            { "icon": "pause", "label": "Pause" },
-            { "icon": "stop", "label": "Kill" }
-          ]
-        },
-        {
-          "type": "TelemetryPanel",
-          "description": "Right-side telemetry panel inline in App.tsx; small controls toggle collapse and close buttons use icons.",
-          "icons": [
-            "pulse",
-            "chevron-left",
-            "chevron-right",
-            "cross",
-            "desktop",
-            "code",
-            "flash",
-            "flow-branch"
+            {
+              "icon": "server",
+              "label": "Connect / Disconnect"
+            },
+            {
+              "icon": "refresh",
+              "label": "Refresh"
+            },
+            {
+              "icon": "document",
+              "label": "New Job"
+            },
+            {
+              "icon": "play",
+              "label": "Execute"
+            },
+            {
+              "icon": "pause",
+              "label": "Pause"
+            },
+            {
+              "icon": "stop",
+              "label": "Kill"
+            }
           ]
         },
         {
@@ -68,7 +76,10 @@
         {
           "type": "LeftPanel.ObjectExplorer",
           "description": "Object Explorer header with close icon; tree uses InternalTreeNode component (inline).",
-          "icons": ["server", "cross"]
+          "icons": [
+            "server",
+            "cross"
+          ]
         },
         {
           "type": "InlineIcons",
@@ -112,16 +123,6 @@
       ]
     },
     {
-      "file": "src/components/ui/TelemetryBar.tsx",
-      "elements": [
-        {
-          "type": "Telemetry.ProgressBar",
-          "description": "Uses Blueprint `ProgressBar` for telemetry lines; minor wrapper behavior maps color to intent.",
-          "componentUsed": "ProgressBar"
-        }
-      ]
-    },
-    {
       "file": "src/components/ui/TreeNode.tsx",
       "elements": [
         {
@@ -143,7 +144,11 @@
         {
           "type": "Modal (custom)",
           "description": "Large custom modal using `lucide-react` icons (`Settings`, `Save`, `X`) and native HTML controls. Must be migrated to `@blueprintjs/core` `Dialog`/`FormGroup`/`InputGroup` wrappers and `@blueprintjs/icons`.",
-          "icons": ["Settings (lucide)", "Save (lucide)", "X (lucide)"]
+          "icons": [
+            "Settings (lucide)",
+            "Save (lucide)",
+            "X (lucide)"
+          ]
         }
       ]
     },
@@ -181,7 +186,7 @@
     }
   ],
   "summaryCounts": {
-    "files": 7,
+    "files": 6,
     "uniqueIconNamesDetected": 28,
     "ribbonGroupsDetected": 6,
     "modalComponentsDetected": 2

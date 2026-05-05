@@ -1,21 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@blueprintjs/core";
 
-// Import Recharts for the new UI
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-} from "recharts";
-
 import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 
@@ -63,164 +48,6 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] =>
       isForeign: cIdx === 1 && idx > 0,
     })),
   }));
-
-// --- COMPONENT: New Telemetry Panel with Graphs ---
-const TelemetryPanel = ({ telemetry, history, trafficState, onClose }: any) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const pieData = [
-    { name: "Inserts", value: 65, color: "#16a34a" },
-    { name: "Updates", value: 25, color: "#3b82f6" },
-    { name: "Deletes", value: 10, color: "#ef4444" },
-  ];
-
-  return (
-    <div
-      className={`bg-slate-50 border-l border-slate-300 shadow-xl z-30 transition-all duration-300
-      ${isCollapsed ? "w-8" : "w-[240px]"} 
-      h-full flex flex-col`}
-    >
-      {/* HEADER */}
-      <div className="h-6 bg-slate-200 border-b border-slate-300 flex items-center justify-between px-2 shrink-0">
-        {!isCollapsed && (
-          <span className="text-[10px] font-bold text-slate-700 uppercase flex items-center gap-1">
-            <Icon icon="pulse" size={11} className="text-blue-600" />
-            Telemetry
-          </span>
-        )}
-
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-slate-500 hover:text-slate-800"
-          >
-            {isCollapsed ? (
-              <Icon icon="chevron-left" size={12} />
-            ) : (
-              <Icon icon="chevron-right" size={12} />
-            )}
-          </button>
-
-          {!isCollapsed && (
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-red-500"
-            >
-              <Icon icon="cross" size={12} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* BODY */}
-      {!isCollapsed && (
-        <div className="flex-1 flex flex-col justify-between p-2 gap-2 overflow-hidden">
-          {/* NODE RESOURCES */}
-          <div className="bg-white border p-2 rounded shadow-sm">
-            <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1">
-              <span>Resources</span>
-              <Icon icon="desktop" size={10} />
-            </div>
-
-            <div className="h-16 w-full mb-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={history}>
-                  <YAxis domain={[0, 100]} hide />
-                  <Area
-                    type="monotone"
-                    dataKey="cpu"
-                    stroke="#3b82f6"
-                    strokeWidth={1.5}
-                    fillOpacity={0.15}
-                    fill="#3b82f6"
-                    isAnimationActive={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="flex justify-between text-[9px] font-mono">
-              <span>CPU: {telemetry.cpu}%</span>
-              <span>MEM: {telemetry.memory}%</span>
-            </div>
-          </div>
-
-          {/* EVENT MIX */}
-          <div className="bg-white border p-2 rounded shadow-sm">
-            <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1">
-              <span>Events</span>
-              <Icon icon="code" size={10} />
-            </div>
-
-            <div className="h-16">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    innerRadius={18}
-                    outerRadius={28}
-                    paddingAngle={2}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* LATENCY */}
-          <div className="bg-white border p-2 rounded shadow-sm">
-            <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1">
-              <span>Lag</span>
-              <Icon icon="flash" size={10} />
-            </div>
-
-            <div className="h-12">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history}>
-                  <Line
-                    type="step"
-                    dataKey="latency"
-                    stroke={telemetry.latency > 50 ? "#ef4444" : "#16a34a"}
-                    strokeWidth={1.5}
-                    dot={false}
-                    isAnimationActive={false}
-                  />
-                  <YAxis hide domain={[0, "auto"]} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="text-right text-sm font-mono">
-              {telemetry.latency}ms
-            </div>
-          </div>
-
-          {/* ROUTING */}
-          <div
-            className={`border p-2 rounded flex items-center gap-2 text-[9px]
-            ${
-              trafficState === "BLUE_POSTGRES"
-                ? "bg-blue-50 border-blue-200"
-                : "bg-green-50 border-green-200"
-            }`}
-          >
-            <Icon icon="swap-horizontal" size={12} />
-            <span className="font-bold">
-              {trafficState === "BLUE_POSTGRES"
-                ? "Blue (Source)"
-                : "Green (Target)"}
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 // --- FEATURE COMPONENT: Live Schema Map Tab ---
 const SchemaMapTab = ({
@@ -501,7 +328,6 @@ export default function App() {
   const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page"]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("Start Page");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(true);
   const [activeTableContext, setActiveTableContext] = useState("public.orders");
   const [diagramTables, setDiagramTables] = useState<TableDef[]>([]);
 
@@ -510,15 +336,6 @@ export default function App() {
 
   // REMOVED: integrityProgress state
   // REMOVED: verificationResult state (and its rendering)
-
-  // --- NEW: History State for Graphs ---
-  const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
-  const [telemetry, setTelemetry] = useState({
-    cpu: 12,
-    memory: 45,
-    throughput: 0,
-    latency: 2,
-  });
 
   const [advisoryState, setAdvisoryState] = useState<
     "neutral" | "ready" | "rollback"
@@ -545,15 +362,6 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    if (telemetry.latency > 200 && advisoryState !== "rollback") {
-      setAdvisoryState("rollback");
-      addLog(
-        "[SYSTEM ADVISORY]: High latency detected. Consider rollback.",
-        "error",
-      );
-    }
-  }, [telemetry.latency, advisoryState]);
 
   const addLog = (msg: string, type: LogEntry["type"]) => {
     setLogs((prev) => [
@@ -643,38 +451,7 @@ export default function App() {
         const actionMsg = actions[Math.floor(Math.random() * actions.length)];
         addLog(actionMsg, "info");
 
-        const newCpu = Math.floor(Math.random() * 30) + 20;
-        const newMem = Math.floor(Math.random() * 20) + 40;
-        const newLatency =
-          Math.random() < 0.15
-            ? Math.floor(Math.random() * 400) + 150 // spike
-            : Math.floor(Math.random() * 80) + 10; // normal
-
-        // Update Scalar
-        setTelemetry({
-          cpu: newCpu,
-          memory: newMem,
-          throughput: Math.floor(Math.random() * 500) + 1000,
-          latency: newLatency,
-        });
-
-        // Update History (Keep last 20 points)
-        setTelemetryHistory((prev) => {
-          const now = new Date();
-          const timeLabel = `${now.getSeconds()}s`;
-          const newData = {
-            time: timeLabel,
-            cpu: newCpu,
-            memory: newMem,
-            latency: newLatency,
-          };
-          const newHistory = [...prev, newData];
-          if (newHistory.length > 20) newHistory.shift();
-          return newHistory;
-        });
       }, 1000); // Ticking every 1 second for smoother charts
-    } else {
-      setTelemetry({ cpu: 5, memory: 15, throughput: 0, latency: 0 });
     }
     return () => clearInterval(interval);
   }, [isRunning, isConnected]);
@@ -685,7 +462,6 @@ export default function App() {
       setIsRunning(false);
       setWorkspaceTabs((prev) => prev.filter((t) => t === "Start Page"));
       setActiveWorkspaceTab("Start Page");
-      setTelemetryHistory([]); // Clear history
     } else {
       setShowConnectDialog(true);
     }
@@ -709,7 +485,6 @@ export default function App() {
   const killProcess = () => {
     setIsRunning(false);
     addLog("EMERGENCY HALT: User manually killed migration process.", "error");
-    setTelemetry((prev) => ({ ...prev, throughput: 0, latency: 9999 }));
   };
 
   const handleCutover = () => {
@@ -727,7 +502,6 @@ export default function App() {
   const commands = {
     NEW_JOB: () => {
       setLogs([]);
-      setTelemetryHistory([]);
       setIsRunning(false);
       addLog("NEW JOB INITIALIZED", "info");
     },
@@ -735,7 +509,6 @@ export default function App() {
     CONNECT: handleConnectClick,
 
     REFRESH: () => {
-      setTelemetryHistory([]);
       addLog("SYSTEM: Refreshing...", "info");
     },
 
@@ -898,17 +671,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* RIGHT PANEL: TELEMETRY */}
-        {isConnected &&
-          activeWorkspaceTab !== "Start Page" &&
-          showRightPanel && (
-            <TelemetryPanel
-              telemetry={telemetry}
-              history={telemetryHistory}
-              trafficState={trafficState}
-              onClose={() => setShowRightPanel(false)}
-            />
-          )}
       </div>
 
       {/* STATUS BAR */}
@@ -949,7 +711,7 @@ export default function App() {
         <div className="flex gap-6 opacity-90">
           <span>Ln 1, Col 1</span>
           <span>UTF-8</span>
-          <span>Latency: {isConnected ? `${telemetry.latency}ms` : "-"}</span>
+          <span>System: Operational</span>
         </div>
       </div>
     </div>

@@ -568,13 +568,26 @@ export default function App() {
     }
   };
 
-  const handleConfirmConnect = (selectedTables: string[]) => {
+  const handleConfirmConnect = (selectedTables?: string[]) => {
+    const normalizedSelectedTables = Array.isArray(selectedTables)
+      ? selectedTables.filter(Boolean)
+      : [];
+    const fallbackTables = ["public.users", "public.transactions", "public.inventory_items"];
+    const tablesForDiagram =
+      normalizedSelectedTables.length > 0 ? normalizedSelectedTables : fallbackTables;
+
     setShowConnectDialog(false);
     setIsConnected(true);
-    const nextDiagramTables = mapSelectedTablesToDiagram(selectedTables);
+    const nextDiagramTables = mapSelectedTablesToDiagram(tablesForDiagram);
     setDiagramTables(nextDiagramTables);
     handleOpenTab("Monitor: PG -> Mongo -> Atlas");
     handleOpenTab("ERD Diagram");
+    if (normalizedSelectedTables.length === 0) {
+      addLog(
+        "No tables selected in wizard. Loaded default PostgreSQL tables for the ERD view.",
+        "warning",
+      );
+    }
     addLog("Connected to PostgreSQL, MongoDB Atlas, and MongoDB Atlas Storage.", "success");
   };
 

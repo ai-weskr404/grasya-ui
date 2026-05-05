@@ -343,118 +343,94 @@ const Step4CaptureSettings: React.FC<StepProps> = ({ data, updateData }) => {
 
 // --- Step 5: MongoDB Atlas Configuration ---
 const isValidAtlasSrvUri = (uri: string) => uri.startsWith("mongodb+srv://");
-
 const Step5Atlas: React.FC<StepProps> = ({ data, updateData }) => {
   const atlasUriValid = isValidAtlasSrvUri(data.atlas.uri);
 
-  const handleAtlasChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleAtlasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateData("atlas", { ...data.atlas, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      <h3 className="font-semibold text-slate-700 border-b pb-2">
-        Step 5: MongoDB Atlas Configuration
-      </h3>
-      <p className="text-xs text-slate-500">
-        Configure your MongoDB Atlas destination settings for the migration output.
-      </p>
+    <div className="flex flex-col justify-between h-full animate-in fade-in slide-in-from-right-4 duration-300">
+      {/* TOP */}
+      <div className="flex flex-col gap-5">
+        <div>
+          <h3 className="font-semibold text-slate-700 border-b pb-2">
+            Step 5: MongoDB Atlas
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Finalize your destination settings.
+          </p>
+        </div>
 
-      <div className="space-y-3">
-        <div className="grid grid-cols-[120px_1fr] gap-y-3 items-start text-xs">
-          <label className="text-right pr-3 text-slate-600">Connection URI:</label>
-          <div className="space-y-1">
+        <div className="grid grid-cols-[120px_1fr] gap-y-4 items-center text-xs">
+          <label className="text-right pr-3 text-slate-600">URI:</label>
+          <div>
             <BPInput
               name="uri"
-              placeholder="mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/"
+              placeholder="mongodb+srv://..."
               value={data.atlas.uri}
               onChange={handleAtlasChange}
             />
-            <p className="text-[11px] text-slate-500">
-              Use your MongoDB Atlas cluster connection string (SRV format).
-            </p>
-            {!atlasUriValid && data.atlas.uri.trim().length > 0 && (
-              <p className="text-[11px] text-red-600">
-                Connection URI must start with "mongodb+srv://".
+            {!atlasUriValid && data.atlas.uri && (
+              <p className="text-[11px] text-red-600 mt-1">
+                Must start with mongodb+srv://
               </p>
             )}
           </div>
 
-          <label className="text-right pr-3 text-slate-600">Database Name:</label>
+          <label className="text-right pr-3 text-slate-600">Database:</label>
           <BPInput
             name="database"
-            placeholder="Database Name"
             value={data.atlas.database}
             onChange={handleAtlasChange}
           />
 
-          <label className="text-right pr-3 text-slate-600">Collection Name:</label>
+          <label className="text-right pr-3 text-slate-600">Collection:</label>
           <BPInput
             name="collection"
-            placeholder="Collection Name"
             value={data.atlas.collection}
             onChange={handleAtlasChange}
           />
 
-          <label className="text-right pr-3 text-slate-600">Project ID:</label>
+          <label className="text-right pr-3 text-slate-600">Username:</label>
           <BPInput
-            name="projectId"
-            placeholder="Atlas Project ID (optional)"
-            value={data.atlas.projectId || ""}
+            name="username"
+            value={data.atlas.username || ""}
             onChange={handleAtlasChange}
           />
 
-          <label className="text-right pr-3 text-slate-600">Auth Method:</label>
-          <BPSelect
-            name="authMethod"
-            value={data.atlas.authMethod}
+          <label className="text-right pr-3 text-slate-600">Password:</label>
+          <BPInput
+            name="password"
+            type="password"
+            value={data.atlas.password || ""}
             onChange={handleAtlasChange}
-          >
-            <option value="basic">Username / Password</option>
-            <option value="x509">X.509 Certificate</option>
-          </BPSelect>
-
-          {data.atlas.authMethod === "basic" && (
-            <>
-              <label className="text-right pr-3 text-slate-600">Username:</label>
-              <BPInput
-                name="username"
-                placeholder="Username"
-                value={data.atlas.username || ""}
-                onChange={handleAtlasChange}
-              />
-
-              <label className="text-right pr-3 text-slate-600">Password:</label>
-              <BPInput
-                name="password"
-                type="password"
-                placeholder="Password"
-                value={data.atlas.password || ""}
-                onChange={handleAtlasChange}
-              />
-            </>
-          )}
+          />
         </div>
-
-        <Callout intent="primary" className="text-xs mt-2">
-          Ensure your current IP address is added in MongoDB Atlas Network Access.
-        </Callout>
       </div>
 
-      <div className="mt-2 p-3 bg-slate-100 border border-slate-200 rounded text-xs text-slate-600">
-        <h4 className="font-semibold mb-1 flex items-center gap-1">
-          <Icon icon={iconMap.Check} size={14} className="text-green-600" /> Ready to Deploy
-        </h4>
-        <p>
-          Atlas destination is prepared. Clicking "Finish" will initialize the
-          {" "}{data.source.name || "source"} connector with {data.selectedTables.length} tables selected.
-        </p>
+      {/* BOTTOM */}
+      <div className="space-y-3">
+        <Callout intent="primary" className="text-xs">
+          Ensure your IP is whitelisted in MongoDB Atlas.
+        </Callout>
+
+        <div className="p-3 bg-slate-100 border border-slate-200 rounded text-xs text-slate-600">
+          <h4 className="font-semibold mb-1 flex items-center gap-1">
+            <Icon icon={iconMap.Check} size={14} className="text-green-600" />
+            Ready
+          </h4>
+          <p>{data.selectedTables.length} tables will be migrated.</p>
+        </div>
       </div>
     </div>
   );
 };
+
+{
+  /* <div className="flex-1 p-8 bg-white overflow-hidden"></div>; */
+}
 
 // --- Main Wizard Controller ---
 export const MigrationWizard: React.FC<{
@@ -530,8 +506,12 @@ export const MigrationWizard: React.FC<{
   };
 
   return (
-    <BPDialog isOpen onClose={onClose} className="migration-wizard-dialog">
-      <div className="w-[820px] h-[720px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
+    <BPDialog
+      isOpen
+      onClose={onClose}
+      className="migration-wizard-dialog flex items-center justify-center"
+    >
+      <div className="w-[820px] max-h-[90vh] h-[700px] bg-white rounded-lg shadow-2xl flex flex-col font-sans select-none overflow-hidden border border-slate-300">
         {/* Header */}
         <div className="h-12 bg-slate-50 flex items-center justify-between px-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -579,7 +559,7 @@ export const MigrationWizard: React.FC<{
           </div>
 
           {/* Step Content Area */}
-          <div className="flex-1 p-8 bg-white overflow-hidden">
+          <div className="flex-1 px-8 py-6 bg-white flex flex-col justify-start">
             {renderStep()}
           </div>
         </div>

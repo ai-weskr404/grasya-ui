@@ -9,13 +9,14 @@
     "src/components/modals/ConfigDialog.tsx",
     "src/components/ui/Ribbon.tsx",
     "src/components/ui/TreeNode.tsx",
-    "src/components/ui/TelemetryBar.tsx",
     "src/components/views/MonitorView.tsx"
   ],
   "preload": {
     "path": "electron/preload.cjs",
     "exposes": {
-      "desktop": ["ping"]
+      "desktop": [
+        "ping"
+      ]
     },
     "snippet": "const { contextBridge } = require('electron');\n\ncontextBridge.exposeInMainWorld('desktop', {\n  ping: () => 'pong',\n});"
   },
@@ -34,7 +35,6 @@
       "src/components/modals/ConfigDialog.tsx",
       "src/components/ui/Ribbon.tsx",
       "src/components/ui/TreeNode.tsx",
-      "src/components/ui/TelemetryBar.tsx",
       "src/components/views/MonitorView.tsx"
     ],
     "note": "No direct use of 'window.desktop', 'window.api', or 'ipcRenderer' was detected in these files. UI currently runs with in-process React state and local event handlers."
@@ -45,7 +45,7 @@
   },
   "risks": [
     "Preload path mismatch between main.cjs and electron.vite.config.ts may cause packaged app preload not found.",
-    "If new Blueprint wrappers require native actions (save, run, open), preload currently only exposes 'ping' — additional API surface will be required.",
+    "If new Blueprint wrappers require native actions (save, run, open), preload currently only exposes 'ping' \u2014 additional API surface will be required.",
     "No IPC usage in renderer reduces risk: wrappers can be implemented without changing existing IPC contracts."
   ],
   "recommendations": [

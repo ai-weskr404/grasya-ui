@@ -226,12 +226,34 @@ const DeadLetterQueueTab = () => (
 );
 
 // --- COMPONENT: Internal Tree Node ---
-const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
+const InternalTreeNode = ({
+  node,
+  level,
+  onToggle,
+  onSelect,
+}: any) => {
   const isLeaf = !node.children;
+  const isDatabaseRoot = level === 0;
+
+  const getNodeIcon = () => {
+    if (isDatabaseRoot) return "database";
+    if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
+    if (node.type === "table") return "th";
+    if (node.type === "view") return "eye-open";
+    if (node.type === "proc") return "function";
+    return "document";
+  };
+
+  const getNodeColorClass = () => {
+    if (!isLeaf) return "text-amber-500";
+    if (node.type === "view") return "text-blue-500";
+    return "";
+  };
+
   return (
     <div className="select-none">
       <div
-        className={`flex items-center gap-1.5 py-1 px-2 cursor-pointer hover:bg-slate-100 text-[11px] ${
+        className={`flex items-center gap-1.5 py-0.5 px-2 cursor-pointer hover:bg-sky-100 text-[11px] rounded-sm ${
           level > 0 ? "ml-4" : ""
         }`}
         onClick={() => {
@@ -242,21 +264,21 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
           }
         }}
       >
-        {isLeaf ? (
-          <Icon icon="th" size={12} className="text-blue-500" />
-        ) : (
+        {!isLeaf && (
           <>
             {node.isOpen ? (
               <Icon icon="chevron-down" size={12} className="text-slate-400" />
             ) : (
               <Icon icon="chevron-right" size={12} className="text-slate-400" />
             )}
-            <Icon icon="database" size={12} className="text-amber-500" />
           </>
         )}
-        <span
-          className={isLeaf ? "text-slate-700" : "font-semibold text-slate-800"}
-        >
+        <Icon
+          icon={getNodeIcon()}
+          size={12}
+          className={getNodeColorClass()}
+        />
+        <span className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}>
           {node.name}
         </span>
       </div>
@@ -494,6 +516,22 @@ export default function App() {
     setTreeData(updateNodes(treeData));
   };
 
+  const collapseAllTreeNodes = () => {
+    const collapseNodes = (nodes: FileNode[]): FileNode[] =>
+      nodes.map((node) => ({
+        ...node,
+        isOpen: false,
+        ...(node.children ? { children: collapseNodes(node.children) } : {}),
+      }));
+
+    setTreeData(collapseNodes(treeData));
+  };
+
+  const refreshTreeNodes = () => {
+    setTreeData(DB_SCHEMA);
+    addLog("OBJECT EXPLORER: Refreshed.", "info");
+  };
+
   // --- UPDATED SIMULATION LOOP with History ---
   useEffect(() => {
     let interval: number;
@@ -609,19 +647,44 @@ export default function App() {
       {/* WORKSPACE */}
       <div className="flex-1 flex overflow-hidden">
         {showLeftPanel && (
-          <div className="w-64 bg-white border-r border-slate-300 flex flex-col shrink-0 z-20">
-            <div className="h-6 bg-slate-100 border-b border-slate-300 flex items-center px-2 justify-between">
-              <span className="text-[11px] font-bold text-slate-700 uppercase flex items-center gap-2">
+          <div className="w-64 bg-[#F7F9FB] border-r border-slate-300 flex flex-col shrink-0 z-20">
+            <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
+              <span className="text-[11px] font-semibold text-slate-700 flex items-center gap-2">
                 Object Explorer
               </span>
-              <Icon
-                icon="cross"
-                size={12}
-                className="text-slate-400 cursor-pointer hover:text-red-500"
-                onClick={() => setShowLeftPanel(false)}
-              />
+              <div className="flex items-center gap-1">
+                <Icon icon="pin" size={12} className="text-slate-500 cursor-pointer" />
+                <Icon
+                  icon="cross"
+                  size={12}
+                  className="text-slate-500 cursor-pointer hover:text-red-500"
+                  onClick={() => setShowLeftPanel(false)}
+                />
+              </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="h-7 border-b border-slate-300 bg-white flex items-center px-1 gap-1">
+              <button
+                onClick={refreshTreeNodes}
+                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                title="Refresh"
+              >
+                <Icon icon="refresh" size={12} className="text-slate-600" />
+              </button>
+              <button
+                onClick={collapseAllTreeNodes}
+                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                title="Collapse all"
+              >
+                <Icon icon="collapse-all" size={12} className="text-slate-600" />
+              </button>
+              <button
+                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                title="Filter"
+              >
+                <Icon icon="filter-list" size={12} className="text-slate-600" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-1.5">
               {!isConnected ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
                   <Icon icon="linked-squares" size={32} />

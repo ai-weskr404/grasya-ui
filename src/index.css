@@ -151,7 +151,10 @@
   inset: 0;
   width: 1600px;
   height: 1200px;
+  z-index: 20;
+  pointer-events: none;
 }
 .erd-node-wrap {
   position: absolute;
+  z-index: 10;
 }

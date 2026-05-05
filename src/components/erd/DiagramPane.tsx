@@ -92,8 +92,6 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
             const x2 = edge.to.x;
             const y2 = edge.to.y + edge.targetOffset;
             const midX = x1 + (x2 - x1) / 2;
-            const labelX = midX + 8;
-            const labelY = (y1 + y2) / 2 - 12;
             return (
               <g key={`${edge.id}-${idx}`}>
                 <path
@@ -102,13 +100,6 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
                   markerStart="url(#erd-many)"
                   markerEnd="url(#erd-one)"
                 />
-                <text
-                  x={labelX}
-                  y={labelY + 12}
-                  className="fill-blue-900 text-[11px] font-semibold"
-                >
-                  - 1:M -
-                </text>
               </g>
             );
           })}

@@ -14,7 +14,43 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
     [tables],
   );
 
-  const edges = useMemo(() => tables.slice(1).map((table, i) => ({ from: positions[i + 1], to: positions[i], label: `FK_${table.name}` })), [tables, positions]);
+  const edges = useMemo(() => {
+    const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    return tables.flatMap((table, tableIndex) => {
+      const fkColumns = table.columns.filter((col) => col.isForeign);
+
+      return fkColumns
+        .map((fkCol, fkIndex) => {
+          const inferredBase = normalize(fkCol.name.replace(/_?id$/i, ''));
+          const targetIndex = tables.findIndex((candidate, idx) => {
+            if (idx === tableIndex) return false;
+            const candidateName = normalize(candidate.name);
+            const explicitTarget = normalize(fkCol.referencesTable ?? '');
+            if (explicitTarget) {
+              return candidateName === explicitTarget;
+            }
+            return (
+              candidateName === inferredBase ||
+              candidateName === `${inferredBase}s` ||
+              candidateName.endsWith(inferredBase)
+            );
+          });
+
+          if (targetIndex < 0) return null;
+
+          return {
+            id: `${table.id}-${fkCol.name}-${targetIndex}-${fkIndex}`,
+            from: positions[tableIndex],
+            to: positions[targetIndex],
+            label: `FK_${table.schema}.${table.name}.${fkCol.name}`,
+            sourceOffset: 24 + fkIndex * 16,
+            targetOffset: 24,
+          };
+        })
+        .filter((edge): edge is NonNullable<typeof edge> => Boolean(edge));
+    });
+  }, [tables, positions]);
 
   const onDown = (e: React.MouseEvent<HTMLDivElement>) => {
     dragRef.current = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
@@ -30,16 +66,35 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
     <div className="erd-viewport" onMouseDown={onDown} onMouseMove={onMove} onMouseUp={() => (dragRef.current = null)} onMouseLeave={() => (dragRef.current = null)}>
       <div className="erd-canvas" style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
         <svg className="erd-lines">
+          <defs>
+            <marker id="erd-one" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+              <path d="M8,0 L8,10" stroke="#0f172a" strokeWidth="1.5" fill="none" />
+            </marker>
+            <marker id="erd-many" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto-start-reverse">
+              <path d="M2,6 L10,1 M2,6 L10,11" stroke="#0f172a" strokeWidth="1.4" fill="none" />
+            </marker>
+          </defs>
           {edges.map((edge, idx) => {
             const x1 = edge.from.x + NODE_W;
-            const y1 = edge.from.y + NODE_H / 2;
+            const y1 = edge.from.y + edge.sourceOffset;
             const x2 = edge.to.x;
-            const y2 = edge.to.y + NODE_H / 2;
-            const cx = (x1 + x2) / 2;
+            const y2 = edge.to.y + edge.targetOffset;
+            const midX = x1 + (x2 - x1) / 2;
+            const labelX = midX + 8;
+            const labelY = (y1 + y2) / 2 - 12;
             return (
-              <g key={idx}>
-                <path d={`M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`} className="erd-path" />
-                <text x={cx - 24} y={(y1 + y2) / 2 - 6} className="erd-label">{edge.label}</text>
+              <g key={`${edge.id}-${idx}`}>
+                <path
+                  d={`M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`}
+                  className="erd-path"
+                  markerStart="url(#erd-many)"
+                  markerEnd="url(#erd-one)"
+                />
+                <foreignObject x={labelX} y={labelY} width="240" height="24">
+                  <div className="inline-flex rounded bg-white/85 px-1.5 py-0.5 text-xs font-medium text-blue-900 shadow-sm ring-1 ring-slate-200">
+                    {edge.label}
+                  </div>
+                </foreignObject>
               </g>
             );
           })}

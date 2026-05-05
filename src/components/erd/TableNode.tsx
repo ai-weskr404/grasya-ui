@@ -9,7 +9,7 @@ export default function TableNode({ data }: { data: TableDef }) {
         {data.schema}.{data.name}
       </div>
 
-      <div className="table-node-columns">
+      <div className="table-node-columns divide-y divide-slate-200">
         {data.columns.map((col, idx) => (
           <div key={idx} className="table-node-row">
             <div className="table-node-row-left">

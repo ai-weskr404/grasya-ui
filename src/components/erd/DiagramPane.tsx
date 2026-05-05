@@ -72,6 +72,11 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
   return (
     <div className="erd-viewport" onMouseDown={onDown} onMouseMove={onMove} onMouseUp={() => (dragRef.current = null)} onMouseLeave={() => (dragRef.current = null)}>
       <div className="erd-canvas" style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
+        {tables.map((table, i) => (
+          <div key={table.id} className="erd-node-wrap" style={{ left: positions[i].x, top: positions[i].y }}>
+            <TableNode data={table} />
+          </div>
+        ))}
         <svg className="erd-lines">
           <defs>
             <marker id="erd-one" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
@@ -108,11 +113,6 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
             );
           })}
         </svg>
-        {tables.map((table, i) => (
-          <div key={table.id} className="erd-node-wrap" style={{ left: positions[i].x, top: positions[i].y }}>
-            <TableNode data={table} />
-          </div>
-        ))}
       </div>
     </div>
   );

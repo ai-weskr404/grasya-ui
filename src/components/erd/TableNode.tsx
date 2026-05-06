@@ -4,7 +4,7 @@ import type { TableDef } from "./types";
 
 export default function TableNode({ data }: { data: TableDef }) {
   return (
-    <div className="react-flow__node-tableNode bp5-ui-text">
+    <div className="react-flow__node-tableNode bp5-ui-text bg-slate-50 shadow-md">
       <div className="table-node-header">
         <Icon icon="th" size={14} />
         {data.schema}.{data.name}

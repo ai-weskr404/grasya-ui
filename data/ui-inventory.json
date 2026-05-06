@@ -1,0 +1,200 @@
+{
+  "generatedAt": "2026-05-02T00:00:00Z",
+  "summary": {
+    "filesScanned": [
+      "src/App.tsx",
+      "src/components/ui/Ribbon.tsx",
+      "src/components/ui/TreeNode.tsx",
+      "src/components/modals/ConfigDialog.tsx",
+      "src/components/modals/ConnectionDialog.tsx",
+      "src/components/views/MonitorView.tsx"
+    ],
+    "notes": "Inventory focuses on icon usage, tabbed interfaces, ribbon group/button usage, modals, tree nodes, and input controls. This file is intended to drive deterministic replacement with Blueprint wrappers and iconMap mappings."
+  },
+  "items": [
+    {
+      "file": "src/App.tsx",
+      "elements": [
+        {
+          "type": "TopNavTabs",
+          "description": "Primary top navigation tabs (Home, Migration, Integrity, View) rendered as horizontal buttons. These must be removed and replaced by single-tier ribbon group selector.",
+          "labels": [
+            "Home",
+            "Migration",
+            "Integrity",
+            "View"
+          ]
+        },
+        {
+          "type": "RibbonUsage",
+          "component": "RibbonGroup / RibbonBtn",
+          "description": "Multiple RibbonGroup blocks rendered via renderRibbonContent(); RibbonBtn currently renders large vertical icon+label buttons (violates new narrow ribbon rule).",
+          "groupsFound": [
+            "Server",
+            "Definition",
+            "Execution",
+            "Traffic Control",
+            "Audit",
+            "Panels"
+          ],
+          "actionExamples": [
+            {
+              "icon": "server",
+              "label": "Connect / Disconnect"
+            },
+            {
+              "icon": "refresh",
+              "label": "Refresh"
+            },
+            {
+              "icon": "document",
+              "label": "New Job"
+            },
+            {
+              "icon": "play",
+              "label": "Execute"
+            },
+            {
+              "icon": "pause",
+              "label": "Pause"
+            },
+            {
+              "icon": "stop",
+              "label": "Kill"
+            }
+          ]
+        },
+        {
+          "type": "WorkspaceTabs",
+          "description": "Document tabs rendered under the ribbon (Start Page, Monitor..., Live Map, Dead Letter Queue, Schema Configuration). Must be replaced by Document Switcher (popover + MRU).",
+          "examples": [
+            "Start Page",
+            "Monitor: PG -> Mongo -> Atlas",
+            "Live Map: <table>"
+          ]
+        },
+        {
+          "type": "LeftPanel.ObjectExplorer",
+          "description": "Object Explorer header with close icon; tree uses InternalTreeNode component (inline).",
+          "icons": [
+            "server",
+            "cross"
+          ]
+        },
+        {
+          "type": "InlineIcons",
+          "description": "Various inline icons used throughout headings, list rows and controls.",
+          "iconsDetected": [
+            "database",
+            "th",
+            "chevron-down",
+            "chevron-right",
+            "cross",
+            "pulse",
+            "desktop",
+            "code",
+            "flash",
+            "flow-branch",
+            "server",
+            "refresh",
+            "document",
+            "play",
+            "pause",
+            "stop",
+            "shield",
+            "search",
+            "eraser",
+            "warning-sign"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "src/components/ui/Ribbon.tsx",
+      "elements": [
+        {
+          "type": "RibbonGroupComponent",
+          "description": "Local Ribbon primitives used by App; RibbonBtn supports 'large' vertical layout and a 'small' minimal variant. Will be replaced by NarrowRibbon, RibbonGroup, RibbonDivider primitives.",
+          "apiSurface": [
+            "RibbonGroup(label, children)",
+            "RibbonBtn({icon, label, variant, onClick, active, color})"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "src/components/ui/TreeNode.tsx",
+      "elements": [
+        {
+          "type": "TreeNode",
+          "description": "Custom tree node presentation using Blueprint `Icon`. Candidate to migrate to Blueprint `Tree` or wrap locally.",
+          "icons": [
+            "chevron-down",
+            "chevron-right",
+            "th",
+            "layout-auto",
+            "database"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "src/components/modals/ConfigDialog.tsx",
+      "elements": [
+        {
+          "type": "Modal (custom)",
+          "description": "Large custom modal using `lucide-react` icons (`Settings`, `Save`, `X`) and native HTML controls. Must be migrated to `@blueprintjs/core` `Dialog`/`FormGroup`/`InputGroup` wrappers and `@blueprintjs/icons`.",
+          "icons": [
+            "Settings (lucide)",
+            "Save (lucide)",
+            "X (lucide)"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "src/components/modals/ConnectionDialog.tsx",
+      "elements": [
+        {
+          "type": "MigrationWizard",
+          "description": "Multi-step wizard using lucide icons (`Server`,`Database`,`Cloud`,`Check`,`ChevronRight`,`ChevronLeft`), multiple inputs, step sidebar. Replace modal surface with `BPDialog` and buttons with `BPButton` wrappers; map icons to Blueprint icons.",
+          "icons": [
+            "Server (lucide)",
+            "Database (lucide)",
+            "Cloud (lucide)",
+            "Check (lucide)",
+            "ChevronRight (lucide)",
+            "ChevronLeft (lucide)"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "src/components/views/MonitorView.tsx",
+      "elements": [
+        {
+          "type": "Diagram + Logs View",
+          "description": "Uses lucide icons (`Database`,`UploadCloud`,`Cloud`,`Server`) for system diagram; multiple buttons and mini-tabs above logs. Candidate for migration to Blueprint icon usage and replacing tab buttons with Ribbon toggles.",
+          "icons": [
+            "Database (lucide)",
+            "UploadCloud (lucide)",
+            "Cloud (lucide)",
+            "Server (lucide)"
+          ]
+        }
+      ]
+    }
+  ],
+  "summaryCounts": {
+    "files": 6,
+    "uniqueIconNamesDetected": 28,
+    "ribbonGroupsDetected": 6,
+    "modalComponentsDetected": 2
+  },
+  "nextActionsSuggested": [
+    "Generate canonical iconMap (src/components/blueprint/utils/iconMap.ts) from detected names",
+    "Create wrapper primitives (BPButton, BPIconButton, BPDialog, BPInput) that forward props without changing IPC/state",
+    "Replace `Ribbon.tsx` usage with `NarrowRibbon` adapter and migrate one App tab to ribbon group as a smoke test",
+    "Audit IPC channel names (in `src/main.tsx` and preload/electron) to ensure wrappers do not alter event payloads"
+  ]
+}

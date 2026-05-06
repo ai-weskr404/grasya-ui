@@ -30,25 +30,37 @@ const generateMockRows = (count: number) => {
   }));
 };
 
-const defaultColumns = [
-  { name: "id", type: "int", isPrimary: true, notNull: true },
+const defaultAuditColumns = [
   { name: "created_at", type: "timestamp", notNull: true },
   { name: "updated_at", type: "timestamp", notNull: false },
   { name: "status", type: "varchar", notNull: false },
 ];
 
-const tableRelationshipMap: Record<
-  string,
-  { fkColumn: string; referencesTable: string }[]
-> = {
-  orders: [{ fkColumn: "customer_id", referencesTable: "customers" }],
+type RelationshipDef = {
+  fkColumn: string;
+  referencesTable: string;
+  referencesColumn: string;
+};
+
+const tableRelationshipMap: Record<string, RelationshipDef[]> = {
+  orders: [{ fkColumn: "customer_id", referencesTable: "customers", referencesColumn: "customer_id" }],
   order_items: [
-    { fkColumn: "order_id", referencesTable: "orders" },
-    { fkColumn: "product_id", referencesTable: "products" },
+    { fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" },
+    { fkColumn: "product_id", referencesTable: "products", referencesColumn: "product_id" },
   ],
-  products: [{ fkColumn: "category_id", referencesTable: "categories" }],
-  invoices: [{ fkColumn: "order_id", referencesTable: "orders" }],
-  payments: [{ fkColumn: "invoice_id", referencesTable: "invoices" }],
+  products: [{ fkColumn: "category_id", referencesTable: "categories", referencesColumn: "category_id" }],
+  invoices: [{ fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" }],
+  payments: [{ fkColumn: "invoice_id", referencesTable: "invoices", referencesColumn: "invoice_id" }],
+};
+
+const tablePrimaryKeyMap: Record<string, string> = {
+  customers: "customer_id",
+  categories: "category_id",
+  products: "product_id",
+  orders: "order_id",
+  order_items: "order_item_id",
+  invoices: "invoice_id",
+  payments: "payment_id",
 };
 
 const getTableKey = (tableName: string) =>
@@ -75,36 +87,14 @@ const normalizeSelectedTables = (selectedTables: string[]): string[] => {
 
 const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
   const normalizedTables = normalizeSelectedTables(selectedTables);
-  const selected = new Set(normalizedTables.map((table) => getTableKey(table)));
-  const orderedTableKeys = normalizedTables.map((table) => getTableKey(table));
-  const previousTableLookup = new Map(
-    orderedTableKeys.map((tableKey, index) => [
-      tableKey,
-      orderedTableKeys[
-        (index - 1 + orderedTableKeys.length) % orderedTableKeys.length
-      ],
-    ]),
-  );
+  const selectedKeys = new Set(normalizedTables.map((table) => getTableKey(table)));
 
   return normalizedTables.map((name) => {
     const tableKey = getTableKey(name);
-    const mappedRelationships = (tableRelationshipMap[tableKey] ?? []).filter(
-      (rel) => selected.has(rel.referencesTable),
+    const primaryKey = tablePrimaryKeyMap[tableKey] ?? `${tableKey}_id`;
+    const relationships = (tableRelationshipMap[tableKey] ?? []).filter(
+      (rel) => selectedKeys.has(rel.referencesTable),
     );
-    const fallbackRelationship =
-      previousTableLookup.size > 1
-        ? {
-            fkColumn: `${previousTableLookup.get(tableKey)}_id`,
-            referencesTable: previousTableLookup.get(tableKey) ?? "",
-          }
-        : null;
-    const relationships =
-      mappedRelationships.length > 0
-        ? mappedRelationships
-        : fallbackRelationship &&
-            fallbackRelationship.referencesTable !== tableKey
-          ? [fallbackRelationship]
-          : [];
 
     const relationshipColumns = relationships.map((relationship) => ({
       name: relationship.fkColumn,
@@ -112,6 +102,7 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
       isForeign: true,
       notNull: true,
       referencesTable: relationship.referencesTable,
+      referencesColumn: relationship.referencesColumn,
     }));
 
     return {
@@ -119,9 +110,9 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
       name,
       schema: "dbo",
       columns: [
-        { name: `${tableKey}_id`, type: "int", isPrimary: true, notNull: true },
+        { name: primaryKey, type: "int", isPrimary: true, notNull: true },
         ...relationshipColumns,
-        ...defaultColumns.slice(1),
+        ...defaultAuditColumns,
       ],
     };
   });

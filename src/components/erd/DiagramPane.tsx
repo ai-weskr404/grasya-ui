@@ -49,7 +49,9 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
           if (targetIndex < 0) return null;
 
           const targetPrimaryRowIndex = Math.max(
-            tables[targetIndex].columns.findIndex((col) => col.isPrimary),
+            tables[targetIndex].columns.findIndex(
+              (col) => col.name === fkCol.referencesColumn || col.isPrimary,
+            ),
             0,
           );
 

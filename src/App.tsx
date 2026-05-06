@@ -30,37 +30,79 @@ const generateMockRows = (count: number) => {
   }));
 };
 
-const defaultAuditColumns = [
-  { name: "created_at", type: "timestamp", notNull: true },
-  { name: "updated_at", type: "timestamp", notNull: false },
-  { name: "status", type: "varchar", notNull: false },
-];
-
 type RelationshipDef = {
   fkColumn: string;
   referencesTable: string;
   referencesColumn: string;
 };
 
+const SALES_ORDER_HEADER_TABLE = "sales.salesorderheader";
+const SALES_ORDER_DETAIL_TABLE = "sales.salesorderdetail";
+const SALES_ORDER_REASON_TABLE = "sales.salesorderheadersalesreason";
+
 const tableRelationshipMap: Record<string, RelationshipDef[]> = {
-  orders: [{ fkColumn: "customer_id", referencesTable: "customers", referencesColumn: "customer_id" }],
-  order_items: [
-    { fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" },
-    { fkColumn: "product_id", referencesTable: "products", referencesColumn: "product_id" },
+  [SALES_ORDER_DETAIL_TABLE]: [
+    {
+      fkColumn: "SalesOrderID",
+      referencesTable: SALES_ORDER_HEADER_TABLE,
+      referencesColumn: "SalesOrderID",
+    },
   ],
-  products: [{ fkColumn: "category_id", referencesTable: "categories", referencesColumn: "category_id" }],
-  invoices: [{ fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" }],
-  payments: [{ fkColumn: "invoice_id", referencesTable: "invoices", referencesColumn: "invoice_id" }],
+  [SALES_ORDER_REASON_TABLE]: [
+    {
+      fkColumn: "SalesOrderID",
+      referencesTable: SALES_ORDER_HEADER_TABLE,
+      referencesColumn: "SalesOrderID",
+    },
+  ],
 };
 
-const tablePrimaryKeyMap: Record<string, string> = {
-  customers: "customer_id",
-  categories: "category_id",
-  products: "product_id",
-  orders: "order_id",
-  order_items: "order_item_id",
-  invoices: "invoice_id",
-  payments: "payment_id",
+const salesSchemaColumns: Record<string, TableDef["columns"]> = {
+  [SALES_ORDER_HEADER_TABLE]: [
+    { name: "SalesOrderID", type: "int", isPrimary: true, notNull: true },
+    { name: "RevisionNumber", type: "tinyint", notNull: true },
+    { name: "OrderDate", type: "datetime", notNull: true },
+    { name: "DueDate", type: "datetime", notNull: true },
+    { name: "ShipDate", type: "datetime", notNull: false },
+    { name: "Status", type: "tinyint", notNull: true },
+    { name: "OnlineOrderFlag", type: "bit", notNull: true },
+    { name: "SalesOrderNumber", type: "nvarchar", notNull: true },
+    { name: "PurchaseOrderNumber", type: "nvarchar", notNull: false },
+    { name: "AccountNumber", type: "nvarchar", notNull: false },
+    { name: "CustomerID", type: "int", notNull: true },
+    { name: "SalesPersonID", type: "int", notNull: false },
+    { name: "TerritoryID", type: "int", notNull: false },
+    { name: "BillToAddressID", type: "int", notNull: true },
+    { name: "ShipToAddressID", type: "int", notNull: true },
+    { name: "ShipMethodID", type: "int", notNull: true },
+    { name: "CreditCardID", type: "int", notNull: false },
+    { name: "CreditCardApprovalCode", type: "varchar", notNull: false },
+    { name: "CurrencyRateID", type: "int", notNull: false },
+    { name: "TaxAmt", type: "money", notNull: true },
+    { name: "Freight", type: "money", notNull: true },
+    { name: "TotalDue", type: "money", notNull: true },
+    { name: "Comment", type: "nvarchar", notNull: false },
+    { name: "rowguid", type: "uniqueidentifier", notNull: true },
+    { name: "ModifiedDate", type: "datetime", notNull: true },
+  ],
+  [SALES_ORDER_DETAIL_TABLE]: [
+    { name: "SalesOrderID", type: "int", isPrimary: true, isForeign: true, notNull: true, referencesTable: SALES_ORDER_HEADER_TABLE, referencesColumn: "SalesOrderID" },
+    { name: "SalesOrderDetailID", type: "int", isPrimary: true, notNull: true },
+    { name: "CarrierTrackingNumber", type: "nvarchar", notNull: false },
+    { name: "OrderQty", type: "smallint", notNull: true },
+    { name: "ProductID", type: "int", notNull: true },
+    { name: "SpecialOfferID", type: "int", notNull: true },
+    { name: "UnitPrice", type: "money", notNull: true },
+    { name: "UnitPriceDiscount", type: "money", notNull: true },
+    { name: "LineTotal", type: "numeric", notNull: true },
+    { name: "rowguid", type: "uniqueidentifier", notNull: true },
+    { name: "ModifiedDate", type: "datetime", notNull: true },
+  ],
+  [SALES_ORDER_REASON_TABLE]: [
+    { name: "SalesOrderID", type: "int", isPrimary: true, isForeign: true, notNull: true, referencesTable: SALES_ORDER_HEADER_TABLE, referencesColumn: "SalesOrderID" },
+    { name: "SalesReasonID", type: "int", isPrimary: true, notNull: true },
+    { name: "ModifiedDate", type: "datetime", notNull: true },
+  ],
 };
 
 const getTableKey = (tableName: string) =>
@@ -91,29 +133,29 @@ const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
 
   return normalizedTables.map((name) => {
     const tableKey = getTableKey(name);
-    const primaryKey = tablePrimaryKeyMap[tableKey] ?? `${tableKey}_id`;
     const relationships = (tableRelationshipMap[tableKey] ?? []).filter(
       (rel) => selectedKeys.has(rel.referencesTable),
     );
 
-    const relationshipColumns = relationships.map((relationship) => ({
-      name: relationship.fkColumn,
-      type: "int",
-      isForeign: true,
-      notNull: true,
-      referencesTable: relationship.referencesTable,
-      referencesColumn: relationship.referencesColumn,
-    }));
+    const baseColumns = salesSchemaColumns[tableKey] ?? [];
+    const columns = baseColumns.map((column) => {
+      const relationship = relationships.find(
+        (rel) => rel.fkColumn.toLowerCase() === column.name.toLowerCase(),
+      );
+      if (!relationship) return column;
+      return {
+        ...column,
+        isForeign: true,
+        referencesTable: relationship.referencesTable,
+        referencesColumn: relationship.referencesColumn,
+      };
+    });
 
     return {
       id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
       name,
       schema: "dbo",
-      columns: [
-        { name: primaryKey, type: "int", isPrimary: true, notNull: true },
-        ...relationshipColumns,
-        ...defaultAuditColumns,
-      ],
+      columns,
     };
   });
 };
@@ -571,9 +613,9 @@ export default function App() {
       ? normalizeSelectedTables(selectedTables)
       : [];
     const fallbackTables = [
-      "public.users",
-      "public.transactions",
-      "public.inventory_items",
+      SALES_ORDER_HEADER_TABLE,
+      SALES_ORDER_DETAIL_TABLE,
+      SALES_ORDER_REASON_TABLE,
     ];
     const tablesForDiagram =
       normalizedSelectedTables.length > 0

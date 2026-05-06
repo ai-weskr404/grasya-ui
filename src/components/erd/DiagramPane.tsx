@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import TableNode from './TableNode';
 import type { TableDef } from './types';
 
@@ -7,6 +7,7 @@ const NODE_H = 150;
 
 export default function DiagramPane({ tables }: { tables: TableDef[] }) {
   const [offset, setOffset] = useState({ x: 60, y: 40 });
+  const viewportRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
 
   const positions = useMemo(
@@ -28,7 +29,8 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
       const fkColumns = table.columns.filter((col) => col.isForeign);
 
       return fkColumns
-        .map((fkCol, fkIndex) => {
+        .map((fkCol) => {
+          const fkRowIndex = table.columns.findIndex((col) => col.name === fkCol.name);
           const inferredBase = normalize(fkCol.name.replace(/_?id$/i, ''));
           const targetIndex = tables.findIndex((candidate, idx) => {
             if (idx === tableIndex) return false;
@@ -46,18 +48,45 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
 
           if (targetIndex < 0) return null;
 
+          const targetPrimaryRowIndex = Math.max(
+            tables[targetIndex].columns.findIndex(
+              (col) => col.name === fkCol.referencesColumn || col.isPrimary,
+            ),
+            0,
+          );
+
           return {
-            id: `${table.id}-${fkCol.name}-${targetIndex}-${fkIndex}`,
+            id: `${table.id}-${fkCol.name}-${targetIndex}`,
+            sourceTableIndex: tableIndex,
+            targetTableIndex: targetIndex,
             from: positions[tableIndex],
             to: positions[targetIndex],
             label: `FK_${table.schema}.${table.name}.${fkCol.name}`,
-            sourceOffset: 24 + fkIndex * 16,
-            targetOffset: 24,
+            sourceOffset: 32 + fkRowIndex * 20,
+            targetOffset: 32 + targetPrimaryRowIndex * 20,
           };
         })
         .filter((edge): edge is NonNullable<typeof edge> => Boolean(edge));
     });
   }, [tables, positions]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || tables.length === 0) return;
+
+    const xs = positions.map((p) => p.x);
+    const ys = positions.map((p) => p.y);
+    const minX = Math.min(...xs);
+    const minY = Math.min(...ys);
+    const maxX = Math.max(...xs) + NODE_W;
+    const maxY = Math.max(...ys) + NODE_H;
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    const centeredX = (viewport.clientWidth - contentW) / 2 - minX;
+    const centeredY = (viewport.clientHeight - contentH) / 2 - minY;
+
+    setOffset({ x: Math.round(centeredX), y: Math.round(centeredY) });
+  }, [positions, tables.length]);
 
   const onDown = (e: React.MouseEvent<HTMLDivElement>) => {
     dragRef.current = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
@@ -70,7 +99,7 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
   };
 
   return (
-    <div className="erd-viewport" onMouseDown={onDown} onMouseMove={onMove} onMouseUp={() => (dragRef.current = null)} onMouseLeave={() => (dragRef.current = null)}>
+    <div ref={viewportRef} className="erd-viewport" onMouseDown={onDown} onMouseMove={onMove} onMouseUp={() => (dragRef.current = null)} onMouseLeave={() => (dragRef.current = null)}>
       <div className="erd-canvas" style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
         {tables.map((table, i) => (
           <div key={table.id} className="erd-node-wrap" style={{ left: positions[i].x, top: positions[i].y }}>
@@ -91,11 +120,14 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
             const y1 = edge.from.y + edge.sourceOffset;
             const x2 = edge.to.x;
             const y2 = edge.to.y + edge.targetOffset;
-            const midX = x1 + (x2 - x1) / 2;
+            const direction = x1 <= x2 ? 1 : -1;
+            const laneBase = direction === 1 ? Math.max(x1, x2) : Math.min(x1, x2);
+            const laneOffset = 48 + (edge.sourceTableIndex * 13 + edge.targetTableIndex * 17 + idx * 7) % 80;
+            const laneX = laneBase + direction * laneOffset;
             return (
               <g key={`${edge.id}-${idx}`}>
                 <path
-                  d={`M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`}
+                  d={`M ${x1} ${y1} L ${laneX} ${y1} L ${laneX} ${y2} L ${x2} ${y2}`}
                   className="erd-path"
                   markerStart="url(#erd-many)"
                   markerEnd="url(#erd-one)"

@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
 import type { FileNode } from "../../types";
-import { DatabaseFilled } from "./DatabaseFilled";
+import { DatabaseFilled } from "@fluentui/react-icons";
 
 interface TreeNodeProps {
   node: FileNode;

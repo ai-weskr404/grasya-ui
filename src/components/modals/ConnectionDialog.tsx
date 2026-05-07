@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Callout, Icon } from "@blueprintjs/core";
 import iconMap from "../blueprint/utils/iconMap";
+import { DatabaseIcon } from "../ui/DatabaseIcon";
 import BPDialog from "../blueprint/wrappers/BPDialog";
 import BPInput from "../blueprint/wrappers/BPInput";
 import BPSelect from "../blueprint/wrappers/BPSelect";
@@ -184,11 +185,7 @@ const Step2Tables: React.FC<StepProps> = ({ data, updateData }) => {
                 onChange={() => toggleTable(table)}
                 className="accent-blue-600"
               />
-              <Icon
-                icon={iconMap.Database}
-                size={12}
-                className="text-slate-400"
-              />
+              <DatabaseIcon size={12} className="text-slate-400" />
               {table}
             </label>
           ))}

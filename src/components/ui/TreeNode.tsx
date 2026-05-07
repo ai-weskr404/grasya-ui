@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
 import type { FileNode } from "../../types";
-import { DatabaseIcon } from "./DatabaseIcon";
+import { DatabaseFilled } from "./DatabaseFilled";
 
 interface TreeNodeProps {
   node: FileNode;
@@ -45,7 +45,7 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
             }`}
           />
         ) : (
-          <DatabaseIcon
+          <DatabaseFilled
             size={14}
             className={`mr-1.5 ${
               node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")

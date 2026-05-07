@@ -9,7 +9,7 @@ import DiagramPane from "./components/erd/DiagramPane";
 import type { TableDef } from "./components/erd/types";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
-import { DatabaseIcon } from "./components/ui/DatabaseIcon";
+import { DatabaseFilled } from "./components/ui/DatabaseFilled";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {
@@ -162,7 +162,7 @@ const SchemaMapTab = ({
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <DatabaseIcon className="text-blue-600" size={18} />
+            <DatabaseFilled className="text-blue-600" size={18} />
             Stream: {tableName}
           </h2>
           <p className="text-xs text-slate-500 font-mono mt-1">
@@ -282,7 +282,7 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
           </>
         )}
         {getNodeIcon() === "__database__" ? (
-          <DatabaseIcon size={12} className={getNodeColorClass()} />
+          <DatabaseFilled size={12} className={getNodeColorClass()} />
         ) : (
           <Icon icon={getNodeIcon()} size={12} className={getNodeColorClass()} />
         )}

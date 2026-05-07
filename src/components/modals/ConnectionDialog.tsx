@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Callout, Icon } from "@blueprintjs/core";
 import iconMap from "../blueprint/utils/iconMap";
-import { DatabaseFilled } from "../ui/DatabaseFilled";
+import { DatabaseFilled } from "@fluentui/react-icons";
 import BPDialog from "../blueprint/wrappers/BPDialog";
 import BPInput from "../blueprint/wrappers/BPInput";
 import BPSelect from "../blueprint/wrappers/BPSelect";

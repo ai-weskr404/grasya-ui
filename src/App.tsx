@@ -9,7 +9,7 @@ import DiagramPane from "./components/erd/DiagramPane";
 import type { TableDef } from "./components/erd/types";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
-import { DatabaseFilled } from "./components/ui/DatabaseFilled";
+import { DatabaseFilled } from "@fluentui/react-icons";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {

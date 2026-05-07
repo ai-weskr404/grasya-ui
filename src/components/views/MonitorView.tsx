@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Icon } from "@blueprintjs/core";
 import iconMap from "../blueprint/utils/iconMap";
-import { DatabaseFilled } from "../ui/DatabaseFilled";
+import { DatabaseFilled } from "@fluentui/react-icons";
 import type{ LogEntry } from '../../types';
 
 interface MonitorViewProps {

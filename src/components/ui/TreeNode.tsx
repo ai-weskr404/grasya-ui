@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
 import type { FileNode } from "../../types";
+import { DatabaseFilled } from "./DatabaseFilled";
 
 interface TreeNodeProps {
   node: FileNode;
@@ -31,23 +32,30 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
           </span>
         )}
         {!isFolder && <span className="w-[16px]" />}
-        <Icon
-          icon={
-            node.type === "table"
-              ? "th"
-              : node.type === "view"
-                ? "layout-auto"
-                : "database"
-          }
-          size={14}
-          className={`mr-1.5 ${
-            node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
-              ? "text-orange-500"
-              : node.type === "folder"
-                ? "text-yellow-500"
-                : "text-blue-600"
-          }`}
-        />
+        {node.type === "table" || node.type === "view" ? (
+          <Icon
+            icon={node.type === "table" ? "th" : "layout-auto"}
+            size={14}
+            className={`mr-1.5 ${
+              node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
+                ? "text-orange-500"
+                : node.type === "folder"
+                  ? "text-yellow-500"
+                  : "text-blue-600"
+            }`}
+          />
+        ) : (
+          <DatabaseFilled
+            size={14}
+            className={`mr-1.5 ${
+              node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
+                ? "text-orange-500"
+                : node.type === "folder"
+                  ? "text-yellow-500"
+                  : "text-blue-600"
+            }`}
+          />
+        )}
         <span className="text-slate-800">{node.name}</span>
       </div>
       {isFolder && node.isOpen && node.children && (

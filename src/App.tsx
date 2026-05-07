@@ -9,6 +9,7 @@ import DiagramPane from "./components/erd/DiagramPane";
 import type { TableDef } from "./components/erd/types";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
+import { DatabaseFilled } from "./components/ui/DatabaseFilled";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {
@@ -161,7 +162,7 @@ const SchemaMapTab = ({
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Icon icon="database" className="text-blue-600" size={18} />
+            <DatabaseFilled className="text-blue-600" size={18} />
             Stream: {tableName}
           </h2>
           <p className="text-xs text-slate-500 font-mono mt-1">
@@ -243,7 +244,7 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
   const isDatabaseRoot = level === 0;
 
   const getNodeIcon = () => {
-    if (isDatabaseRoot) return "database";
+    if (isDatabaseRoot) return "__database__";
     if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
     if (node.type === "table") return "th";
     if (node.type === "view") return "table";
@@ -280,7 +281,11 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
             )}
           </>
         )}
-        <Icon icon={getNodeIcon()} size={12} className={getNodeColorClass()} />
+        {getNodeIcon() === "__database__" ? (
+          <DatabaseFilled size={12} className={getNodeColorClass()} />
+        ) : (
+          <Icon icon={getNodeIcon()} size={12} className={getNodeColorClass()} />
+        )}
         <span
           className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}
         >

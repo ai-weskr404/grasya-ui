@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Icon } from "@blueprintjs/core";
 import iconMap from "../blueprint/utils/iconMap";
+import { DatabaseFilled } from "../ui/DatabaseFilled";
 import type{ LogEntry } from '../../types';
 
 interface MonitorViewProps {
@@ -39,7 +40,7 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
                   : 'border-slate-300 opacity-60 grayscale-[0.5]'
                 }
               `}>
-                <Icon icon={iconMap.Database} className={trafficState === 'BLUE_POSTGRES' ? "text-blue-600" : "text-slate-400"} size={20} />
+                <DatabaseFilled className={trafficState === 'BLUE_POSTGRES' ? "text-blue-600" : "text-slate-400"} size={20} />
             </div>
             <div className="text-center">
                 <div className={`text-[10px] font-bold ${trafficState === 'BLUE_POSTGRES' ? "text-blue-700" : "text-slate-500"}`}>
@@ -76,7 +77,7 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
                     : 'border-slate-300'
                   }
                 `}>
-                <Icon icon={iconMap.Database} className={trafficState === 'GREEN_MONGO' ? "text-green-600" : "text-slate-400"} size={20} />
+                <DatabaseFilled className={trafficState === 'GREEN_MONGO' ? "text-green-600" : "text-slate-400"} size={20} />
                 <div className={`
                    absolute -bottom-1 -right-1 text-[8px] px-1 rounded border transition-colors duration-500
                    ${trafficState === 'GREEN_MONGO'

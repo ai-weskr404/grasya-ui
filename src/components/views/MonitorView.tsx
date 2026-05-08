@@ -81,11 +81,8 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
           {/* NEW: KAFKA NODE (The "Central Nervous System") */}
           <div className="flex flex-col items-center gap-2 z-10 w-24">
             <div className="w-12 h-12 bg-white border border-slate-300 shadow-sm rounded flex items-center justify-center">
-              <Icon
-                icon={iconMap.Server}
-                className="text-purple-600"
-                size={20}
-              />
+              {/* Fix: Pass the string "cube" directly */}
+              <Icon icon="cube" className="text-purple-600" size={20} />
             </div>
             <div className="text-center">
               <div className="text-[10px] font-bold text-slate-700">Kafka</div>

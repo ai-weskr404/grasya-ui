@@ -33,6 +33,77 @@
   display: inline-block;
 }
 
+.react-flow__node-tableNode {
+  min-width: 220px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.12);
+  font-size: 11px;
+}
+.table-node-header {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  font-weight: 600;
+  padding: 6px 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.table-node-columns,
+.table-node-meta {
+  padding: 2px 8px;
+}
+.table-node-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+.table-node-row-left {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.table-node-type {
+  color: #64748b;
+  font-size: 10px;
+}
+.table-node-tag {
+  font-size: 9px;
+  color: #334155;
+  background: #e2e8f0;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.erd-pane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f1f5f9;
+  overflow: auto;
+}
+.erd-lines {
+  position: absolute;
+  inset: 0;
+  width: 1400px;
+  height: 1000px;
+  pointer-events: none;
+}
+.erd-path {
+  fill: none;
+  stroke: #106ba3;
+  stroke-width: 1.5;
+}
+.erd-label {
+  font-size: 10px;
+  fill: #64748b;
+}
+.erd-node-wrap {
+  position: absolute;
+}
+
 .ribbon-icon-btn {
   width: 24px;
   height: 24px;
@@ -55,4 +126,35 @@
   height: 16px;
   background: #cbd5e1;
   margin: 0 4px;
+}
+
+.erd-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #dfe5ec;
+  cursor: grab;
+}
+.erd-viewport:active {
+  cursor: grabbing;
+}
+.erd-canvas {
+  position: absolute;
+  width: 1600px;
+  height: 1200px;
+  background-image: radial-gradient(#cfd8e3 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.erd-lines {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 1200px;
+  z-index: 5;
+  pointer-events: none;
+}
+.erd-node-wrap {
+  position: absolute;
+  z-index: 20;
 }

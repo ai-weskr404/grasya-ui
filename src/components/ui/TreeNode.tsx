@@ -15,6 +15,12 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
   toggleNode,
 }) => {
   const isFolder = node.type === "folder";
+  const iconColor =
+    node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
+      ? "text-orange-500"
+      : isFolder
+        ? "text-yellow-500"
+        : "text-blue-600";
 
   return (
     <div>
@@ -36,24 +42,12 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
           <Icon
             icon={node.type === "table" ? "th" : "layout-auto"}
             size={14}
-            className={`mr-1.5 ${
-              node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
-                ? "text-orange-500"
-                : node.type === "folder"
-                  ? "text-yellow-500"
-                  : "text-blue-600"
-            }`}
+            className={`mr-1.5 ${iconColor}`}
           />
         ) : (
           <DatabaseFilled
-            size={14}
-            className={`mr-1.5 ${
-              node.name.includes("Atlas") || node.name.includes("MongoDB_Storage")
-                ? "text-orange-500"
-                : node.type === "folder"
-                  ? "text-yellow-500"
-                  : "text-blue-600"
-            }`}
+            style={{ fontSize: "14px" }}
+            className={`mr-1.5 ${iconColor}`}
           />
         )}
         <span className="text-slate-800">{node.name}</span>

@@ -44,14 +44,46 @@ type RelationshipDef = {
 };
 
 const tableRelationshipMap: Record<string, RelationshipDef[]> = {
-  orders: [{ fkColumn: "customer_id", referencesTable: "customers", referencesColumn: "customer_id" }],
-  order_items: [
-    { fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" },
-    { fkColumn: "product_id", referencesTable: "products", referencesColumn: "product_id" },
+  orders: [
+    {
+      fkColumn: "customer_id",
+      referencesTable: "customers",
+      referencesColumn: "customer_id",
+    },
   ],
-  products: [{ fkColumn: "category_id", referencesTable: "categories", referencesColumn: "category_id" }],
-  invoices: [{ fkColumn: "order_id", referencesTable: "orders", referencesColumn: "order_id" }],
-  payments: [{ fkColumn: "invoice_id", referencesTable: "invoices", referencesColumn: "invoice_id" }],
+  order_items: [
+    {
+      fkColumn: "order_id",
+      referencesTable: "orders",
+      referencesColumn: "order_id",
+    },
+    {
+      fkColumn: "product_id",
+      referencesTable: "products",
+      referencesColumn: "product_id",
+    },
+  ],
+  products: [
+    {
+      fkColumn: "category_id",
+      referencesTable: "categories",
+      referencesColumn: "category_id",
+    },
+  ],
+  invoices: [
+    {
+      fkColumn: "order_id",
+      referencesTable: "orders",
+      referencesColumn: "order_id",
+    },
+  ],
+  payments: [
+    {
+      fkColumn: "invoice_id",
+      referencesTable: "invoices",
+      referencesColumn: "invoice_id",
+    },
+  ],
 };
 
 const tablePrimaryKeyMap: Record<string, string> = {
@@ -88,13 +120,15 @@ const normalizeSelectedTables = (selectedTables: string[]): string[] => {
 
 const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
   const normalizedTables = normalizeSelectedTables(selectedTables);
-  const selectedKeys = new Set(normalizedTables.map((table) => getTableKey(table)));
+  const selectedKeys = new Set(
+    normalizedTables.map((table) => getTableKey(table)),
+  );
 
   return normalizedTables.map((name) => {
     const tableKey = getTableKey(name);
     const primaryKey = tablePrimaryKeyMap[tableKey] ?? `${tableKey}_id`;
-    const relationships = (tableRelationshipMap[tableKey] ?? []).filter(
-      (rel) => selectedKeys.has(rel.referencesTable),
+    const relationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
+      selectedKeys.has(rel.referencesTable),
     );
 
     const relationshipColumns = relationships.map((relationship) => ({
@@ -162,7 +196,10 @@ const SchemaMapTab = ({
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <DatabaseFilled className="text-blue-600" size={18} />
+            <DatabaseFilled
+              className="text-blue-600"
+              style={{ fontSize: "18px" }}
+            />
             Stream: {tableName}
           </h2>
           <p className="text-xs text-slate-500 font-mono mt-1">
@@ -282,9 +319,16 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
           </>
         )}
         {getNodeIcon() === "__database__" ? (
-          <DatabaseFilled size={12} className={getNodeColorClass()} />
+          <DatabaseFilled
+            style={{ fontSize: "12px" }}
+            className={getNodeColorClass()}
+          />
         ) : (
-          <Icon icon={getNodeIcon()} size={12} className={getNodeColorClass()} />
+          <Icon
+            icon={getNodeIcon()}
+            size={12}
+            className={getNodeColorClass()}
+          />
         )}
         <span
           className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}
@@ -409,7 +453,7 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [isAtlasEnabled, setIsAwsEnabled] = useState(true);
+  const [isAtlasEnabled] = useState(true);
 
   const [trafficState, setTrafficState] = useState<
     "BLUE_POSTGRES" | "GREEN_MONGO"

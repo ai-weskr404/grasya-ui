@@ -185,7 +185,10 @@ const Step2Tables: React.FC<StepProps> = ({ data, updateData }) => {
                 onChange={() => toggleTable(table)}
                 className="accent-blue-600"
               />
-              <DatabaseFilled size={12} className="text-slate-400" />
+              <DatabaseFilled
+                style={{ fontSize: "12px" }}
+                className="text-slate-400"
+              />
               {table}
             </label>
           ))}

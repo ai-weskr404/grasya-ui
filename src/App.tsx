@@ -444,6 +444,15 @@ export default function App() {
     }
   };
 
+
+  useEffect(() => {
+    if (!isConnected) {
+      setWorkspaceTabs((prev) => prev.filter((tab) => tab !== "ERD Diagram" || tab === "Start Page"));
+      setActiveWorkspaceTab("Start Page");
+      setDiagramTables([]);
+    }
+  }, [isConnected]);
+
   const toggleTreeNode = (id: string) => {
     const updateNodes = (nodes: FileNode[]): FileNode[] => {
       return nodes.map((node) => {

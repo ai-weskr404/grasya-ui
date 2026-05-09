@@ -1,47 +1,54 @@
 import { useMemo } from "react";
-import { RelationshipDiagram } from "react-erd";
+import {
+  RelationshipDiagram,
+  type DataType,
+  type DatabaseSchemaInfo,
+} from "react-erd";
 import "react-erd/dist/style.css";
 import type { TableDef } from "./types";
 
-type SchemaColumn = {
-  name: string;
-  type: string;
-  foreignKeys: Array<{
-    foreignSchemaName: string;
-    foreignTableName: string;
-    foreignColumnName: string;
-    constrained: boolean;
-  }>;
+const TABLE_COLORS = ["#0F766E", "#2563EB", "#7C3AED", "#B45309", "#BE123C"];
+
+const toDataType = (type: string): DataType => {
+  const normalized = type.toLowerCase();
+  if (["int", "integer", "bigint", "smallint", "serial", "decimal", "float", "double", "numeric"].some((t) => normalized.includes(t))) return "number";
+  if (["bool"].some((t) => normalized.includes(t))) return "boolean";
+  if (["timestamp", "date", "time"].some((t) => normalized.includes(t))) return "datetime";
+  if (["json", "jsonb", "xml", "ltree"].some((t) => normalized.includes(t))) return "hierarchical";
+  if (["money"].some((t) => normalized.includes(t))) return "money";
+  if (["point", "polygon", "geometry", "geography"].some((t) => normalized.includes(t))) return "geometric";
+  if (["bytea", "blob", "binary", "varbinary"].some((t) => normalized.includes(t))) return "binary";
+  if (["char", "text", "varchar", "uuid"].some((t) => normalized.includes(t))) return "text";
+  return "other";
 };
 
 export default function DiagramPane({ tables }: { tables: TableDef[] }) {
-  const schemas = useMemo(() => {
-    const grouped = new Map<string, { name: string; tables: Array<{ name: string; primaryKey: string; columns: SchemaColumn[] }> }>();
+  const schemas: DatabaseSchemaInfo[] = useMemo(() => {
+    const grouped = new Map<string, DatabaseSchemaInfo>();
 
     tables.forEach((table) => {
       const schemaName = table.schema || "dbo";
       if (!grouped.has(schemaName)) grouped.set(schemaName, { name: schemaName, tables: [] });
 
-      const primaryKey = table.columns.find((c) => c.isPrimary)?.name ?? table.columns[0]?.name ?? "id";
-      const columns: SchemaColumn[] = table.columns.map((column) => ({
-        name: column.name,
-        type: column.type,
-        foreignKeys: column.isForeign
-          ? [
-              {
-                foreignSchemaName: schemaName,
-                foreignTableName: column.referencesTable ?? "",
-                foreignColumnName: column.referencesColumn ?? "id",
-                constrained: true,
-              },
-            ]
-          : [],
-      }));
+      const primaryKey = table.columns.filter((c) => c.isPrimary).map((c) => c.name);
 
       grouped.get(schemaName)?.tables.push({
         name: table.name,
-        primaryKey,
-        columns,
+        primaryKey: primaryKey.length <= 1 ? (primaryKey[0] ?? table.columns[0]?.name ?? "id") : primaryKey,
+        columns: table.columns.map((column) => ({
+          name: column.name,
+          type: toDataType(column.type),
+          foreignKeys: column.isForeign
+            ? [
+                {
+                  foreignSchemaName: schemaName,
+                  foreignTableName: column.referencesTable ?? "",
+                  foreignColumnName: column.referencesColumn ?? "id",
+                  constrained: true,
+                },
+              ]
+            : [],
+        })),
       });
     });
 
@@ -50,7 +57,7 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
 
   return (
     <div className="h-full w-full overflow-hidden">
-      <RelationshipDiagram schemas={schemas} />
+      <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
     </div>
   );
 }

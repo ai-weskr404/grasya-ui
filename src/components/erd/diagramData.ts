@@ -117,3 +117,15 @@ export const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[]
     };
   });
 };
+
+
+export const hasKnownTableBlueprint = (tableName: string): boolean => {
+  const key = getTableKey(tableName);
+  return Boolean(tableBlueprints[key]);
+};
+
+export const resolveDiagramTables = (selectedTables: string[]): string[] => {
+  const normalized = normalizeSelectedTables(selectedTables);
+  const known = normalized.filter(hasKnownTableBlueprint);
+  return known.length > 0 ? known : [...DEFAULT_ERD_SELECTED_TABLES];
+};

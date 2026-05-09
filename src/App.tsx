@@ -11,6 +11,7 @@ import {
   DEFAULT_ERD_SELECTED_TABLES,
   mapSelectedTablesToDiagram,
   normalizeSelectedTables,
+  resolveDiagramTables,
 } from "./components/erd/diagramData";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
@@ -505,7 +506,7 @@ export default function App() {
     const fallbackTables = [...DEFAULT_ERD_SELECTED_TABLES];
     const tablesForDiagram =
       normalizedSelectedTables.length > 0
-        ? normalizedSelectedTables
+        ? resolveDiagramTables(normalizedSelectedTables)
         : fallbackTables;
 
     setShowConnectDialog(false);

@@ -7,6 +7,12 @@ import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
 import { MenuBar } from "./menu";
 import DiagramPane from "./components/erd/DiagramPane";
 import type { TableDef } from "./components/erd/types";
+import {
+  DEFAULT_ERD_SELECTED_TABLES,
+  mapSelectedTablesToDiagram,
+  normalizeSelectedTables,
+  resolveDiagramTables,
+} from "./components/erd/diagramData";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
@@ -29,128 +35,6 @@ const generateMockRows = (count: number) => {
     status: "pending",
     lsn: `0/${(160000 + i).toString(16).toUpperCase()}`,
   }));
-};
-
-const defaultAuditColumns = [
-  { name: "created_at", type: "timestamp", notNull: true },
-  { name: "updated_at", type: "timestamp", notNull: false },
-  { name: "status", type: "varchar", notNull: false },
-];
-
-type RelationshipDef = {
-  fkColumn: string;
-  referencesTable: string;
-  referencesColumn: string;
-};
-
-const tableRelationshipMap: Record<string, RelationshipDef[]> = {
-  orders: [
-    {
-      fkColumn: "customer_id",
-      referencesTable: "customers",
-      referencesColumn: "customer_id",
-    },
-  ],
-  order_items: [
-    {
-      fkColumn: "order_id",
-      referencesTable: "orders",
-      referencesColumn: "order_id",
-    },
-    {
-      fkColumn: "product_id",
-      referencesTable: "products",
-      referencesColumn: "product_id",
-    },
-  ],
-  products: [
-    {
-      fkColumn: "category_id",
-      referencesTable: "categories",
-      referencesColumn: "category_id",
-    },
-  ],
-  invoices: [
-    {
-      fkColumn: "order_id",
-      referencesTable: "orders",
-      referencesColumn: "order_id",
-    },
-  ],
-  payments: [
-    {
-      fkColumn: "invoice_id",
-      referencesTable: "invoices",
-      referencesColumn: "invoice_id",
-    },
-  ],
-};
-
-const tablePrimaryKeyMap: Record<string, string> = {
-  customers: "customer_id",
-  categories: "category_id",
-  products: "product_id",
-  orders: "order_id",
-  order_items: "order_item_id",
-  invoices: "invoice_id",
-  payments: "payment_id",
-};
-
-const getTableKey = (tableName: string) =>
-  tableName
-    .toLowerCase()
-    .split(".")
-    .filter(Boolean)
-    .at(-1)
-    ?.replace(/[^a-z0-9_]/g, "") ?? "";
-
-const normalizeSelectedTables = (selectedTables: string[]): string[] => {
-  const seen = new Set<string>();
-
-  return selectedTables
-    .map((table) => table?.trim())
-    .filter((table): table is string => Boolean(table))
-    .filter((table) => {
-      const tableKey = getTableKey(table);
-      if (!tableKey || seen.has(tableKey)) return false;
-      seen.add(tableKey);
-      return true;
-    });
-};
-
-const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[] => {
-  const normalizedTables = normalizeSelectedTables(selectedTables);
-  const selectedKeys = new Set(
-    normalizedTables.map((table) => getTableKey(table)),
-  );
-
-  return normalizedTables.map((name) => {
-    const tableKey = getTableKey(name);
-    const primaryKey = tablePrimaryKeyMap[tableKey] ?? `${tableKey}_id`;
-    const relationships = (tableRelationshipMap[tableKey] ?? []).filter((rel) =>
-      selectedKeys.has(rel.referencesTable),
-    );
-
-    const relationshipColumns = relationships.map((relationship) => ({
-      name: relationship.fkColumn,
-      type: "int",
-      isForeign: true,
-      notNull: true,
-      referencesTable: relationship.referencesTable,
-      referencesColumn: relationship.referencesColumn,
-    }));
-
-    return {
-      id: name.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
-      name,
-      schema: "dbo",
-      columns: [
-        { name: primaryKey, type: "int", isPrimary: true, notNull: true },
-        ...relationshipColumns,
-        ...defaultAuditColumns,
-      ],
-    };
-  });
 };
 
 // --- FEATURE COMPONENT: Live Schema Map Tab ---
@@ -459,11 +343,13 @@ export default function App() {
     "BLUE_POSTGRES" | "GREEN_MONGO"
   >("BLUE_POSTGRES");
 
-  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page"]);
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("Start Page");
+  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page", "ERD Diagram"]);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [activeTableContext, setActiveTableContext] = useState("public.orders");
-  const [diagramTables, setDiagramTables] = useState<TableDef[]>([]);
+  const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>
+    mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
+  );
 
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [treeData, setTreeData] = useState<FileNode[]>(DB_SCHEMA);
@@ -619,14 +505,10 @@ export default function App() {
     const normalizedSelectedTables = Array.isArray(selectedTables)
       ? normalizeSelectedTables(selectedTables)
       : [];
-    const fallbackTables = [
-      "public.users",
-      "public.transactions",
-      "public.inventory_items",
-    ];
+    const fallbackTables = [...DEFAULT_ERD_SELECTED_TABLES];
     const tablesForDiagram =
       normalizedSelectedTables.length > 0
-        ? normalizedSelectedTables
+        ? resolveDiagramTables(normalizedSelectedTables)
         : fallbackTables;
 
     setShowConnectDialog(false);

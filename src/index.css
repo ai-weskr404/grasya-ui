@@ -63,3 +63,12 @@
   background-image: radial-gradient(#d9d9d9 1px, transparent 1px);
   background-size: 12px 12px;
 }
+
+.mongo-rel-node-highlight {
+  box-shadow: 0 0 0 2px #0ea5e9 !important;
+}
+
+.mongo-rel-edge-highlight .react-flow__edge-path {
+  stroke: #0ea5e9 !important;
+  stroke-width: 2px !important;
+}

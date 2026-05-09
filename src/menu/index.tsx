@@ -84,7 +84,7 @@ export const MenuBar = ({
         </button>
         <button
           className="ribbon-icon-btn"
-          title="Schema"
+          title="MongoDB Relationship Mapping"
           onClick={commands.OPEN_SCHEMA}
         >
           <Icon icon="th" size={13} />

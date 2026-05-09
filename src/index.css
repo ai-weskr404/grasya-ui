@@ -70,5 +70,15 @@
 
 .mongo-rel-edge-highlight .react-flow__edge-path {
   stroke: #0ea5e9 !important;
-  stroke-width: 2px !important;
+  stroke-width: 3px !important;
+}
+
+.mongo-rel-edge-highlight marker path {
+  fill: #0ea5e9 !important;
+  stroke: #0ea5e9 !important;
+}
+
+.mongo-rel-edge-highlight .react-flow__edge-text {
+  fill: #0369a1 !important;
+  font-weight: 700 !important;
 }

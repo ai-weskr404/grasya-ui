@@ -25,11 +25,11 @@ export const buildRelationshipMappings = (tables: TableDef[]): RelationshipMappi
     table.columns
       .filter((column) => column.isForeign && column.referencesTable && column.referencesColumn)
       .map((column) => ({
-        id: `${table.schema}.${table.name}.${column.name}:${table.schema}.${column.referencesTable}.${column.referencesColumn}`,
+        id: `${table.schema}.${table.name}.${column.name}:${column.referencesSchema ?? table.schema}.${column.referencesTable}.${column.referencesColumn}`,
         sourceSchema: table.schema,
         sourceTable: table.name,
         sourceColumn: column.name,
-        targetSchema: table.schema,
+        targetSchema: column.referencesSchema ?? table.schema,
         targetTable: column.referencesTable as string,
         targetColumn: column.referencesColumn as string,
         detectedCardinality: detectCardinality(table, column.name),

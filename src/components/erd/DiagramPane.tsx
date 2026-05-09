@@ -26,10 +26,14 @@ export default function DiagramPane({
   tables,
   highlightedNodeIds = [],
   highlightedEdgeId,
+  onRelationshipHover,
+  onRelationshipSelect,
 }: {
   tables: TableDef[];
   highlightedNodeIds?: string[];
   highlightedEdgeId?: string | null;
+  onRelationshipHover?: (relationshipId: string | null) => void;
+  onRelationshipSelect?: (relationshipId: string) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
@@ -50,7 +54,7 @@ export default function DiagramPane({
           foreignKeys: column.isForeign
             ? [
                 {
-                  foreignSchemaName: schemaName,
+                  foreignSchemaName: column.referencesSchema ?? schemaName,
                   foreignTableName: column.referencesTable ?? "",
                   foreignColumnName: column.referencesColumn ?? "id",
                   constrained: true,
@@ -79,6 +83,31 @@ export default function DiagramPane({
       if (edge) edge.classList.add("mongo-rel-edge-highlight");
     }
   }, [highlightedNodeIds, highlightedEdgeId]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onMouseOver = (event: Event) => {
+      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      if (edge) onRelationshipHover?.(edge.dataset.id ?? null);
+    };
+    const onMouseOut = (event: Event) => {
+      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      if (edge) onRelationshipHover?.(null);
+    };
+    const onClick = (event: Event) => {
+      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      if (edge?.dataset.id) onRelationshipSelect?.(edge.dataset.id);
+    };
+    root.addEventListener("mouseover", onMouseOver);
+    root.addEventListener("mouseout", onMouseOut);
+    root.addEventListener("click", onClick);
+    return () => {
+      root.removeEventListener("mouseover", onMouseOver);
+      root.removeEventListener("mouseout", onMouseOut);
+      root.removeEventListener("click", onClick);
+    };
+  }, [onRelationshipHover, onRelationshipSelect]);
 
   return (
     <div ref={rootRef} className="h-full w-full overflow-hidden erd-dot-bg">

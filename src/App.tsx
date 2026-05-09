@@ -261,7 +261,25 @@ export default function App() {
   const [hoverRelationshipId, setHoverRelationshipId] = useState<string | null>(null);
   const [mappingStrategyById, setMappingStrategyById] = useState<Record<string, MappingStrategy>>({});
   const [cardinalityOverrideById, setCardinalityOverrideById] = useState<Record<string, Cardinality>>({});
+  const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const relationshipMappings = buildRelationshipMappings(diagramTables);
+  const activeRelationship = relationshipMappings.find(
+    (r) => r.id === (hoverRelationshipId ?? activeRelationshipId),
+  );
+  const highlightedNodeIds = activeRelationship
+    ? [
+        `${activeRelationship.sourceSchema}.${activeRelationship.sourceTable}`,
+        `${activeRelationship.targetSchema}.${activeRelationship.targetTable}`,
+      ]
+    : [];
+
+  useEffect(() => {
+    if (!activeRelationshipId) return;
+    relationshipItemRefs.current[activeRelationshipId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [activeRelationshipId]);
 
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [treeData, setTreeData] = useState<FileNode[]>(DB_SCHEMA);
@@ -666,16 +684,25 @@ export default function App() {
               )}
 
               {activeWorkspaceTab === "ERD Diagram" && (
-                <DiagramPane tables={diagramTables} highlightedNodeIds={(relationshipMappings.find((r) => r.id === (hoverRelationshipId ?? activeRelationshipId)) ? [`${relationshipMappings.find((r) => r.id === (hoverRelationshipId ?? activeRelationshipId))?.sourceSchema}.${relationshipMappings.find((r) => r.id === (hoverRelationshipId ?? activeRelationshipId))?.sourceTable}`, `${relationshipMappings.find((r) => r.id === (hoverRelationshipId ?? activeRelationshipId))?.targetSchema}.${relationshipMappings.find((r) => r.id === (hoverRelationshipId ?? activeRelationshipId))?.targetTable}`] : []).filter(Boolean) as string[]} highlightedEdgeId={hoverRelationshipId ?? activeRelationshipId} />
+                <DiagramPane
+                  tables={diagramTables}
+                  highlightedNodeIds={highlightedNodeIds}
+                  highlightedEdgeId={hoverRelationshipId ?? activeRelationshipId}
+                  onRelationshipHover={setHoverRelationshipId}
+                  onRelationshipSelect={setActiveRelationshipId}
+                />
               )}
 
               {activeWorkspaceTab === "Dead Letter Queue" && (
                 <DeadLetterQueueTab />
               )}
 
-                          </div>
-            {showRelationshipPanel && (
-              <div className="w-64 bg-[#F7F9FB] border-l border-slate-300 flex flex-col shrink-0 z-20">
+            </div>
+          </div>
+        </div>
+
+        {showRelationshipPanel && (
+          <div className="w-64 bg-[#F7F9FB] border-l border-slate-300 flex flex-col shrink-0 z-20">
                 <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
                   <span className="text-[11px] font-semibold text-slate-700">MongoDB Relationship Mapping</span>
                   <Icon icon="cross" size={12} className="text-slate-500 cursor-pointer hover:text-red-500" onClick={() => setShowRelationshipPanel(false)} />
@@ -684,7 +711,7 @@ export default function App() {
                   {relationshipMappings.map((rel) => {
                     const isActive = activeRelationshipId === rel.id || hoverRelationshipId === rel.id;
                     return (
-                      <div key={rel.id} onMouseEnter={() => setHoverRelationshipId(rel.id)} onMouseLeave={() => setHoverRelationshipId(null)} onClick={() => setActiveRelationshipId(rel.id)} className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}>
+                      <div ref={(el) => { relationshipItemRefs.current[rel.id] = el; }} key={rel.id} onMouseEnter={() => setHoverRelationshipId(rel.id)} onMouseLeave={() => setHoverRelationshipId(null)} onClick={() => setActiveRelationshipId(rel.id)} className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}>
                         <div className="font-semibold text-slate-700">{rel.sourceTable}.{rel.sourceColumn} → {rel.targetTable}.{rel.targetColumn}</div>
                         <div className="mt-2"><label className="text-slate-500">MongoDB Mapping</label><select className="w-full mt-1 border border-slate-300 rounded bg-white p-1" value={mappingStrategyById[rel.id] ?? "referenced"} onChange={(e) => setMappingStrategyById((prev) => ({ ...prev, [rel.id]: e.target.value as MappingStrategy }))}><option value="embedded">Embedded document</option><option value="referenced">Referenced document</option></select></div>
                         <div className="mt-2 text-slate-600">Detected: <span className="font-semibold">{rel.detectedCardinality}</span></div>
@@ -693,10 +720,8 @@ export default function App() {
                     );
                   })}
                 </div>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* STATUS BAR */}

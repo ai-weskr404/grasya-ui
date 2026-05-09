@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   RelationshipDiagram,
   type DataType,
@@ -22,7 +22,16 @@ const toDataType = (type: string): DataType => {
   return "other";
 };
 
-export default function DiagramPane({ tables }: { tables: TableDef[] }) {
+export default function DiagramPane({
+  tables,
+  highlightedNodeIds = [],
+  highlightedEdgeId,
+}: {
+  tables: TableDef[];
+  highlightedNodeIds?: string[];
+  highlightedEdgeId?: string | null;
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
     const grouped = new Map<string, DatabaseSchemaInfo>();
 
@@ -55,8 +64,24 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
     return Array.from(grouped.values());
   }, [tables]);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    root.querySelectorAll(".react-flow__node").forEach((node) => node.classList.remove("mongo-rel-node-highlight"));
+    root.querySelectorAll(".react-flow__edge").forEach((edge) => edge.classList.remove("mongo-rel-edge-highlight"));
+
+    highlightedNodeIds.forEach((id) => {
+      const node = root.querySelector(`.react-flow__node[data-id='${id}']`);
+      if (node) node.classList.add("mongo-rel-node-highlight");
+    });
+    if (highlightedEdgeId) {
+      const edge = root.querySelector(`.react-flow__edge[data-id='${highlightedEdgeId}']`);
+      if (edge) edge.classList.add("mongo-rel-edge-highlight");
+    }
+  }, [highlightedNodeIds, highlightedEdgeId]);
+
   return (
-    <div className="h-full w-full overflow-hidden erd-dot-bg">
+    <div ref={rootRef} className="h-full w-full overflow-hidden erd-dot-bg">
       <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
     </div>
   );

@@ -111,6 +111,7 @@ export const mapSelectedTablesToDiagram = (selectedTables: string[]): TableDef[]
         notNull: Boolean(col.notNull),
         isPrimary: Boolean(col.isPrimary),
         isForeign: relationshipByColumn.has(col.name),
+        referencesSchema: relationshipByColumn.get(col.name)?.referencesSchema,
         referencesTable: relationshipByColumn.get(col.name)?.referencesTable,
         referencesColumn: relationshipByColumn.get(col.name)?.referencesColumn,
       })),

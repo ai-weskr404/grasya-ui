@@ -705,7 +705,16 @@ export default function App() {
           <div className="w-64 bg-[#F7F9FB] border-l border-slate-300 flex flex-col shrink-0 z-20">
                 <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
                   <span className="text-[11px] font-semibold text-slate-700">MongoDB Relationship Mapping</span>
-                  <Icon icon="cross" size={12} className="text-slate-500 cursor-pointer hover:text-red-500" onClick={() => setShowRelationshipPanel(false)} />
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="h-5 px-2 text-[10px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm"
+                      onClick={() => addLog("RELATIONSHIP MAPPING: Applied MongoDB relationship mapping configuration.", "success")}
+                    >
+                      Apply
+                    </button>
+                    <Icon icon="cross" size={12} className="text-slate-500 cursor-pointer hover:text-red-500" onClick={() => setShowRelationshipPanel(false)} />
+                  </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
                   {relationshipMappings.map((rel) => {

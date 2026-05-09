@@ -56,7 +56,7 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
   }, [tables]);
 
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden erd-dot-bg">
       <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
     </div>
   );

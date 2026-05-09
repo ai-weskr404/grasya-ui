@@ -126,6 +126,10 @@ export const hasKnownTableBlueprint = (tableName: string): boolean => {
 
 export const resolveDiagramTables = (selectedTables: string[]): string[] => {
   const normalized = normalizeSelectedTables(selectedTables);
-  const known = normalized.filter(hasKnownTableBlueprint);
-  return known.length > 0 ? known : [...DEFAULT_ERD_SELECTED_TABLES];
+  if (normalized.length === 0) return [...DEFAULT_ERD_SELECTED_TABLES];
+
+  const hasUnknown = normalized.some((table) => !hasKnownTableBlueprint(table));
+  if (hasUnknown) return [...DEFAULT_ERD_SELECTED_TABLES];
+
+  return normalized;
 };

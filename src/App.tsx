@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@blueprintjs/core";
+import Tree from "@rc-component/tree";
 
 import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
@@ -164,85 +165,6 @@ const DeadLetterQueueTab = () => (
   </div>
 );
 
-// --- COMPONENT: Internal Tree Node ---
-const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
-  const isLeaf = !node.children;
-  const isDatabaseRoot = level === 0;
-
-  const getNodeIcon = () => {
-    if (isDatabaseRoot) return "__database__";
-    if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
-    if (node.type === "table") return "th";
-    if (node.type === "view") return "table";
-    if (node.type === "proc") return "function";
-    return "document";
-  };
-
-  const getNodeColorClass = () => {
-    if (!isLeaf) return "text-amber-500";
-    if (node.type === "view") return "text-blue-500";
-    return "";
-  };
-
-  return (
-    <div className="select-none">
-      <div
-        className={`flex items-center gap-1.5 py-0.5 px-2 cursor-pointer hover:bg-sky-100 text-[11px] rounded-sm ${
-          level > 0 ? "ml-4" : ""
-        }`}
-        onClick={() => {
-          if (isLeaf) {
-            onSelect(node.name);
-          } else {
-            onToggle(node.id);
-          }
-        }}
-      >
-        {!isLeaf && (
-          <>
-            {node.isOpen ? (
-              <Icon icon="chevron-down" size={12} className="text-slate-400" />
-            ) : (
-              <Icon icon="chevron-right" size={12} className="text-slate-400" />
-            )}
-          </>
-        )}
-        {getNodeIcon() === "__database__" ? (
-          <DatabaseFilled
-            style={{ fontSize: "12px" }}
-            className={getNodeColorClass()}
-          />
-        ) : (
-          <Icon
-            icon={getNodeIcon()}
-            size={12}
-            className={getNodeColorClass()}
-          />
-        )}
-        <span
-          className={isLeaf ? "text-slate-700" : "font-medium text-slate-800"}
-        >
-          {node.name}
-        </span>
-      </div>
-
-      {node.isOpen && node.children && (
-        <div>
-          {node.children.map((child: any) => (
-            <InternalTreeNode
-              key={child.id}
-              node={child}
-              level={level + 1}
-              onToggle={onToggle}
-              onSelect={onSelect}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -401,18 +323,6 @@ export default function App() {
     }
   }, [isConnected]);
 
-  const toggleTreeNode = (id: string) => {
-    const updateNodes = (nodes: FileNode[]): FileNode[] => {
-      return nodes.map((node) => {
-        if (node.id === id) return { ...node, isOpen: !node.isOpen };
-        if (node.children)
-          return { ...node, children: updateNodes(node.children) };
-        return node;
-      });
-    };
-    setTreeData(updateNodes(treeData));
-  };
-
   const collapseAllTreeNodes = () => {
     const collapseNodes = (nodes: FileNode[]): FileNode[] =>
       nodes.map((node) => ({
@@ -428,6 +338,32 @@ export default function App() {
     setTreeData(DB_SCHEMA);
     addLog("OBJECT EXPLORER: Refreshed.", "info");
   };
+
+  const mapTreeData = (nodes: FileNode[]): any[] =>
+    nodes.map((node) => ({
+      key: node.id,
+      title: node.name,
+      nodeType: node.type,
+      children: node.children ? mapTreeData(node.children) : undefined,
+    }));
+
+  const getExpandedKeys = (nodes: FileNode[]): string[] =>
+    nodes.flatMap((node) => [
+      ...(node.isOpen ? [node.id] : []),
+      ...(node.children ? getExpandedKeys(node.children) : []),
+    ]);
+
+  const updateExpandedState = (
+    nodes: FileNode[],
+    expandedSet: Set<string>,
+  ): FileNode[] =>
+    nodes.map((node) => ({
+      ...node,
+      isOpen: expandedSet.has(node.id),
+      ...(node.children
+        ? { children: updateExpandedState(node.children, expandedSet) }
+        : {}),
+    }));
 
   // --- UPDATED SIMULATION LOOP with History ---
   useEffect(() => {
@@ -616,17 +552,27 @@ export default function App() {
                   <span className="text-xs mt-2">Not Connected</span>
                 </div>
               ) : (
-                <div className="flex flex-col gap-1">
-                  {treeData.map((node) => (
-                    <InternalTreeNode
-                      key={node.id}
-                      node={node}
-                      level={0}
-                      onToggle={toggleTreeNode}
-                      onSelect={handleObjectExplorerSelect}
-                    />
-                  ))}
-                </div>
+                <Tree
+                  treeData={mapTreeData(treeData)}
+                  expandedKeys={getExpandedKeys(treeData)}
+                  selectable
+                  showIcon={false}
+                  onExpand={(keys) => {
+                    setTreeData(
+                      updateExpandedState(treeData, new Set(keys as string[])),
+                    );
+                  }}
+                  onSelect={(_, info: any) => {
+                    if (!info.node.children) {
+                      handleObjectExplorerSelect(info.node.title);
+                    }
+                  }}
+                  titleRender={(node: any) => (
+                    <span className="text-[11px] text-slate-700">
+                      {String(node.title)}
+                    </span>
+                  )}
+                />
               )}
             </div>
           </div>

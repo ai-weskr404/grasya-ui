@@ -14,6 +14,7 @@ import {
   resolveDiagramTables,
 } from "./components/erd/diagramData";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
+import { buildRelationshipMappings, type Cardinality, type MappingStrategy } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
 
@@ -238,101 +239,6 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
   );
 };
 
-const SchemaConfigWorkspaceTab = () => {
-  const [activeConfigTab, setActiveConfigTab] = useState<
-    "runtime" | "network" | "mapping"
-  >("runtime");
-
-  return (
-    <div className="h-full bg-slate-50 flex flex-col">
-      <div className="h-8 border-b border-slate-300 bg-slate-100 flex items-center justify-between px-3 shrink-0">
-        <span className="text-[12px] font-semibold text-slate-700">
-          Schema Configuration
-        </span>
-        <div className="flex items-center gap-2">
-          <button className="h-6 px-3 text-[11px] border border-slate-400 bg-white hover:bg-slate-50 rounded-sm">
-            Validate
-          </button>
-          <button className="h-6 px-3 text-[11px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm">
-            Apply Configuration
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 p-3 overflow-hidden flex gap-3">
-        <div className="w-[40%] bg-white border border-slate-300 rounded-sm flex flex-col overflow-hidden">
-          <div className="h-8 bg-slate-200 border-b border-slate-300 flex text-[11px]">
-            {[
-              { id: "runtime", label: "Runtime" },
-              { id: "network", label: "Network" },
-              { id: "mapping", label: "Data Mapping" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveConfigTab(tab.id as any)}
-                className={`flex-1 border-r border-slate-300 last:border-r-0 ${
-                  activeConfigTab === tab.id
-                    ? "bg-white text-slate-900 font-semibold"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex-1 p-3 text-xs overflow-y-auto">
-            {activeConfigTab === "runtime" && (
-              <div className="space-y-3">
-                <div className="bg-slate-100 border border-slate-300 rounded-sm p-2">
-                  Configure retry policies, log level, and batch behavior.
-                </div>
-                <label className="block text-slate-600">
-                  maxRetries
-                  <input
-                    type="number"
-                    defaultValue={5}
-                    className="w-full mt-1 p-1.5 border border-slate-300 rounded-sm bg-white"
-                  />
-                </label>
-              </div>
-            )}
-            {activeConfigTab === "network" && (
-              <div className="space-y-3">
-                <label className="block text-slate-600">
-                  requestTimeoutInMs
-                  <input
-                    type="number"
-                    defaultValue={15000}
-                    className="w-full mt-1 p-1.5 border border-slate-300 rounded-sm bg-white"
-                  />
-                </label>
-              </div>
-            )}
-            {activeConfigTab === "mapping" && (
-              <div className="space-y-3">
-                <div className="bg-sky-50 border border-sky-200 rounded-sm p-2 text-sky-800">
-                  Mapping mode: upsert with primary key constraints.
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex-1 bg-white border border-slate-300 rounded-sm flex flex-col overflow-hidden">
-          <div className="h-7 bg-slate-200 border-b border-slate-300 px-3 flex items-center justify-between text-[11px] text-slate-600">
-            <span>schema_transform.production.json</span>
-            <span>JSON</span>
-          </div>
-          <textarea
-            className="flex-1 font-mono text-[11px] p-3 resize-none focus:outline-none bg-white text-slate-700"
-            defaultValue={`{\n  "version": "1.2.0",\n  "environment": "production",\n  "maxRetries": 5,\n  "retryBackoffInMs": 2000,\n  "requestTimeoutInMs": 15000,\n  "batchSize": 500,\n  "enableIdempotency": true,\n  "enableSchemaValidation": true,\n  "enableDeadLetterQueue": true,\n  "logLevel": "INFO",\n  "defaultTargetDatabase": "mongo_prod_cluster"\n}`}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -350,6 +256,21 @@ export default function App() {
   const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>
     mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
   );
+  const [showRelationshipPanel, setShowRelationshipPanel] = useState(false);
+  const [activeRelationshipId, setActiveRelationshipId] = useState<string | null>(null);
+  const [hoverRelationshipId, setHoverRelationshipId] = useState<string | null>(null);
+  const [mappingStrategyById, setMappingStrategyById] = useState<Record<string, MappingStrategy>>({});
+  const [cardinalityOverrideById, setCardinalityOverrideById] = useState<Record<string, Cardinality>>({});
+  const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const relationshipMappings = buildRelationshipMappings(diagramTables);
+
+  useEffect(() => {
+    if (!activeRelationshipId) return;
+    relationshipItemRefs.current[activeRelationshipId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [activeRelationshipId]);
 
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
   const [treeData, setTreeData] = useState<FileNode[]>(DB_SCHEMA);
@@ -587,7 +508,7 @@ export default function App() {
 
     CLEAR_LOGS: () => setLogs([]),
 
-    OPEN_SCHEMA: () => handleOpenTab("Schema Configuration"),
+    OPEN_SCHEMA: () => setShowRelationshipPanel((prev) => !prev),
     OPEN_DLQ: () => handleOpenTab("Dead Letter Queue"),
   };
 
@@ -761,12 +682,47 @@ export default function App() {
                 <DeadLetterQueueTab />
               )}
 
-              {activeWorkspaceTab === "Schema Configuration" && (
-                <SchemaConfigWorkspaceTab />
-              )}
             </div>
           </div>
         </div>
+
+        {showRelationshipPanel && (
+          <div className="w-64 bg-[#F7F9FB] border-l border-slate-300 flex flex-col shrink-0 z-20">
+                <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
+                  <span className="text-[11px] font-semibold text-slate-700">MongoDB Relationship Mapping</span>
+                  <Icon icon="cross" size={12} className="text-slate-500 cursor-pointer hover:text-red-500" onClick={() => setShowRelationshipPanel(false)} />
+                </div>
+                <div className="flex-1 overflow-y-auto p-2 pb-14 space-y-2">
+                  {relationshipMappings.map((rel) => {
+                    const isActive = activeRelationshipId === rel.id || hoverRelationshipId === rel.id;
+                    return (
+                      <div ref={(el) => { relationshipItemRefs.current[rel.id] = el; }} key={rel.id} onMouseEnter={() => setHoverRelationshipId(rel.id)} onMouseLeave={() => setHoverRelationshipId(null)} onClick={() => setActiveRelationshipId(rel.id)} className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}>
+                        <div className="font-semibold text-slate-700">{rel.sourceTable}.{rel.sourceColumn} → {rel.targetTable}.{rel.targetColumn}</div>
+                        <div className="mt-2"><label className="text-slate-500">MongoDB Mapping</label><select className="w-full mt-1 border border-slate-300 rounded bg-white p-1" value={mappingStrategyById[rel.id] ?? "referenced"} onChange={(e) => setMappingStrategyById((prev) => ({ ...prev, [rel.id]: e.target.value as MappingStrategy }))}><option value="embedded">Embedded document</option><option value="referenced">Referenced document</option></select></div>
+                        <div className="mt-2 text-slate-600">Detected: <span className="font-semibold">{rel.detectedCardinality}</span></div>
+                        <div className="mt-1"><label className="text-slate-500">Override Cardinality</label><select className="w-full mt-1 border border-slate-300 rounded bg-white p-1" value={cardinalityOverrideById[rel.id] ?? rel.detectedCardinality} onChange={(e) => setCardinalityOverrideById((prev) => ({ ...prev, [rel.id]: e.target.value as Cardinality }))}><option value="1:1">1:1</option><option value="1:N">1:N</option><option value="N:1">N:1</option><option value="N:N">N:N</option></select></div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mongo-rel-panel-footer sticky bottom-0 flex items-center justify-end gap-2 px-2 py-2">
+                  <button
+                    type="button"
+                    className="h-6 px-3 text-[10px] border border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-sm"
+                    onClick={() => addLog("RELATIONSHIP MAPPING: Discarded pending MongoDB relationship mapping changes.", "warning")}
+                  >
+                    Discard
+                  </button>
+                  <button
+                    type="button"
+                    className="h-6 px-3 text-[10px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm"
+                    onClick={() => addLog("RELATIONSHIP MAPPING: Applied MongoDB relationship mapping configuration.", "success")}
+                  >
+                    Apply
+                  </button>
+                </div>
+          </div>
+        )}
       </div>
 
       {/* STATUS BAR */}

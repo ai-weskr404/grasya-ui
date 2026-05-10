@@ -1,7 +1,7 @@
 let mainWindow;
 let splashWindow;
 
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, session } = require("electron");
 const path = require("path");
 
 const isDev = !app.isPackaged;
@@ -51,6 +51,27 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
+  const cspValue = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${isDev ? "http://localhost:5173 ws://localhost:5173" : ""}`.trim(),
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [cspValue],
+      },
+    });
+  });
+
   createSplash();
   createMainWindow();
 });

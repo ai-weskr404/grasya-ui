@@ -11,14 +11,38 @@ const TABLE_COLORS = ["#0F766E", "#2563EB", "#7C3AED", "#B45309", "#BE123C"];
 
 const toDataType = (type: string): DataType => {
   const normalized = type.toLowerCase();
-  if (["int", "integer", "bigint", "smallint", "serial", "decimal", "float", "double", "numeric"].some((t) => normalized.includes(t))) return "number";
+  if (
+    [
+      "int",
+      "integer",
+      "bigint",
+      "smallint",
+      "serial",
+      "decimal",
+      "float",
+      "double",
+      "numeric",
+    ].some((t) => normalized.includes(t))
+  )
+    return "number";
   if (["bool"].some((t) => normalized.includes(t))) return "boolean";
-  if (["timestamp", "date", "time"].some((t) => normalized.includes(t))) return "datetime";
-  if (["json", "jsonb", "xml", "ltree"].some((t) => normalized.includes(t))) return "hierarchical";
+  if (["timestamp", "date", "time"].some((t) => normalized.includes(t)))
+    return "datetime";
+  if (["json", "jsonb", "xml", "ltree"].some((t) => normalized.includes(t)))
+    return "hierarchical";
   if (["money"].some((t) => normalized.includes(t))) return "money";
-  if (["point", "polygon", "geometry", "geography"].some((t) => normalized.includes(t))) return "geometric";
-  if (["bytea", "blob", "binary", "varbinary"].some((t) => normalized.includes(t))) return "binary";
-  if (["char", "text", "varchar", "uuid"].some((t) => normalized.includes(t))) return "text";
+  if (
+    ["point", "polygon", "geometry", "geography"].some((t) =>
+      normalized.includes(t),
+    )
+  )
+    return "geometric";
+  if (
+    ["bytea", "blob", "binary", "varbinary"].some((t) => normalized.includes(t))
+  )
+    return "binary";
+  if (["char", "text", "varchar", "uuid"].some((t) => normalized.includes(t)))
+    return "text";
   return "other";
 };
 
@@ -41,13 +65,19 @@ export default function DiagramPane({
 
     tables.forEach((table) => {
       const schemaName = table.schema || "dbo";
-      if (!grouped.has(schemaName)) grouped.set(schemaName, { name: schemaName, tables: [] });
+      if (!grouped.has(schemaName))
+        grouped.set(schemaName, { name: schemaName, tables: [] });
 
-      const primaryKey = table.columns.filter((c) => c.isPrimary).map((c) => c.name);
+      const primaryKey = table.columns
+        .filter((c) => c.isPrimary)
+        .map((c) => c.name);
 
       grouped.get(schemaName)?.tables.push({
         name: table.name,
-        primaryKey: primaryKey.length <= 1 ? (primaryKey[0] ?? table.columns[0]?.name ?? "id") : primaryKey,
+        primaryKey:
+          primaryKey.length <= 1
+            ? (primaryKey[0] ?? table.columns[0]?.name ?? "id")
+            : primaryKey,
         columns: table.columns.map((column) => ({
           name: column.name,
           type: toDataType(column.type),
@@ -71,15 +101,21 @@ export default function DiagramPane({
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    root.querySelectorAll(".react-flow__node").forEach((node) => node.classList.remove("mongo-rel-node-highlight"));
-    root.querySelectorAll(".react-flow__edge").forEach((edge) => edge.classList.remove("mongo-rel-edge-highlight"));
+    root
+      .querySelectorAll(".react-flow__node")
+      .forEach((node) => node.classList.remove("mongo-rel-node-highlight"));
+    root
+      .querySelectorAll(".react-flow__edge")
+      .forEach((edge) => edge.classList.remove("mongo-rel-edge-highlight"));
 
     highlightedNodeIds.forEach((id) => {
       const node = root.querySelector(`.react-flow__node[data-id='${id}']`);
       if (node) node.classList.add("mongo-rel-node-highlight");
     });
     if (highlightedEdgeId) {
-      const edge = root.querySelector(`.react-flow__edge[data-id='${highlightedEdgeId}']`);
+      const edge = root.querySelector(
+        `.react-flow__edge[data-id='${highlightedEdgeId}']`,
+      );
       if (edge) edge.classList.add("mongo-rel-edge-highlight");
     }
   }, [highlightedNodeIds, highlightedEdgeId]);
@@ -88,15 +124,21 @@ export default function DiagramPane({
     const root = rootRef.current;
     if (!root) return;
     const onMouseOver = (event: Event) => {
-      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      const edge = (event.target as HTMLElement).closest(
+        ".react-flow__edge[data-id]",
+      ) as HTMLElement | null;
       if (edge) onRelationshipHover?.(edge.dataset.id ?? null);
     };
     const onMouseOut = (event: Event) => {
-      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      const edge = (event.target as HTMLElement).closest(
+        ".react-flow__edge[data-id]",
+      ) as HTMLElement | null;
       if (edge) onRelationshipHover?.(null);
     };
     const onClick = (event: Event) => {
-      const edge = (event.target as HTMLElement).closest(".react-flow__edge[data-id]") as HTMLElement | null;
+      const edge = (event.target as HTMLElement).closest(
+        ".react-flow__edge[data-id]",
+      ) as HTMLElement | null;
       if (edge?.dataset.id) onRelationshipSelect?.(edge.dataset.id);
     };
     root.addEventListener("mouseover", onMouseOver);

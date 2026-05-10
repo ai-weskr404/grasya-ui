@@ -14,7 +14,11 @@ import {
   resolveDiagramTables,
 } from "./components/erd/diagramData";
 import { MigrationWizard } from "./components/modals/ConnectionDialog";
-import { buildRelationshipMappings, type Cardinality, type MappingStrategy } from "./components/erd/relationshipMapping";
+import {
+  buildRelationshipMappings,
+  type Cardinality,
+  type MappingStrategy,
+} from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
 
@@ -249,7 +253,10 @@ export default function App() {
     "BLUE_POSTGRES" | "GREEN_MONGO"
   >("BLUE_POSTGRES");
 
-  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page", "ERD Diagram"]);
+  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>([
+    "Start Page",
+    "ERD Diagram",
+  ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [activeTableContext, setActiveTableContext] = useState("public.orders");
@@ -257,11 +264,21 @@ export default function App() {
     mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
   );
   const [showRelationshipPanel, setShowRelationshipPanel] = useState(false);
-  const [activeRelationshipId, setActiveRelationshipId] = useState<string | null>(null);
-  const [hoverRelationshipId, setHoverRelationshipId] = useState<string | null>(null);
-  const [mappingStrategyById, setMappingStrategyById] = useState<Record<string, MappingStrategy>>({});
-  const [cardinalityOverrideById, setCardinalityOverrideById] = useState<Record<string, Cardinality>>({});
-  const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [activeRelationshipId, setActiveRelationshipId] = useState<
+    string | null
+  >(null);
+  const [hoverRelationshipId, setHoverRelationshipId] = useState<string | null>(
+    null,
+  );
+  const [mappingStrategyById, setMappingStrategyById] = useState<
+    Record<string, MappingStrategy>
+  >({});
+  const [cardinalityOverrideById, setCardinalityOverrideById] = useState<
+    Record<string, Cardinality>
+  >({});
+  const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>(
+    {},
+  );
   const relationshipMappings = buildRelationshipMappings(diagramTables);
   const activeRelationship = relationshipMappings.find(
     (r) => r.id === (hoverRelationshipId ?? activeRelationshipId),
@@ -374,10 +391,11 @@ export default function App() {
     }
   };
 
-
   useEffect(() => {
     if (!isConnected) {
-      setWorkspaceTabs((prev) => prev.filter((tab) => tab !== "ERD Diagram" || tab === "Start Page"));
+      setWorkspaceTabs((prev) =>
+        prev.filter((tab) => tab !== "ERD Diagram" || tab === "Start Page"),
+      );
       setActiveWorkspaceTab("Start Page");
       setDiagramTables([]);
     }
@@ -687,7 +705,9 @@ export default function App() {
                 <DiagramPane
                   tables={diagramTables}
                   highlightedNodeIds={highlightedNodeIds}
-                  highlightedEdgeId={hoverRelationshipId ?? activeRelationshipId}
+                  highlightedEdgeId={
+                    hoverRelationshipId ?? activeRelationshipId
+                  }
                   onRelationshipHover={setHoverRelationshipId}
                   onRelationshipSelect={setActiveRelationshipId}
                 />
@@ -696,46 +716,118 @@ export default function App() {
               {activeWorkspaceTab === "Dead Letter Queue" && (
                 <DeadLetterQueueTab />
               )}
-
             </div>
           </div>
         </div>
 
         {showRelationshipPanel && (
           <div className="w-64 bg-[#F7F9FB] border-l border-slate-300 flex flex-col shrink-0 z-20">
-                <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
-                  <span className="text-[11px] font-semibold text-slate-700">MongoDB Relationship Mapping</span>
-                  <Icon icon="cross" size={12} className="text-slate-500 cursor-pointer hover:text-red-500" onClick={() => setShowRelationshipPanel(false)} />
-                </div>
-                <div className="flex-1 overflow-y-auto p-2 pb-14 space-y-2">
-                  {relationshipMappings.map((rel) => {
-                    const isActive = activeRelationshipId === rel.id || hoverRelationshipId === rel.id;
-                    return (
-                      <div ref={(el) => { relationshipItemRefs.current[rel.id] = el; }} key={rel.id} onMouseEnter={() => setHoverRelationshipId(rel.id)} onMouseLeave={() => setHoverRelationshipId(null)} onClick={() => setActiveRelationshipId(rel.id)} className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}>
-                        <div className="font-semibold text-slate-700">{rel.sourceTable}.{rel.sourceColumn} → {rel.targetTable}.{rel.targetColumn}</div>
-                        <div className="mt-2"><label className="text-slate-500">MongoDB Mapping</label><select className="w-full mt-1 border border-slate-300 rounded bg-white p-1" value={mappingStrategyById[rel.id] ?? "referenced"} onChange={(e) => setMappingStrategyById((prev) => ({ ...prev, [rel.id]: e.target.value as MappingStrategy }))}><option value="embedded">Embedded document</option><option value="referenced">Referenced document</option></select></div>
-                        <div className="mt-2 text-slate-600">Detected: <span className="font-semibold">{rel.detectedCardinality}</span></div>
-                        <div className="mt-1"><label className="text-slate-500">Override Cardinality</label><select className="w-full mt-1 border border-slate-300 rounded bg-white p-1" value={cardinalityOverrideById[rel.id] ?? rel.detectedCardinality} onChange={(e) => setCardinalityOverrideById((prev) => ({ ...prev, [rel.id]: e.target.value as Cardinality }))}><option value="1:1">1:1</option><option value="1:N">1:N</option><option value="N:1">N:1</option><option value="N:N">N:N</option></select></div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mongo-rel-panel-footer sticky bottom-0 flex items-center justify-end gap-2 px-2 py-2">
-                  <button
-                    type="button"
-                    className="h-6 px-3 text-[10px] border border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-sm"
-                    onClick={() => addLog("RELATIONSHIP MAPPING: Discarded pending MongoDB relationship mapping changes.", "warning")}
+            <div className="h-7 bg-[#EAF0F5] border-b border-slate-300 flex items-center px-2 justify-between">
+              <span className="text-[11px] font-semibold text-slate-700">
+                MongoDB Relationship Mapping
+              </span>
+              <Icon
+                icon="cross"
+                size={12}
+                className="text-slate-500 cursor-pointer hover:text-red-500"
+                onClick={() => setShowRelationshipPanel(false)}
+              />
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 pb-14 space-y-2">
+              {relationshipMappings.map((rel) => {
+                const isActive =
+                  activeRelationshipId === rel.id ||
+                  hoverRelationshipId === rel.id;
+                return (
+                  <div
+                    ref={(el) => {
+                      relationshipItemRefs.current[rel.id] = el;
+                    }}
+                    key={rel.id}
+                    onMouseEnter={() => setHoverRelationshipId(rel.id)}
+                    onMouseLeave={() => setHoverRelationshipId(null)}
+                    onClick={() => setActiveRelationshipId(rel.id)}
+                    className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}
                   >
-                    Discard
-                  </button>
-                  <button
-                    type="button"
-                    className="h-6 px-3 text-[10px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm"
-                    onClick={() => addLog("RELATIONSHIP MAPPING: Applied MongoDB relationship mapping configuration.", "success")}
-                  >
-                    Apply
-                  </button>
-                </div>
+                    <div className="font-semibold text-slate-700">
+                      {rel.sourceTable}.{rel.sourceColumn} → {rel.targetTable}.
+                      {rel.targetColumn}
+                    </div>
+                    <div className="mt-2">
+                      <label className="text-slate-500">MongoDB Mapping</label>
+                      <select
+                        className="w-full mt-1 border border-slate-300 rounded bg-white p-1"
+                        value={mappingStrategyById[rel.id] ?? "referenced"}
+                        onChange={(e) =>
+                          setMappingStrategyById((prev) => ({
+                            ...prev,
+                            [rel.id]: e.target.value as MappingStrategy,
+                          }))
+                        }
+                      >
+                        <option value="embedded">Embedded document</option>
+                        <option value="referenced">Referenced document</option>
+                      </select>
+                    </div>
+                    <div className="mt-2 text-slate-600">
+                      Detected:{" "}
+                      <span className="font-semibold">
+                        {rel.detectedCardinality}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <label className="text-slate-500">
+                        Override Cardinality
+                      </label>
+                      <select
+                        className="w-full mt-1 border border-slate-300 rounded bg-white p-1"
+                        value={
+                          cardinalityOverrideById[rel.id] ??
+                          rel.detectedCardinality
+                        }
+                        onChange={(e) =>
+                          setCardinalityOverrideById((prev) => ({
+                            ...prev,
+                            [rel.id]: e.target.value as Cardinality,
+                          }))
+                        }
+                      >
+                        <option value="1:1">1:1</option>
+                        <option value="1:N">1:N</option>
+                        <option value="N:1">N:1</option>
+                        <option value="N:N">N:N</option>
+                      </select>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mongo-rel-panel-footer sticky bottom-0 flex items-center justify-end gap-2 px-2 py-2">
+              <button
+                type="button"
+                className="h-6 px-3 text-[10px] border border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-sm"
+                onClick={() =>
+                  addLog(
+                    "RELATIONSHIP MAPPING: Discarded pending MongoDB relationship mapping changes.",
+                    "warning",
+                  )
+                }
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                className="h-6 px-3 text-[10px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm"
+                onClick={() =>
+                  addLog(
+                    "RELATIONSHIP MAPPING: Applied MongoDB relationship mapping configuration.",
+                    "success",
+                  )
+                }
+              >
+                Apply
+              </button>
+            </div>
           </div>
         )}
       </div>

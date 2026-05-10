@@ -64,6 +64,7 @@
   background-size: 12px 12px;
 }
 
+<<<<<<< HEAD
 .mongo-rel-node-highlight {
   box-shadow: 0 0 0 2px #0ea5e9 !important;
 }
@@ -83,6 +84,8 @@
   font-weight: 700 !important;
 }
 
+=======
+>>>>>>> d3efe0bbd1328b32da57a0e66d660d7d4536f712
 .mongo-rel-panel-footer {
   background: #f7f9fb;
   border-top: 1px solid #cbd5e1;

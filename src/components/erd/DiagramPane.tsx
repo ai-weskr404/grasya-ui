@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   RelationshipDiagram,
   type DataType,
@@ -187,7 +187,62 @@ export default function DiagramPane({
 
   return (
     <div ref={rootRef} className="h-full w-full overflow-hidden erd-dot-bg">
-      <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
+      <DiagramCrashBoundary>
+        <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
+      </DiagramCrashBoundary>
     </div>
   );
+}
+
+class DiagramCrashBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  override componentDidCatch(error: unknown) {
+    console.error("ERD render crashed. Falling back to static diagram.", error);
+  }
+
+  override render() {
+    if (!this.state.hasError) return this.props.children;
+
+    const fallbackTables = [
+      "audiences",
+      "customers",
+      "customer_audiences",
+      "customer_addresses",
+      "customer_payment_info",
+      "payment_card_details",
+      "payment_info_status",
+      "payment_info_fraud_detection",
+      "orders",
+      "order_fulfilment",
+      "order_payment",
+      "product_categories",
+      "products",
+      "product_category_products",
+      "promotions",
+    ];
+
+    return (
+      <div className="h-full w-full overflow-auto bg-[#ebedf0] p-4">
+        <div className="mb-3 text-xs text-slate-600">
+          ERD renderer unavailable. Showing static default commerce ERD.
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {fallbackTables.map((table) => (
+            <div key={table} className="rounded border border-slate-400 bg-white shadow-sm">
+              <div className="border-b border-slate-300 bg-slate-100 px-2 py-1 font-semibold text-sm">{table}</div>
+              <div className="px-2 py-2 text-[11px] text-slate-600">Default fallback table</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 }

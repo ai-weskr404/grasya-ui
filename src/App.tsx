@@ -675,7 +675,13 @@ export default function App() {
               )}
 
               {activeWorkspaceTab === "ERD Diagram" && (
-                <DiagramPane tables={diagramTables} />
+                <DiagramPane
+                  tables={diagramTables}
+                  highlightedNodeIds={highlightedNodeIds}
+                  highlightedEdgeId={hoverRelationshipId ?? activeRelationshipId}
+                  onRelationshipHover={setHoverRelationshipId}
+                  onRelationshipSelect={setActiveRelationshipId}
+                />
               )}
 
               {activeWorkspaceTab === "Dead Letter Queue" && (

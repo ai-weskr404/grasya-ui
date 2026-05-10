@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Icon } from "@blueprintjs/core";
 
 import type { LogEntry, FileNode } from "./types";
@@ -169,7 +169,7 @@ const InternalTreeNode = ({ node, level, onToggle, onSelect }: any) => {
     if (isDatabaseRoot) return "__database__";
     if (!isLeaf) return node.isOpen ? "folder-open" : "folder-close";
     if (node.type === "table") return "th";
-    if (node.type === "view") return "table";
+    if (node.type === "view") return "panel-table";
     if (node.type === "proc") return "function";
     return "document";
   };
@@ -263,6 +263,16 @@ export default function App() {
   const [cardinalityOverrideById, setCardinalityOverrideById] = useState<Record<string, Cardinality>>({});
   const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const relationshipMappings = buildRelationshipMappings(diagramTables);
+
+  const highlightedNodeIds = useMemo(() => {
+    const targetRelationshipId = hoverRelationshipId ?? activeRelationshipId;
+    if (!targetRelationshipId) return [];
+
+    const relationship = relationshipMappings.find((item) => item.id === targetRelationshipId);
+    if (!relationship) return [];
+
+    return [relationship.sourceTable, relationship.targetTable];
+  }, [activeRelationshipId, hoverRelationshipId, relationshipMappings]);
 
   useEffect(() => {
     if (!activeRelationshipId) return;

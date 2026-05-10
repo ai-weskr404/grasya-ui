@@ -22,7 +22,11 @@ const toDataType = (type: string): DataType => {
   return "other";
 };
 
-export default function DiagramPane({ tables }: { tables: TableDef[] }) {
+export default function DiagramPane({
+  tables,
+}: {
+  tables: TableDef[];
+}) {
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
     const grouped = new Map<string, DatabaseSchemaInfo>();
 
@@ -41,7 +45,7 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
           foreignKeys: column.isForeign
             ? [
                 {
-                  foreignSchemaName: schemaName,
+                  foreignSchemaName: column.referencesSchema ?? schemaName,
                   foreignTableName: column.referencesTable ?? "",
                   foreignColumnName: column.referencesColumn ?? "id",
                   constrained: true,

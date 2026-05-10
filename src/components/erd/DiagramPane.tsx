@@ -149,14 +149,15 @@ export default function DiagramPane({
     root.querySelectorAll(".react-flow__node").forEach((node) => node.classList.remove("mongo-rel-node-highlight"));
     root.querySelectorAll(".react-flow__edge").forEach((edge) => edge.classList.remove("mongo-rel-edge-highlight"));
 
-    highlightedNodeIds.forEach((id) => {
-      const node = root.querySelector(`.react-flow__node[data-id='${id}']`);
-      if (node) node.classList.add("mongo-rel-node-highlight");
+    const highlightedNodeSet = new Set(highlightedNodeIds);
+    root.querySelectorAll(".react-flow__node[data-id]").forEach((node) => {
+      const id = node.getAttribute("data-id");
+      if (id && highlightedNodeSet.has(id)) node.classList.add("mongo-rel-node-highlight");
     });
-    if (highlightedEdgeId) {
-      const edge = root.querySelector(`.react-flow__edge[data-id='${highlightedEdgeId}']`);
-      if (edge) edge.classList.add("mongo-rel-edge-highlight");
-    }
+    root.querySelectorAll(".react-flow__edge[data-id]").forEach((edge) => {
+      const id = edge.getAttribute("data-id");
+      if (id && highlightedEdgeId === id) edge.classList.add("mongo-rel-edge-highlight");
+    });
   }, [highlightedNodeIds, highlightedEdgeId]);
 
   useEffect(() => {

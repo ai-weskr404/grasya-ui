@@ -446,10 +446,9 @@ export default function App() {
     const nextDiagramTables = mapSelectedTablesToDiagram(tablesForDiagram);
     setDiagramTables(nextDiagramTables);
     handleOpenTab("Monitor: PG -> Mongo -> Atlas");
-    setActiveWorkspaceTab("ERD Diagram");
-    if (!workspaceTabs.includes("ERD Diagram")) {
-      setWorkspaceTabs((prev) => [...prev, "ERD Diagram"]);
-    }
+    setWorkspaceTabs((prev) =>
+      prev.includes("ERD Diagram") ? prev : [...prev, "ERD Diagram"],
+    );
     if (normalizedSelectedTables.length === 0) {
       addLog(
         "No tables selected in wizard. Loaded default PostgreSQL tables for the ERD view.",

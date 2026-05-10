@@ -5,6 +5,7 @@ export interface ColumnDef {
   isForeign?: boolean;
   notNull?: boolean;
   referencesTable?: string;
+  referencesSchema?: string;
   referencesColumn?: string;
 }
 

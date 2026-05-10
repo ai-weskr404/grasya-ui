@@ -22,9 +22,16 @@ const toDataType = (type: string): DataType => {
   return "other";
 };
 
-export default function DiagramPane({ tables }: { tables: TableDef[] }) {
+export default function DiagramPane({
+  tables,
+}: {
+  tables: TableDef[];
+}) {
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
     const grouped = new Map<string, DatabaseSchemaInfo>();
+    const availableTableRefs = new Set(
+      tables.map((table) => `${(table.schema || "dbo").toLowerCase()}.${table.name.toLowerCase()}`),
+    );
 
     tables.forEach((table) => {
       const schemaName = table.schema || "dbo";
@@ -39,14 +46,18 @@ export default function DiagramPane({ tables }: { tables: TableDef[] }) {
           name: column.name,
           type: toDataType(column.type),
           foreignKeys: column.isForeign
-            ? [
-                {
-                  foreignSchemaName: schemaName,
-                  foreignTableName: column.referencesTable ?? "",
+            ? (() => {
+                const foreignSchemaName = column.referencesSchema ?? schemaName;
+                const foreignTableName = column.referencesTable ?? "";
+                const targetRef = `${foreignSchemaName.toLowerCase()}.${foreignTableName.toLowerCase()}`;
+                if (!foreignTableName || !availableTableRefs.has(targetRef)) return [];
+                return [{
+                  foreignSchemaName,
+                  foreignTableName,
                   foreignColumnName: column.referencesColumn ?? "id",
                   constrained: true,
-                },
-              ]
+                }];
+              })()
             : [],
         })),
       });

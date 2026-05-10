@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
-import type { FileNode } from "../../types";
 import { DatabaseFilled } from "@fluentui/react-icons";
+import type { FileNode } from "../../types";
 
 interface TreeNodeProps {
   node: FileNode;
@@ -66,4 +66,29 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
       )}
     </div>
   );
+};
+
+export const getObjectExplorerIcon = (
+  nodeType: FileNode["type"],
+  expanded: boolean,
+) => {
+  if (nodeType === "folder") {
+    return (
+      <Icon
+        icon={expanded ? "folder-open" : "folder-close"}
+        size={12}
+        className="text-amber-500"
+      />
+    );
+  }
+
+  if (nodeType === "table") {
+    return <Icon icon="th" size={12} className="text-slate-600" />;
+  }
+
+  if (nodeType === "view") {
+    return <Icon icon="table" size={12} className="text-blue-500" />;
+  }
+
+  return <DatabaseFilled style={{ fontSize: "12px" }} className="text-cyan-700" />;
 };

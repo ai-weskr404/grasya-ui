@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@blueprintjs/core";
 import Tree from "@rc-component/tree";
+import "@rc-component/tree/assets/index.css";
 
 import type { LogEntry, FileNode } from "./types";
 import { INITIAL_LOGS, DB_SCHEMA } from "./data/mock-data";
@@ -22,6 +23,7 @@ import {
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
+import { getObjectExplorerIcon } from "./components/ui/TreeNode";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {
@@ -556,19 +558,32 @@ export default function App() {
                   treeData={mapTreeData(treeData)}
                   expandedKeys={getExpandedKeys(treeData)}
                   selectable
-                  showIcon={false}
+                  showLine
+                  showIcon
+                  checkable
                   onExpand={(keys) => {
                     setTreeData(
                       updateExpandedState(treeData, new Set(keys as string[])),
                     );
                   }}
+                  onCheck={() => {}}
                   onSelect={(_, info: any) => {
                     if (!info.node.children) {
                       handleObjectExplorerSelect(info.node.title);
                     }
                   }}
+                  icon={(node: any) =>
+                    getObjectExplorerIcon(node.nodeType, Boolean(node.expanded))
+                  }
+                  switcherIcon={({ expanded }: any) => (
+                    <Icon
+                      icon={expanded ? "minus" : "plus"}
+                      size={10}
+                      className="text-slate-500"
+                    />
+                  )}
                   titleRender={(node: any) => (
-                    <span className="text-[11px] text-slate-700">
+                    <span className="text-[11px] text-slate-700 font-medium">
                       {String(node.title)}
                     </span>
                   )}

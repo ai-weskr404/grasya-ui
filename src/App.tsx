@@ -249,8 +249,8 @@ export default function App() {
     "BLUE_POSTGRES" | "GREEN_MONGO"
   >("BLUE_POSTGRES");
 
-  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page", "ERD Diagram"]);
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
+  const [workspaceTabs, setWorkspaceTabs] = useState<string[]>(["Start Page"]);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("Start Page");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [activeTableContext, setActiveTableContext] = useState("public.orders");
   const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>

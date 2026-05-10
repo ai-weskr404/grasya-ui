@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+.toolbar-btn {
+  font-size: 12px;
+  padding: 4px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: linear-gradient(#fff, #f1f5f9);
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar-btn:hover {
+  background: #e2e8f0;
+}
+.toolbar-btn .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #16a34a;
+  display: inline-block;
+}
+
+.ribbon-icon-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+}
+.ribbon-icon-btn:hover {
+  background: #e5e7eb;
+  border-color: #cbd5e1;
+}
+.ribbon-icon-btn:disabled {
+  opacity: 0.45;
+}
+.ribbon-sep {
+  width: 1px;
+  height: 16px;
+  background: #cbd5e1;
+  margin: 0 4px;
+}
+
+
+.erd-dot-bg {
+  background-color: #f7f7f7;
+  background-image: radial-gradient(#d9d9d9 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.mongo-rel-node-highlight {
+  box-shadow: 0 0 0 2px #0ea5e9 !important;
+}
+
+.mongo-rel-edge-highlight .react-flow__edge-path {
+  stroke: #0ea5e9 !important;
+  stroke-width: 3px !important;
+}
+
+.mongo-rel-edge-highlight marker path {
+  fill: #0ea5e9 !important;
+  stroke: #0ea5e9 !important;
+}
+
+.mongo-rel-edge-highlight .react-flow__edge-text {
+  fill: #0369a1 !important;
+  font-weight: 700 !important;
+}
+
+.mongo-rel-panel-footer {
+  background: #f7f9fb;
+  border-top: 1px solid #cbd5e1;
+}

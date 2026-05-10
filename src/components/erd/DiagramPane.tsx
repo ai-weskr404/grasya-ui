@@ -24,18 +24,9 @@ const toDataType = (type: string): DataType => {
 
 export default function DiagramPane({
   tables,
-  highlightedNodeIds = [],
-  highlightedEdgeId,
-  onRelationshipHover,
-  onRelationshipSelect,
 }: {
   tables: TableDef[];
-  highlightedNodeIds?: string[];
-  highlightedEdgeId?: string | null;
-  onRelationshipHover?: (relationshipId: string | null) => void;
-  onRelationshipSelect?: (relationshipId: string) => void;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
     const grouped = new Map<string, DatabaseSchemaInfo>();
 

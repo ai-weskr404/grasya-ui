@@ -263,15 +263,6 @@ export default function App() {
   const [cardinalityOverrideById, setCardinalityOverrideById] = useState<Record<string, Cardinality>>({});
   const relationshipItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const relationshipMappings = buildRelationshipMappings(diagramTables);
-  const activeRelationship = relationshipMappings.find(
-    (r) => r.id === (hoverRelationshipId ?? activeRelationshipId),
-  );
-  const highlightedNodeIds = activeRelationship
-    ? [
-        `${activeRelationship.sourceSchema}.${activeRelationship.sourceTable}`,
-        `${activeRelationship.targetSchema}.${activeRelationship.targetTable}`,
-      ]
-    : [];
 
   useEffect(() => {
     if (!activeRelationshipId) return;

@@ -22,137 +22,6 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
-import { DatabaseFilled } from "@fluentui/react-icons";
-
-// --- HELPER: Generate Mock Rows ---
-const generateMockRows = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
-    id: 1000 + i,
-    uid: Math.floor(Math.random() * 500) + 1,
-    item: [
-      "RTX 4090",
-      "Ryzen 9",
-      "DDR5-32G",
-      "NVMe 2TB",
-      "Case Fan",
-      "PSU 850W",
-      "Monitor 4K",
-    ][Math.floor(Math.random() * 7)],
-    price: Math.floor(Math.random() * 1500) + 50,
-    status: "pending",
-    lsn: `0/${(160000 + i).toString(16).toUpperCase()}`,
-  }));
-};
-
-// --- FEATURE COMPONENT: Live Schema Map Tab ---
-const SchemaMapTab = ({
-  isRunning,
-  tableName,
-}: {
-  isRunning: boolean;
-  tableName: string;
-}) => {
-  const [allRows] = useState(() => generateMockRows(1000));
-  const [visibleCount, setVisibleCount] = useState(0);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  // Animation Loop
-  useEffect(() => {
-    let interval: any;
-    if (isRunning) {
-      interval = setInterval(() => {
-        setVisibleCount((prev) => {
-          if (prev >= allRows.length) {
-            clearInterval(interval);
-            return prev;
-          }
-          return prev + 5;
-        });
-      }, 50);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, allRows.length]);
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    if (isRunning && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [visibleCount, isRunning]);
-
-  const visibleRows = allRows.slice(0, visibleCount);
-
-  return (
-    <div className="p-6 h-full flex flex-col bg-slate-50 relative">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <DatabaseFilled
-              className="text-blue-600"
-              style={{ fontSize: "18px" }}
-            />
-            Stream: {tableName}
-          </h2>
-          <p className="text-xs text-slate-500 font-mono mt-1">
-            Total Records: {allRows.length} | Ingested: {visibleCount}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs bg-white px-3 py-1 border rounded shadow-sm">
-          <span
-            className={`w-2 h-2 rounded-full ${isRunning ? "bg-green-500 animate-pulse" : "bg-slate-300"}`}
-          ></span>
-          {isRunning ? "Ingesting Live Data" : "Waiting for Stream"}
-        </div>
-      </div>
-
-      <div className="border border-slate-300 rounded bg-white shadow-sm flex-1 flex flex-col overflow-hidden">
-        <div className="grid grid-cols-6 bg-slate-100 border-b border-slate-300 text-[11px] font-bold text-slate-600 py-2 px-4 shrink-0 scrollbar-gutter-stable">
-          <div className="col-span-1">LSN (Log Seq)</div>
-          <div className="col-span-1">ID (PK)</div>
-          <div className="col-span-1">User ID</div>
-          <div className="col-span-1">Item</div>
-          <div className="col-span-1">Price</div>
-          <div className="col-span-1">State</div>
-        </div>
-
-        <div className="overflow-y-auto flex-1 p-0 scroll-smooth">
-          <div className="divide-y divide-slate-100">
-            {visibleRows.map((row, index) => {
-              const isProcessing = index > visibleCount - 10;
-              return (
-                <div
-                  key={row.id}
-                  className={`
-                    grid grid-cols-6 py-1.5 px-4 text-[10px] font-mono transition-colors duration-200 items-center
-                    ${isProcessing ? "bg-blue-50 text-blue-900" : "text-slate-600"}
-                  `}
-                >
-                  <div className="col-span-1 text-slate-400">{row.lsn}</div>
-                  <div className="col-span-1 font-bold">{row.id}</div>
-                  <div className="col-span-1">{row.uid}</div>
-                  <div className="col-span-1 truncate pr-2">{row.item}</div>
-                  <div className="col-span-1 text-green-700">${row.price}</div>
-                  <div className="col-span-1">
-                    {isProcessing ? (
-                      <span className="flex items-center gap-1 text-blue-600 font-bold">
-                        LOAD...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-green-600">
-                        ✓ committed
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={bottomRef} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // --- COMPONENT: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
@@ -182,7 +51,6 @@ export default function App() {
   ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [activeTableContext, setActiveTableContext] = useState("public.orders");
   const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>
     mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
   );
@@ -302,17 +170,6 @@ export default function App() {
     setActiveWorkspaceTab(tabName);
   };
 
-  const handleObjectExplorerSelect = (itemName: string) => {
-    if (
-      itemName.includes("orders") ||
-      itemName.includes("users") ||
-      itemName.includes("inventory")
-    ) {
-      const tabName = `Live Map: ${itemName}`;
-      setActiveTableContext(itemName);
-      handleOpenTab(tabName);
-    }
-  };
 
   useEffect(() => {
     if (!isConnected) {
@@ -566,11 +423,7 @@ export default function App() {
                     );
                   }}
                   onCheck={() => {}}
-                  onSelect={(_, info: any) => {
-                    if (!info.node.children) {
-                      handleObjectExplorerSelect(info.node.title);
-                    }
-                  }}
+                  onSelect={() => {}}
                   switcherIcon={({ expanded, isLeaf }: any) => (
                     isLeaf ? (
                       <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />
@@ -650,13 +503,6 @@ export default function App() {
                   isRunning={isRunning}
                   isAtlasEnabled={isAtlasEnabled}
                   trafficState={trafficState}
-                />
-              )}
-
-              {activeWorkspaceTab.startsWith("Live Map:") && (
-                <SchemaMapTab
-                  isRunning={isRunning}
-                  tableName={activeTableContext}
                 />
               )}
 

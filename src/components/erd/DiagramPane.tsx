@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   RelationshipDiagram,
   type DataType,
@@ -60,6 +60,10 @@ export default function DiagramPane({
   onRelationshipSelect?: (relationshipId: string) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+  const minZoom = 0.5;
+  const maxZoom = 1.8;
+  const step = 0.1;
   const schemas: DatabaseSchemaInfo[] = useMemo(() => {
     const grouped = new Map<string, DatabaseSchemaInfo>();
 
@@ -152,8 +156,24 @@ export default function DiagramPane({
   }, [onRelationshipHover, onRelationshipSelect]);
 
   return (
-    <div ref={rootRef} className="h-full w-full overflow-hidden erd-dot-bg">
-      <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
+    <div ref={rootRef} className="relative h-full w-full overflow-hidden erd-dot-bg">
+      <div className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded border border-slate-300 bg-white/90 p-1 shadow-sm">
+        <button type="button" className="rounded px-2 py-1 text-sm hover:bg-slate-100 disabled:opacity-40" onClick={() => setZoom((prev) => Math.max(minZoom, Number((prev - step).toFixed(2))))} disabled={zoom <= minZoom}>−</button>
+        <span className="min-w-12 text-center text-xs font-medium text-slate-700">{Math.round(zoom * 100)}%</span>
+        <button type="button" className="rounded px-2 py-1 text-sm hover:bg-slate-100 disabled:opacity-40" onClick={() => setZoom((prev) => Math.min(maxZoom, Number((prev + step).toFixed(2))))} disabled={zoom >= maxZoom}>+</button>
+      </div>
+      <div
+        className="h-full w-full"
+        style={{
+          transform: `scale(${zoom})`,
+          transformOrigin: "top left",
+          width: `${100 / zoom}%`,
+          height: `${100 / zoom}%`,
+          transition: "transform 160ms ease-out",
+        }}
+      >
+        <RelationshipDiagram schemas={schemas} tableColors={TABLE_COLORS} />
+      </div>
     </div>
   );
 }

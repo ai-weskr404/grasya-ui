@@ -22,6 +22,68 @@
   gap: 6px;
 }
 
+@layer components {
+  .app-btn,
+  .bp5-button.app-btn {
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1;
+    transition: background-color 120ms ease, border-color 120ms ease,
+      box-shadow 120ms ease, opacity 120ms ease, transform 80ms ease;
+  }
+
+  .app-btn:active:not(:disabled),
+  .bp5-button.app-btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .app-btn:focus-visible,
+  .bp5-button.app-btn:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 1px;
+  }
+
+  .app-btn:disabled,
+  .bp5-button.app-btn:disabled,
+  .bp5-button.app-btn.bp5-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .app-icon-btn,
+  .bp5-button.app-icon-btn {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .app-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .app-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
 .toolbar-btn:hover {
   background: #e2e8f0;
 }
@@ -34,18 +96,23 @@
 }
 
 .ribbon-icon-btn {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #475569;
+  transition: background-color 120ms ease, border-color 120ms ease,
+    box-shadow 120ms ease, opacity 120ms ease;
 }
 .ribbon-icon-btn:hover {
   background: #e5e7eb;
   border-color: #cbd5e1;
+}
+.ribbon-icon-btn:active:not(:disabled) {
+  background: #dbe3ec;
 }
 .ribbon-icon-btn:disabled {
   opacity: 0.45;

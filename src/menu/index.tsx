@@ -14,16 +14,16 @@ export const MenuBar = ({
 }) => {
   return (
     <div className="border-b border-slate-300 bg-[#f3f4f6]">
-      <div className="h-8 flex items-center gap-1 px-2 border-b border-slate-200">
+      <div className="h-10 app-toolbar px-2 border-b border-slate-200">
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="New Job"
           onClick={commands.NEW_JOB}
         >
           <Icon icon="add-application" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Refresh"
           onClick={commands.REFRESH}
         >
@@ -31,14 +31,14 @@ export const MenuBar = ({
         </button>
         <span className="ribbon-sep" />
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Connect"
           onClick={commands.CONNECT}
         >
           <Icon icon="linked-squares" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Run"
           onClick={commands.RUN}
           disabled={!context.isConnected || context.isRunning}
@@ -46,7 +46,7 @@ export const MenuBar = ({
           <Icon icon="play" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Pause"
           onClick={commands.PAUSE}
           disabled={!context.isRunning}
@@ -54,14 +54,14 @@ export const MenuBar = ({
           <Icon icon="pause" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Stop"
           onClick={commands.KILL}
         >
           <Icon icon="stop" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Cutover"
           onClick={commands.CUTOVER}
         >
@@ -69,28 +69,28 @@ export const MenuBar = ({
         </button>
         <span className="ribbon-sep" />
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Verify"
           onClick={commands.VERIFY}
         >
           <Icon icon="frame-to-frame" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="Drift"
           onClick={commands.DRIFT}
         >
           <Icon icon="join-table" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="MongoDB Relationship Mapping"
           onClick={commands.OPEN_SCHEMA}
         >
           <Icon icon="th" size={13} />
         </button>
         <button
-          className="ribbon-icon-btn"
+          className="ribbon-icon-btn app-btn app-icon-btn"
           title="DLQ"
           onClick={commands.OPEN_DLQ}
         >

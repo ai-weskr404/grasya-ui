@@ -5,10 +5,10 @@ export const BPPrimaryButton: React.FC<{
   icon?: any;
   label: string;
   onClick?: () => void;
-  small?: boolean;
-}> = ({ icon, label, onClick, small = true }) => {
+  className?: string;
+}> = ({ icon, label, onClick, className }) => {
   return (
-    <Button icon={icon as any} intent="primary" small={small} onClick={onClick}>
+    <Button icon={icon as any} intent="primary" className={["app-btn", className || ""].filter(Boolean).join(" ")} onClick={onClick}>
       {label}
     </Button>
   );

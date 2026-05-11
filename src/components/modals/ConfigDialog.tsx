@@ -45,7 +45,7 @@ export const ConfigDialog: React.FC<ConfigDialogProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="h-6 w-6 flex items-center justify-center rounded border border-transparent text-slate-500 hover:border-slate-300 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+            className="app-btn app-icon-btn border border-transparent text-slate-500 hover:border-slate-300 hover:bg-slate-200 hover:text-slate-700"
             aria-label="Close schema configuration"
           >
             <Icon icon={iconMap.X} size={14} />
@@ -66,7 +66,7 @@ export const ConfigDialog: React.FC<ConfigDialogProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveConfigTab(tab.id as any)}
-                  className={`flex-1 py-2 border-r border-slate-300 last:border-r-0 transition-colors ${
+                  className={`app-btn min-h-0 h-9 flex-1 rounded-none border-r border-slate-300 last:border-r-0 transition-colors ${
                     activeConfigTab === tab.id
                       ? "bg-white text-slate-900 font-semibold"
                       : "text-slate-600 hover:bg-slate-100"

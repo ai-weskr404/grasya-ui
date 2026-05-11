@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { Icon } from "@blueprintjs/core";
 import { Database20Filled } from "@fluentui/react-icons";
 import type { LogEntry } from "../../types";
@@ -15,20 +15,6 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
   trafficState = "BLUE_POSTGRES",
 }) => {
   const logEndRef = useRef<HTMLDivElement>(null);
-  const [activePanelTab, setActivePanelTab] = useState<"terminal" | "logger">(
-    "logger",
-  );
-  const deadLetterQueue = useMemo(
-    () =>
-      logs.filter(
-        (log) =>
-          log.type === "error" ||
-          /\b(err(or)?|failed|failure|dead letter|retry exhausted)\b/i.test(
-            log.message,
-          ),
-      ),
-    [logs],
-  );
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -158,77 +144,33 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
 
       {/* Logs Section */}
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex bg-slate-100 border-b border-slate-300 h-7 items-center px-2 gap-3 shrink-0">
-          <div className="text-[11px] font-semibold text-slate-600">
+        <div className="flex bg-slate-100 border-b border-slate-300 h-7 items-center px-2 gap-4 shrink-0">
+          <button className="app-btn min-h-0 h-full rounded-none border-b-2 border-orange-500 text-slate-800 px-2">
             Migration Logs
-          </div>
-          <button
-            className={`app-btn min-h-0 h-full rounded-none border-b-2 px-2 text-[11px] ${
-              activePanelTab === "terminal"
-                ? "border-orange-500 text-slate-800"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActivePanelTab("terminal")}
-          >
-            Terminal
-          </button>
-          <button
-            className={`app-btn min-h-0 h-full rounded-none border-b-2 px-2 text-[11px] ${
-              activePanelTab === "logger"
-                ? "border-orange-500 text-slate-800"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActivePanelTab("logger")}
-          >
-            Logger
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 font-mono text-[11px] leading-relaxed bg-white">
-          {activePanelTab === "logger" &&
-            logs.map((log) => (
-              <div
-                key={log.id}
-                className="flex gap-3 border-b border-slate-50 last:border-0 hover:bg-slate-50"
+          {logs.map((log) => (
+            <div
+              key={log.id}
+              className="flex gap-3 border-b border-slate-50 last:border-0 hover:bg-slate-50"
+            >
+              <span className="text-slate-400 select-none min-w-[60px]">
+                {log.timestamp}
+              </span>
+              <span
+                className={`
+                ${log.type === "error" ? "text-red-600" : ""}
+                ${log.type === "warning" ? "text-amber-600" : ""}
+                ${log.type === "success" ? "text-green-700" : ""}
+                ${log.type === "info" ? "text-slate-800" : ""}
+              `}
               >
-                <span className="text-slate-400 select-none min-w-[60px]">
-                  {log.timestamp}
-                </span>
-                <span
-                  className={`
-                  ${log.type === "error" ? "text-red-600" : ""}
-                  ${log.type === "warning" ? "text-amber-600" : ""}
-                  ${log.type === "success" ? "text-green-700" : ""}
-                  ${log.type === "info" ? "text-slate-800" : ""}
-                `}
-                >
-                  {log.type === "error" && "[ERR] "}
-                  {log.message}
-                </span>
-              </div>
-            ))}
-          {activePanelTab === "terminal" && (
-            <div className="space-y-1">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wide mb-2">
-                Dead Letter Queue
-              </div>
-              {deadLetterQueue.length === 0 ? (
-                <div className="border border-green-200 bg-green-50 rounded p-3 text-green-700">
-                  No dead letters currently.
-                </div>
-              ) : (
-                deadLetterQueue.map((entry) => (
-                  <div
-                    key={`dlq-${entry.id}`}
-                    className="border border-red-200 bg-red-50 rounded p-2"
-                  >
-                    <div className="text-red-700 font-semibold">
-                      [{entry.timestamp}] {entry.message}
-                    </div>
-                  </div>
-                ))
-              )}
+                {log.type === "error" && "[ERR] "}
+                {log.message}
+              </span>
             </div>
-          )}
+          ))}
           <div ref={logEndRef} />
         </div>
       </div>

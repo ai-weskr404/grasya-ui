@@ -22,7 +22,6 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
-import { TelemetryView } from "./components/views/TelemetryView";
 
 // --- COMPONENT: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
@@ -48,7 +47,6 @@ export default function App() {
   const [workspaceTabs, setWorkspaceTabs] = useState<string[]>([
     "Start Page",
     "ERD Diagram",
-    "Telemetry Dashboard",
   ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
@@ -335,7 +333,6 @@ export default function App() {
 
     OPEN_SCHEMA: () => setShowRelationshipPanel((prev) => !prev),
     OPEN_DLQ: () => handleOpenTab("Dead Letter Queue"),
-    OPEN_TELEMETRY: () => handleOpenTab("Telemetry Dashboard"),
   };
 
   const menuContext = {
@@ -516,10 +513,6 @@ export default function App() {
 
               {activeWorkspaceTab === "Dead Letter Queue" && (
                 <DeadLetterQueueTab />
-              )}
-
-              {activeWorkspaceTab === "Telemetry Dashboard" && (
-                <TelemetryView isRunning={isRunning} />
               )}
             </div>
           </div>

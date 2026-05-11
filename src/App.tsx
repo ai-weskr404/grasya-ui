@@ -23,7 +23,6 @@ import {
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
-import { getObjectExplorerIcon } from "./components/ui/TreeNode";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {
@@ -572,9 +571,6 @@ export default function App() {
                       handleObjectExplorerSelect(info.node.title);
                     }
                   }}
-                  icon={(node: any) =>
-                    getObjectExplorerIcon(node.nodeType, Boolean(node.expanded))
-                  }
                   switcherIcon={({ expanded, isLeaf }: any) => (
                     isLeaf ? (
                       <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />

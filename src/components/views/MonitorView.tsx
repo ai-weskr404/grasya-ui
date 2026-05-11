@@ -1,20 +1,17 @@
 import React, { useRef, useEffect } from "react";
 import { Icon } from "@blueprintjs/core";
-import iconMap from "../blueprint/utils/iconMap";
 import { Database20Filled } from "@fluentui/react-icons";
 import type { LogEntry } from "../../types";
 
 interface MonitorViewProps {
   logs: LogEntry[];
   isRunning: boolean;
-  isAtlasEnabled: boolean;
   trafficState?: "BLUE_POSTGRES" | "GREEN_MONGO";
 }
 
 export const MonitorView: React.FC<MonitorViewProps> = ({
   logs,
   isRunning,
-  isAtlasEnabled,
   trafficState = "BLUE_POSTGRES",
 }) => {
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -131,56 +128,6 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
               <div className="text-[9px] text-slate-400">Transform</div>
             </div>
           </div>
-
-          {/* Arrow 2 (MongoDB Atlas Link) */}
-          <div className="flex items-center gap-1 flex-1 justify-center z-10">
-            <div
-              className={`h-1 flex-1 bg-slate-300 rounded relative overflow-hidden`}
-            >
-              {isRunning && isAtlasEnabled && (
-                <div
-                  className="absolute inset-0 bg-orange-400 animate-progress-indeterminate"
-                  style={{ animationDelay: "0.5s" }}
-                />
-              )}
-            </div>
-            {isAtlasEnabled && (
-              <Icon
-                icon={iconMap.UploadCloud}
-                size={14}
-                className="text-slate-400"
-              />
-            )}
-            <div
-              className={`h-1 flex-1 bg-slate-300 rounded relative overflow-hidden`}
-            >
-              {isRunning && isAtlasEnabled && (
-                <div
-                  className="absolute inset-0 bg-orange-400 animate-progress-indeterminate"
-                  style={{ animationDelay: "0.7s" }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* 3. MongoDB Atlas Cloud */}
-          <div
-            className={`flex flex-col items-center gap-2 z-10 w-24 ${!isAtlasEnabled ? "opacity-30 grayscale" : ""}`}
-          >
-            <div className="w-12 h-12 bg-white border border-slate-300 shadow-sm rounded flex items-center justify-center">
-              <Icon
-                icon={iconMap.Cloud}
-                className="text-orange-500"
-                size={20}
-              />
-            </div>
-            <div className="text-center">
-              <div className="text-[10px] font-bold text-slate-700">
-                MongoDB Storage
-              </div>
-              <div className="text-[9px] text-slate-500">Archive</div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -189,9 +136,6 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
         <div className="flex bg-slate-100 border-b border-slate-300 h-7 items-center px-2 gap-4 shrink-0">
           <button className="text-[11px] font-bold text-slate-800 border-b-2 border-orange-500 h-full px-1">
             Migration Logs
-          </button>
-          <button className="text-[11px] font-medium text-slate-500 hover:text-slate-800 h-full px-1">
-            Atlas Events
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 font-mono text-[11px] leading-relaxed bg-white">

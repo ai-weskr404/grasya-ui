@@ -39,7 +39,6 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [isAtlasEnabled] = useState(true);
 
   const [trafficState, setTrafficState] = useState<
     "BLUE_POSTGRES" | "GREEN_MONGO"
@@ -266,7 +265,7 @@ export default function App() {
     setIsConnected(true);
     const nextDiagramTables = mapSelectedTablesToDiagram(tablesForDiagram);
     setDiagramTables(nextDiagramTables);
-    handleOpenTab("Monitor: PG -> Mongo -> Atlas");
+    handleOpenTab("Monitor: PG -> Kafka -> Mongo");
     setActiveWorkspaceTab("ERD Diagram");
     if (!workspaceTabs.includes("ERD Diagram")) {
       setWorkspaceTabs((prev) => [...prev, "ERD Diagram"]);
@@ -278,7 +277,7 @@ export default function App() {
       );
     }
     addLog(
-      "Connected to PostgreSQL, MongoDB Atlas, and MongoDB Atlas Storage.",
+      "Connected to PostgreSQL, Kafka Event Bus, and MongoDB.",
       "success",
     );
   };
@@ -307,9 +306,12 @@ export default function App() {
 
   const commands = {
     NEW_JOB: () => {
-      setLogs([]);
-      setIsRunning(false);
-      addLog("NEW JOB INITIALIZED", "info");
+      if (typeof window !== "undefined" && (window as any).desktop?.newJobWindow) {
+        void (window as any).desktop.newJobWindow();
+        return;
+      }
+
+      window.open(window.location.href, "_blank");
     },
 
     CONNECT: handleConnectClick,
@@ -485,23 +487,14 @@ export default function App() {
                     <p className="text-sm text-slate-500 mb-6">
                       Database Migration Suite
                     </p>
-                    {!isConnected && (
-                      <button
-                        onClick={handleConnectClick}
-                        className="text-xs px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Connect to Server
-                      </button>
-                    )}
                   </div>
                 </div>
               )}
 
-              {activeWorkspaceTab === "Monitor: PG -> Mongo -> Atlas" && (
+              {activeWorkspaceTab === "Monitor: PG -> Kafka -> Mongo" && (
                 <MonitorView
                   logs={logs}
                   isRunning={isRunning}
-                  isAtlasEnabled={isAtlasEnabled}
                   trafficState={trafficState}
                 />
               )}

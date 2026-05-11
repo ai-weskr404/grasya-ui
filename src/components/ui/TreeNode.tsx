@@ -74,21 +74,35 @@ export const getObjectExplorerIcon = (
 ) => {
   if (nodeType === "folder") {
     return (
-      <Icon
-        icon={expanded ? "folder-open" : "folder-close"}
-        size={12}
-        className="text-amber-500"
-      />
+      <span className="inline-flex h-3 w-3 items-center justify-center align-middle">
+        <Icon
+          icon={expanded ? "folder-open" : "folder-close"}
+          size={12}
+          className="text-amber-500"
+        />
+      </span>
     );
   }
 
   if (nodeType === "table") {
-    return <Icon icon="th" size={12} className="text-slate-600" />;
+    return (
+      <span className="inline-flex h-3 w-3 items-center justify-center align-middle">
+        <Icon icon="th" size={11} className="text-slate-600" />
+      </span>
+    );
   }
 
   if (nodeType === "view") {
-    return <Icon icon="table" size={12} className="text-blue-500" />;
+    return (
+      <span className="inline-flex h-3 w-3 items-center justify-center align-middle">
+        <Icon icon="table" size={11} className="text-blue-500" />
+      </span>
+    );
   }
 
-  return <DatabaseFilled style={{ fontSize: "12px" }} className="text-cyan-700" />;
+  return (
+    <span className="inline-flex h-3 w-3 items-center justify-center align-middle">
+      <DatabaseFilled style={{ fontSize: "11px" }} className="text-cyan-700" />
+    </span>
+  );
 };

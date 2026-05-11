@@ -23,7 +23,6 @@ import {
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 import { DatabaseFilled } from "@fluentui/react-icons";
-import { getObjectExplorerIcon } from "./components/ui/TreeNode";
 
 // --- HELPER: Generate Mock Rows ---
 const generateMockRows = (count: number) => {
@@ -572,18 +571,17 @@ export default function App() {
                       handleObjectExplorerSelect(info.node.title);
                     }
                   }}
-                  icon={(node: any) =>
-                    getObjectExplorerIcon(node.nodeType, Boolean(node.expanded))
-                  }
-                  switcherIcon={({ expanded }: any) => (
-                    <Icon
-                      icon={expanded ? "minus" : "plus"}
-                      size={10}
-                      className="text-slate-500"
-                    />
+                  switcherIcon={({ expanded, isLeaf }: any) => (
+                    isLeaf ? (
+                      <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />
+                    ) : (
+                      <span className="inline-flex items-center justify-center w-3 h-3 border border-slate-400 bg-white text-[10px] leading-none text-slate-600">
+                        {expanded ? "-" : "+"}
+                      </span>
+                    )
                   )}
                   titleRender={(node: any) => (
-                    <span className="text-[11px] text-slate-700 font-medium">
+                    <span className="text-[11px] text-slate-800 font-normal">
                       {String(node.title)}
                     </span>
                   )}

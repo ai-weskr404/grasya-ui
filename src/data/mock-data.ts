@@ -8,26 +8,72 @@ export const INITIAL_LOGS: LogEntry[] = [
 
 export const DB_SCHEMA: FileNode[] = [
   {
-    id: 'src', name: 'SRC_POSTGRES (Primary)', type: 'folder', isOpen: true, children: [
-      { id: 's1', name: 'public', type: 'folder', isOpen: true, children: [
-        { id: 't1', name: 'users', type: 'table' },
-        { id: 't2', name: 'transactions', type: 'table' },
-        { id: 't3', name: 'inventory_items', type: 'table' },
-      ]},
-      { id: 's2', name: 'catalog', type: 'folder', children: [] }
-    ]
+    id: 'pgsql',
+    name: 'PGSQL',
+    type: 'folder',
+    isOpen: true,
+    children: [
+      {
+        id: 'pgsql-tables',
+        name: 'Tables',
+        type: 'folder',
+        isOpen: true,
+        children: [
+          {
+            id: 'pgsql-system-tables',
+            name: 'System Tables',
+            type: 'folder',
+            isOpen: true,
+            children: [
+              { id: 'pgsql-customers', name: 'public.customers', type: 'table' },
+              { id: 'pgsql-products', name: 'public.products', type: 'table' },
+              { id: 'pgsql-orders', name: 'public.orders', type: 'table' },
+              { id: 'pgsql-order-items', name: 'public.order_items', type: 'table' },
+              { id: 'pgsql-payments', name: 'public.payments', type: 'table' },
+              { id: 'pgsql-inventory', name: 'public.inventory', type: 'table' },
+              { id: 'pgsql-shipping-logs', name: '_.public.shipping_logs', type: 'table' },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
-    id: 'tgt', name: 'TGT_MONGO (Atlas Cluster)', type: 'folder', isOpen: true, children: [
-       { id: 'c1', name: 'grasya_analytics', type: 'folder', isOpen: true, children: [
-          { id: 'd1', name: 'users_v2', type: 'view' },
-          { id: 'd2', name: 'daily_tx_agg', type: 'view' }
-       ] }
-    ]
+    id: 'mdb',
+    name: 'MDB',
+    type: 'folder',
+    isOpen: true,
+    children: [
+      {
+        id: 'mdb-tables',
+        name: 'Tables',
+        type: 'folder',
+        isOpen: true,
+        children: [
+          {
+            id: 'mdb-system-tables',
+            name: 'System Tables',
+            type: 'folder',
+            isOpen: true,
+            children: [
+              { id: 'mdb-customers', name: 'public.customers', type: 'table' },
+              { id: 'mdb-products', name: 'public.products', type: 'table' },
+              { id: 'mdb-orders', name: 'public.orders', type: 'table' },
+              { id: 'mdb-order-items', name: 'public.order_items', type: 'table' },
+              { id: 'mdb-payments', name: 'public.payments', type: 'table' },
+              { id: 'mdb-inventory', name: 'public.inventory', type: 'table' },
+              { id: 'mdb-shipping-logs', name: '_.public.shipping_logs', type: 'table' },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
-    id: 'cld', name: 'MongoDB_Storage (Archive)', type: 'folder', children: [
-       { id: 'b1', name: 'storage-grasya-prod', type: 'folder', children: [] }
-    ]
-  }
+    id: 'mdba',
+    name: 'MDBA',
+    type: 'folder',
+    isOpen: true,
+    children: [{ id: 'mdba-cluster', name: 'Cluster', type: 'folder', isOpen: true, children: [] }],
+  },
 ];

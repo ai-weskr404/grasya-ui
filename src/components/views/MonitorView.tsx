@@ -145,7 +145,7 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
       {/* Logs Section */}
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex bg-slate-100 border-b border-slate-300 h-7 items-center px-2 gap-4 shrink-0">
-          <button className="text-[11px] font-bold text-slate-800 border-b-2 border-orange-500 h-full px-1">
+          <button className="app-btn min-h-0 h-full rounded-none border-b-2 border-orange-500 text-slate-800 px-2">
             Migration Logs
           </button>
         </div>

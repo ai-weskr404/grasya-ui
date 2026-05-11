@@ -382,14 +382,14 @@ export default function App() {
             <div className="h-7 border-b border-slate-300 bg-white flex items-center px-1 gap-1">
               <button
                 onClick={refreshTreeNodes}
-                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                className="app-btn app-icon-btn min-h-0 h-7 w-7 border border-transparent text-slate-700 hover:bg-slate-100"
                 title="Refresh"
               >
                 <Icon icon="refresh" size={12} className="text-slate-600" />
               </button>
               <button
                 onClick={collapseAllTreeNodes}
-                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                className="app-btn app-icon-btn min-h-0 h-7 w-7 border border-transparent text-slate-700 hover:bg-slate-100"
                 title="Collapse all"
               >
                 <Icon
@@ -399,7 +399,7 @@ export default function App() {
                 />
               </button>
               <button
-                className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+                className="app-btn app-icon-btn min-h-0 h-7 w-7 border border-transparent text-slate-700 hover:bg-slate-100"
                 title="Filter"
               >
                 <Icon icon="filter-list" size={12} className="text-slate-600" />
@@ -596,7 +596,7 @@ export default function App() {
             <div className="mongo-rel-panel-footer sticky bottom-0 flex items-center justify-end gap-2 px-2 py-2">
               <button
                 type="button"
-                className="h-6 px-3 text-[10px] border border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-sm"
+                className="app-btn border border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200"
                 onClick={() =>
                   addLog(
                     "RELATIONSHIP MAPPING: Discarded pending MongoDB relationship mapping changes.",
@@ -608,7 +608,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="h-6 px-3 text-[10px] border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 rounded-sm"
+                className="app-btn border border-blue-700 bg-blue-600 text-white hover:bg-blue-700"
                 onClick={() =>
                   addLog(
                     "RELATIONSHIP MAPPING: Applied MongoDB relationship mapping configuration.",

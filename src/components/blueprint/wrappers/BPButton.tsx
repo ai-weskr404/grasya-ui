@@ -7,7 +7,7 @@ export type BPButtonProps = ButtonProps & { compact?: boolean };
 export const BPButton = React.forwardRef<HTMLButtonElement, BPButtonProps>(
   (props, ref) => {
     const { compact, className, ...rest } = props;
-    const classes = [className || "", compact ? "bp-compact" : ""]
+    const classes = ["app-btn", className || "", compact ? "bp-compact" : ""]
       .filter(Boolean)
       .join(" ");
     return (

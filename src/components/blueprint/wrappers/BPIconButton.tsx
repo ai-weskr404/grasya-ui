@@ -18,7 +18,7 @@ export const BPIconButton: React.FC<BPIconButtonProps> = ({
   ...rest
 }) => {
   const button = (
-    <Button icon={icon as any} minimal small {...(rest as ButtonProps)} />
+    <Button icon={icon as any} minimal className="app-btn app-icon-btn" {...(rest as ButtonProps)} />
   );
   return title ? <Tooltip content={title}>{button}</Tooltip> : button;
 };

@@ -518,7 +518,7 @@ export default function App() {
                 onClick={() => setShowRelationshipPanel(false)}
               />
             </div>
-            <div className="flex-1 overflow-y-auto p-2 pb-14 space-y-2">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 pb-14 space-y-2">
               {relationshipMappings.map((rel) => {
                 const isActive =
                   activeRelationshipId === rel.id ||
@@ -534,7 +534,7 @@ export default function App() {
                     onClick={() => setActiveRelationshipId(rel.id)}
                     className={`border rounded p-2 text-[11px] cursor-pointer ${isActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-white"}`}
                   >
-                    <div className="font-semibold text-slate-700">
+                    <div className="font-semibold text-slate-700 break-words">
                       {rel.sourceTable}.{rel.sourceColumn} → {rel.targetTable}.
                       {rel.targetColumn}
                     </div>

@@ -518,7 +518,7 @@ export default function App() {
                 onClick={() => setShowRelationshipPanel(false)}
               />
             </div>
-            <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 pb-14 space-y-2">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-2">
               {relationshipMappings.map((rel) => {
                 const isActive =
                   activeRelationshipId === rel.id ||

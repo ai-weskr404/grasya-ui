@@ -15,7 +15,7 @@ function requireMain() {
   hasRequiredMain = 1;
   let mainWindow;
   let splashWindow;
-  const { app, BrowserWindow } = require$$0;
+  const { app, BrowserWindow, ipcMain } = require$$0;
   const path = require$$1;
   const isDev = !app.isPackaged;
   const { pathToFileURL } = require$$2;
@@ -54,9 +54,29 @@ function requireMain() {
       if (isDev) mainWindow.webContents.openDevTools();
     });
   }
+  function createAdditionalWindow() {
+    const newWindow = new BrowserWindow({
+      width: 1280,
+      height: 800,
+      show: true,
+      webPreferences: {
+        contextIsolation: true,
+        nodeIntegration: false,
+        preload: path.join(__dirname, "../preload/preload.mjs")
+      }
+    });
+    if (isDev) {
+      newWindow.loadURL("http://localhost:5173");
+    } else {
+      newWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    }
+  }
   app.whenReady().then(() => {
     createSplash();
     createMainWindow();
+    ipcMain.handle("app:new-job-window", () => {
+      createAdditionalWindow();
+    });
   });
   return main$1;
 }

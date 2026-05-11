@@ -87,6 +87,17 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
             </div>
           </div>
 
+          {/* Arrow 2 */}
+          <div className="flex items-center gap-1 flex-1 justify-center z-10">
+            <div
+              className={`h-1 flex-1 bg-slate-300 rounded relative overflow-hidden`}
+            >
+              {isRunning && (
+                <div className="absolute inset-0 bg-blue-400 animate-progress-indeterminate" />
+              )}
+            </div>
+          </div>
+
           {/* 2. Target Mongo */}
           <div className="relative flex flex-col items-center gap-2 z-10 w-24">
             <div

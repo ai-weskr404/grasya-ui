@@ -7,9 +7,10 @@ var hasRequiredPreload;
 function requirePreload() {
   if (hasRequiredPreload) return preload$1;
   hasRequiredPreload = 1;
-  const { contextBridge } = require$$0;
+  const { contextBridge, ipcRenderer } = require$$0;
   contextBridge.exposeInMainWorld("desktop", {
-    ping: () => "pong"
+    ping: () => "pong",
+    newJobWindow: () => ipcRenderer.invoke("app:new-job-window")
   });
   return preload$1;
 }

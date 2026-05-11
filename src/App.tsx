@@ -23,22 +23,13 @@ import {
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 
-// --- COMPONENT: Dead Letter Queue ---
-const DeadLetterQueueTab = () => (
-  <div className="h-full bg-slate-50 p-6 flex flex-col">
-    <h2 className="text-lg font-semibold text-slate-800 mb-4">
-      Dead Letter Queue
-    </h2>
-    <div className="border border-red-200 bg-red-50 rounded p-4 text-sm text-red-700">
-      No dead letters currently.
-    </div>
-  </div>
-);
-
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [monitorPanelTab, setMonitorPanelTab] = useState<"logs" | "dlq">(
+    "logs",
+  );
 
   const [trafficState, setTrafficState] = useState<
     "BLUE_POSTGRES" | "GREEN_MONGO"
@@ -79,7 +70,6 @@ export default function App() {
         `${activeRelationship.targetSchema}.${activeRelationship.targetTable}`,
       ]
     : [];
-
   useEffect(() => {
     if (!activeRelationshipId) return;
     relationshipItemRefs.current[activeRelationshipId]?.scrollIntoView({
@@ -332,7 +322,10 @@ export default function App() {
     CLEAR_LOGS: () => setLogs([]),
 
     OPEN_SCHEMA: () => setShowRelationshipPanel((prev) => !prev),
-    OPEN_DLQ: () => handleOpenTab("Dead Letter Queue"),
+    OPEN_DLQ: () => {
+      handleOpenTab("Monitor: PG -> Kafka -> Mongo");
+      setMonitorPanelTab("dlq");
+    },
   };
 
   const menuContext = {
@@ -489,6 +482,8 @@ export default function App() {
                   logs={logs}
                   isRunning={isRunning}
                   trafficState={trafficState}
+                  activePanelTab={monitorPanelTab}
+                  onPanelTabChange={setMonitorPanelTab}
                 />
               )}
 
@@ -504,9 +499,6 @@ export default function App() {
                 />
               )}
 
-              {activeWorkspaceTab === "Dead Letter Queue" && (
-                <DeadLetterQueueTab />
-              )}
             </div>
           </div>
         </div>

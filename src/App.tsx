@@ -23,6 +23,18 @@ import {
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
 
+// --- COMPONENT: Dead Letter Queue ---
+const DeadLetterQueueTab = () => (
+  <div className="h-full bg-slate-50 p-6 flex flex-col">
+    <h2 className="text-lg font-semibold text-slate-800 mb-4">
+      Dead Letter Queue
+    </h2>
+    <div className="border border-red-200 bg-red-50 rounded p-4 text-sm text-red-700">
+      No dead letters currently.
+    </div>
+  </div>
+);
+
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -320,6 +332,7 @@ export default function App() {
     CLEAR_LOGS: () => setLogs([]),
 
     OPEN_SCHEMA: () => setShowRelationshipPanel((prev) => !prev),
+    OPEN_DLQ: () => handleOpenTab("Dead Letter Queue"),
   };
 
   const menuContext = {
@@ -491,6 +504,9 @@ export default function App() {
                 />
               )}
 
+              {activeWorkspaceTab === "Dead Letter Queue" && (
+                <DeadLetterQueueTab />
+              )}
             </div>
           </div>
         </div>

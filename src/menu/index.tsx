@@ -89,6 +89,13 @@ export const MenuBar = ({
         >
           <Icon icon="th" size={13} />
         </button>
+        <button
+          className="ribbon-icon-btn app-btn app-icon-btn"
+          title="DLQ"
+          onClick={commands.OPEN_DLQ}
+        >
+          <Icon icon="panel-table" size={13} />
+        </button>
       </div>
     </div>
   );

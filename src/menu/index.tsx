@@ -32,8 +32,9 @@ export const MenuBar = ({
         <span className="ribbon-sep" />
         <button
           className="ribbon-icon-btn app-btn app-icon-btn"
-          title="Connect"
+          title={context.isConnected ? "Connected" : "Connect"}
           onClick={commands.CONNECT}
+          disabled={context.isConnected}
         >
           <Icon icon="linked-squares" size={13} />
         </button>

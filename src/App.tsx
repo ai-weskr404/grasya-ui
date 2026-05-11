@@ -22,7 +22,6 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
-import { TelemetryDashboardView } from "./components/views/TelemetryDashboardView";
 
 // --- COMPONENT: Dead Letter Queue ---
 const DeadLetterQueueTab = () => (
@@ -267,7 +266,6 @@ export default function App() {
     const nextDiagramTables = mapSelectedTablesToDiagram(tablesForDiagram);
     setDiagramTables(nextDiagramTables);
     handleOpenTab("Monitor: PG -> Kafka -> Mongo");
-    handleOpenTab("Telemetry Dashboard");
     setActiveWorkspaceTab("ERD Diagram");
     if (!workspaceTabs.includes("ERD Diagram")) {
       setWorkspaceTabs((prev) => [...prev, "ERD Diagram"]);
@@ -501,11 +499,6 @@ export default function App() {
                 />
               )}
 
-
-
-              {activeWorkspaceTab === "Telemetry Dashboard" && (
-                <TelemetryDashboardView isRunning={isRunning} />
-              )}
               {activeWorkspaceTab === "ERD Diagram" && (
                 <DiagramPane
                   tables={diagramTables}

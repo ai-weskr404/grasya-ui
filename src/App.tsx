@@ -479,15 +479,8 @@ export default function App() {
           <div className="flex-1 flex overflow-hidden">
             <div className="flex-1 flex flex-col min-w-0 overflow-auto bg-white">
               {activeWorkspaceTab === "Start Page" && (
-                <div className="h-full flex items-center justify-center bg-slate-50">
-                  <div className="text-center">
-                    <h1 className="text-2xl font-light text-slate-400 mb-2">
-                      G.R.A.S.Y.A.
-                    </h1>
-                    <p className="text-sm text-slate-500 mb-6">
-                      Database Migration Suite
-                    </p>
-                  </div>
+                <div className="h-full w-full flex items-center justify-center bg-slate-50">
+                  <Icon icon="package" size={160} className="text-slate-300" />
                 </div>
               )}
 

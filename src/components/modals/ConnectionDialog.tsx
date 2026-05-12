@@ -515,10 +515,7 @@ export const MigrationWizard: React.FC<{
         {/* Header */}
         <div className="h-12 bg-slate-50 flex items-center justify-between px-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <Icon icon={iconMap.Server} size={18} className="text-blue-600" />
-            <span className="font-semibold text-slate-800">
-              Migration Setup Wizard
-            </span>
+            <span className="font-semibold text-slate-800">Migration</span>
           </div>
           <Icon
             icon={iconMap.X}

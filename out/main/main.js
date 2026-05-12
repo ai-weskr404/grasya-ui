@@ -6,7 +6,9 @@ const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
 const require2 = __cjs_mod__.createRequire(import.meta.url);
 function getDefaultExportFromCjs(x) {
-  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
+  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default")
+    ? x["default"]
+    : x;
 }
 var main$1 = {};
 var hasRequiredMain;
@@ -28,9 +30,11 @@ function requireMain() {
       resizable: false,
       alwaysOnTop: true,
       show: true,
-      backgroundColor: "#111111"
+      backgroundColor: "#111111",
     });
-    splashWindow.loadFile(path.join(app.getAppPath(), "electron", "splash.html"));
+    splashWindow.loadFile(
+      path.join(app.getAppPath(), "electron", "splash.html"),
+    );
   }
   function createMainWindow() {
     mainWindow = new BrowserWindow({
@@ -40,8 +44,8 @@ function requireMain() {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, "../preload/preload.mjs")
-      }
+        preload: path.join(__dirname, "../preload/preload.mjs"),
+      },
     });
     if (isDev) {
       mainWindow.loadURL("http://localhost:5173");
@@ -62,8 +66,8 @@ function requireMain() {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, "../preload/preload.mjs")
-      }
+        preload: path.join(__dirname, "../preload/preload.mjs"),
+      },
     });
     if (isDev) {
       newWindow.loadURL("http://localhost:5173");
@@ -82,6 +86,4 @@ function requireMain() {
 }
 var mainExports = requireMain();
 const main = /* @__PURE__ */ getDefaultExportFromCjs(mainExports);
-export {
-  main as default
-};
+export { main as default };

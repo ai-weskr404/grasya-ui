@@ -160,7 +160,6 @@ export default function App() {
     setActiveWorkspaceTab(tabName);
   };
 
-
   useEffect(() => {
     if (!isConnected) {
       setWorkspaceTabs((prev) =>
@@ -268,10 +267,7 @@ export default function App() {
         "warning",
       );
     }
-    addLog(
-      "Connected to PostgreSQL, Kafka Event Bus, and MongoDB.",
-      "success",
-    );
+    addLog("Connected to PostgreSQL, Kafka Event Bus, and MongoDB.", "success");
   };
 
   const toggleRun = () => {
@@ -298,7 +294,10 @@ export default function App() {
 
   const commands = {
     NEW_JOB: () => {
-      if (typeof window !== "undefined" && (window as any).desktop?.newJobWindow) {
+      if (
+        typeof window !== "undefined" &&
+        (window as any).desktop?.newJobWindow
+      ) {
         void (window as any).desktop.newJobWindow();
         return;
       }
@@ -421,7 +420,7 @@ export default function App() {
                   }}
                   onCheck={() => {}}
                   onSelect={() => {}}
-                  switcherIcon={({ expanded, isLeaf }: any) => (
+                  switcherIcon={({ expanded, isLeaf }: any) =>
                     isLeaf ? (
                       <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />
                     ) : (
@@ -429,7 +428,7 @@ export default function App() {
                         {expanded ? "-" : "+"}
                       </span>
                     )
-                  )}
+                  }
                   titleRender={(node: any) => (
                     <span className="text-[11px] text-slate-800 font-normal">
                       {String(node.title)}
@@ -500,7 +499,6 @@ export default function App() {
                   onRelationshipSelect={setActiveRelationshipId}
                 />
               )}
-
             </div>
           </div>
         </div>

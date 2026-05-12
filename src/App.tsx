@@ -24,13 +24,16 @@ import {
 import { MonitorView } from "./components/views/MonitorView";
 import { DynamicTableRenderer } from "./components/sql/DynamicTableRenderer";
 import type { TableIdentifier } from "./components/sql/types";
-import { MigrationMonitoringView } from "./components/views/MigrationMonitoringView";
+import { BlueGreenSimulationView } from "./components/views/BlueGreenSimulationView";
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
 
+  const [trafficState, setTrafficState] = useState<
+    "BLUE_POSTGRES" | "GREEN_MONGO"
+  >("BLUE_POSTGRES");
 
   const [workspaceTabs, setWorkspaceTabs] = useState<string[]>([
     "Start Page",
@@ -292,6 +295,17 @@ export default function App() {
     addLog("EMERGENCY HALT: User manually killed migration process.", "error");
   };
 
+  const handleCutover = () => {
+    const newState =
+      trafficState === "BLUE_POSTGRES" ? "GREEN_MONGO" : "BLUE_POSTGRES";
+    setTrafficState(newState);
+    addLog(
+      newState === "GREEN_MONGO"
+        ? "CUTOVER: Traffic switched to Target."
+        : "ROLLBACK: Traffic reverted to Source.",
+      newState === "GREEN_MONGO" ? "success" : "error",
+    );
+  };
 
   const commands = {
     NEW_JOB: () => {
@@ -313,6 +327,8 @@ export default function App() {
     PAUSE: () => isRunning && toggleRun(),
     KILL: killProcess,
 
+    CUTOVER: handleCutover,
+
     VERIFY: () => runIntegrityProcess("verify"),
     DRIFT: () => runIntegrityProcess("drift"),
 
@@ -323,12 +339,13 @@ export default function App() {
       handleOpenTab("Monitor: PG -> Kafka -> Mongo");
       setMonitorPanelTab("dlq");
     },
-    OPEN_MIGRATION_MONITOR: () => handleOpenTab("Migration Monitor"),
+    OPEN_BLUE_GREEN: () => handleOpenTab("Blue-Green Simulation"),
   };
 
   const menuContext = {
     isConnected,
     isRunning,
+    trafficState,
   };
 
   return (
@@ -489,6 +506,7 @@ export default function App() {
                 <MonitorView
                   logs={logs}
                   isRunning={isRunning}
+                  trafficState={trafficState}
                   activePanelTab={monitorPanelTab}
                   onPanelTabChange={setMonitorPanelTab}
                 />
@@ -505,19 +523,8 @@ export default function App() {
                   onRelationshipSelect={setActiveRelationshipId}
                 />
               )}
-              {activeWorkspaceTab === "Migration Monitor" && (
-                <MigrationMonitoringView
-                  isRunning={isRunning}
-                  onOpenTable={(raw) => {
-                    const [schema, table] = raw.split(".");
-                    handleOpenTableTab({
-                      backend: "postgres",
-                      schema,
-                      table: table ?? raw,
-                      label: raw,
-                    });
-                  }}
-                />
+              {activeWorkspaceTab === "Blue-Green Simulation" && (
+                <BlueGreenSimulationView />
               )}
               {tableTabs[activeWorkspaceTab] && (
                 <DynamicTableRenderer table={tableTabs[activeWorkspaceTab]} />
@@ -648,6 +655,20 @@ export default function App() {
           {isRunning && (
             <span className="animate-pulse text-yellow-300">Migrating...</span>
           )}
+          {isConnected && (
+            <span
+              className={
+                trafficState === "BLUE_POSTGRES"
+                  ? "text-blue-200"
+                  : "text-green-300 font-bold"
+              }
+            >
+              Traffic:{" "}
+              {trafficState === "BLUE_POSTGRES"
+                ? "Blue (Primary)"
+                : "Green (Target)"}
+            </span>
+          )}
           {advisoryState !== "neutral" && (
             <span
               className={`ml-4 font-bold animate-pulse ${
@@ -655,8 +676,8 @@ export default function App() {
               }`}
             >
               {advisoryState === "ready"
-                ? "MIGRATION HEALTHY"
-                : "MIGRATION ATTENTION NEEDED"}
+                ? "READY FOR CUTOVER"
+                : "ROLLBACK ADVISED"}
             </span>
           )}
         </div>

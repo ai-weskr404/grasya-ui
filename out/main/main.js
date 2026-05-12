@@ -1,6 +1,5 @@
 import require$$0 from "electron";
 import require$$1 from "path";
-import require$$2 from "url";
 import __cjs_mod__ from "node:module";
 const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
@@ -18,7 +17,6 @@ function requireMain() {
   const { app, BrowserWindow, ipcMain } = require$$0;
   const path = require$$1;
   const isDev = !app.isPackaged;
-  const { pathToFileURL } = require$$2;
   function createSplash() {
     splashWindow = new BrowserWindow({
       width: 420,
@@ -40,7 +38,7 @@ function requireMain() {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, "../preload/preload.mjs")
+        preload: path.join(__dirname, "../preload/preload.cjs")
       }
     });
     if (isDev) {
@@ -62,7 +60,7 @@ function requireMain() {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, "../preload/preload.mjs")
+        preload: path.join(__dirname, "../preload/preload.cjs")
       }
     });
     if (isDev) {

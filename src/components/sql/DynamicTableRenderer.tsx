@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@blueprintjs/core";
-import { createGrid, GridApi, type ColDef, type IDatasource, type IGetRowsParams } from "ag-grid-community";
+import { createGrid, type ColDef, type GridApi, type IDatasource, type IGetRowsParams } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { backendRegistry } from "./backendAdapters";

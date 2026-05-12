@@ -6,6 +6,8 @@ const path = require("path");
 
 const isDev = !app.isPackaged;
 
+const { pathToFileURL } = require("url");
+
 function createSplash() {
   splashWindow = new BrowserWindow({
     width: 420,
@@ -29,7 +31,7 @@ function createMainWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, "../preload/preload.cjs"),
+      preload: path.join(__dirname, "../preload/preload.mjs"),
     },
   });
 
@@ -55,7 +57,7 @@ function createAdditionalWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, "../preload/preload.cjs"),
+      preload: path.join(__dirname, "../preload/preload.mjs"),
     },
   });
 

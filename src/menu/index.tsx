@@ -90,6 +90,13 @@ export const MenuBar = ({
         >
           <Icon icon="th" size={13} />
         </button>
+        <button
+          className="ribbon-icon-btn app-btn app-icon-btn"
+          title="Blue-Green Simulation"
+          onClick={commands.OPEN_BLUE_GREEN}
+        >
+          <Icon icon="package" size={13} />
+        </button>
       </div>
     </div>
   );

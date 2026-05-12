@@ -22,6 +22,9 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
+import { DynamicTableRenderer } from "./components/sql/DynamicTableRenderer";
+import type { TableIdentifier } from "./components/sql/types";
+import { BlueGreenSimulationView } from "./components/views/BlueGreenSimulationView";
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -37,6 +40,9 @@ export default function App() {
     "ERD Diagram",
   ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
+  const [tableTabs, setTableTabs] = useState<Record<string, TableIdentifier>>(
+    {},
+  );
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>
     mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
@@ -158,6 +164,11 @@ export default function App() {
       setWorkspaceTabs((prev) => [...prev, tabName]);
     }
     setActiveWorkspaceTab(tabName);
+  };
+
+  const handleOpenTableTab = (table: TableIdentifier) => {
+    setTableTabs((prev) => ({ ...prev, [table.label]: table }));
+    handleOpenTab(table.label);
   };
 
 
@@ -328,6 +339,7 @@ export default function App() {
       handleOpenTab("Monitor: PG -> Kafka -> Mongo");
       setMonitorPanelTab("dlq");
     },
+    OPEN_BLUE_GREEN: () => handleOpenTab("Blue-Green Simulation"),
   };
 
   const menuContext = {
@@ -420,7 +432,18 @@ export default function App() {
                     );
                   }}
                   onCheck={() => {}}
-                  onSelect={() => {}}
+                  onSelect={(_, info: any) => {
+                    if (info?.node?.nodeType === "table") {
+                      const raw = String(info.node.title);
+                      const [schema, table] = raw.split(".");
+                      handleOpenTableTab({
+                        backend: "postgres",
+                        schema,
+                        table: table ?? raw,
+                        label: raw,
+                      });
+                    }
+                  }}
                   switcherIcon={({ expanded, isLeaf }: any) => (
                     isLeaf ? (
                       <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />
@@ -499,6 +522,12 @@ export default function App() {
                   onRelationshipHover={setHoverRelationshipId}
                   onRelationshipSelect={setActiveRelationshipId}
                 />
+              )}
+              {activeWorkspaceTab === "Blue-Green Simulation" && (
+                <BlueGreenSimulationView />
+              )}
+              {tableTabs[activeWorkspaceTab] && (
+                <DynamicTableRenderer table={tableTabs[activeWorkspaceTab]} />
               )}
 
             </div>

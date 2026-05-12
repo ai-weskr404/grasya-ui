@@ -6,7 +6,6 @@ import type { LogEntry } from "../../types";
 interface MonitorViewProps {
   logs: LogEntry[];
   isRunning: boolean;
-  trafficState?: "BLUE_POSTGRES" | "GREEN_MONGO";
   activePanelTab: "logs" | "dlq";
   onPanelTabChange: (tab: "logs" | "dlq") => void;
 }
@@ -14,7 +13,6 @@ interface MonitorViewProps {
 export const MonitorView: React.FC<MonitorViewProps> = ({
   logs,
   isRunning,
-  trafficState = "BLUE_POSTGRES",
   activePanelTab,
   onPanelTabChange,
 }) => {
@@ -71,23 +69,19 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
               className={`
                 w-12 h-12 bg-white border shadow-sm rounded flex items-center justify-center transition-all duration-500
                 ${
-                  trafficState === "BLUE_POSTGRES"
-                    ? "border-blue-500 ring-4 ring-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105"
-                    : "border-slate-300 opacity-60 grayscale-[0.5]"
+"border-blue-500 ring-2 ring-blue-100"
                 }
               `}
             >
               <Database20Filled
                 className={
-                  trafficState === "BLUE_POSTGRES"
-                    ? "text-blue-600"
-                    : "text-slate-400"
+"text-blue-600"
                 }
               />
             </div>
             <div className="text-center">
               <div
-                className={`text-[10px] font-bold ${trafficState === "BLUE_POSTGRES" ? "text-blue-700" : "text-slate-500"}`}
+                className="text-[10px] font-bold text-blue-700"
               >
                 PostgreSQL
               </div>
@@ -135,26 +129,20 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
               className={`
                   w-12 h-12 bg-white border shadow-sm rounded flex items-center justify-center relative transition-all duration-500
                   ${
-                    trafficState === "GREEN_MONGO"
-                      ? "border-green-500 ring-4 ring-green-100 shadow-[0_0_15px_rgba(34,197,94,0.5)] scale-105"
-                      : "border-slate-300"
+"border-green-500 ring-2 ring-green-100"
                   }
                 `}
             >
               <Database20Filled
                 className={
-                  trafficState === "GREEN_MONGO"
-                    ? "text-green-600"
-                    : "text-slate-400"
+"text-green-600"
                 }
               />
               <div
                 className={`
                    absolute -bottom-1 -right-1 text-[8px] px-1 rounded border transition-colors duration-500
                    ${
-                     trafficState === "GREEN_MONGO"
-                       ? "bg-green-100 text-green-700 border-green-200"
-                       : "bg-slate-100 text-slate-400 border-slate-200"
+"bg-green-100 text-green-700 border-green-200"
                    }
                 `}
               >
@@ -163,7 +151,7 @@ export const MonitorView: React.FC<MonitorViewProps> = ({
             </div>
             <div className="text-center">
               <div
-                className={`text-[10px] font-bold ${trafficState === "GREEN_MONGO" ? "text-green-700" : "text-slate-500"}`}
+                className="text-[10px] font-bold text-green-700"
               >
                 MongoDB
               </div>

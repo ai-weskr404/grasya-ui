@@ -61,13 +61,6 @@ export const MenuBar = ({
         >
           <Icon icon="stop" size={13} />
         </button>
-        <button
-          className="ribbon-icon-btn app-btn app-icon-btn"
-          title="Cutover"
-          onClick={commands.CUTOVER}
-        >
-          <Icon icon="swap-horizontal" size={13} />
-        </button>
         <span className="ribbon-sep" />
         <button
           className="ribbon-icon-btn app-btn app-icon-btn"
@@ -89,6 +82,13 @@ export const MenuBar = ({
           onClick={commands.OPEN_SCHEMA}
         >
           <Icon icon="th" size={13} />
+        </button>
+        <button
+          className="ribbon-icon-btn app-btn app-icon-btn"
+          title="Migration Monitor"
+          onClick={commands.OPEN_MIGRATION_MONITOR}
+        >
+          <Icon icon="package" size={13} />
         </button>
       </div>
     </div>

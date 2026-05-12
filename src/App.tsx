@@ -22,21 +22,24 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
+import { DynamicTableRenderer } from "./components/sql/DynamicTableRenderer";
+import type { TableIdentifier } from "./components/sql/types";
+import { MigrationMonitoringView } from "./components/views/MigrationMonitoringView";
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
 
-  const [trafficState, setTrafficState] = useState<
-    "BLUE_POSTGRES" | "GREEN_MONGO"
-  >("BLUE_POSTGRES");
 
   const [workspaceTabs, setWorkspaceTabs] = useState<string[]>([
     "Start Page",
     "ERD Diagram",
   ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
+  const [tableTabs, setTableTabs] = useState<Record<string, TableIdentifier>>(
+    {},
+  );
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [diagramTables, setDiagramTables] = useState<TableDef[]>(() =>
     mapSelectedTablesToDiagram([...DEFAULT_ERD_SELECTED_TABLES]),
@@ -158,6 +161,11 @@ export default function App() {
       setWorkspaceTabs((prev) => [...prev, tabName]);
     }
     setActiveWorkspaceTab(tabName);
+  };
+
+  const handleOpenTableTab = (table: TableIdentifier) => {
+    setTableTabs((prev) => ({ ...prev, [table.label]: table }));
+    handleOpenTab(table.label);
   };
 
 
@@ -284,17 +292,6 @@ export default function App() {
     addLog("EMERGENCY HALT: User manually killed migration process.", "error");
   };
 
-  const handleCutover = () => {
-    const newState =
-      trafficState === "BLUE_POSTGRES" ? "GREEN_MONGO" : "BLUE_POSTGRES";
-    setTrafficState(newState);
-    addLog(
-      newState === "GREEN_MONGO"
-        ? "CUTOVER: Traffic switched to Target."
-        : "ROLLBACK: Traffic reverted to Source.",
-      newState === "GREEN_MONGO" ? "success" : "error",
-    );
-  };
 
   const commands = {
     NEW_JOB: () => {
@@ -316,8 +313,6 @@ export default function App() {
     PAUSE: () => isRunning && toggleRun(),
     KILL: killProcess,
 
-    CUTOVER: handleCutover,
-
     VERIFY: () => runIntegrityProcess("verify"),
     DRIFT: () => runIntegrityProcess("drift"),
 
@@ -328,12 +323,12 @@ export default function App() {
       handleOpenTab("Monitor: PG -> Kafka -> Mongo");
       setMonitorPanelTab("dlq");
     },
+    OPEN_MIGRATION_MONITOR: () => handleOpenTab("Migration Monitor"),
   };
 
   const menuContext = {
     isConnected,
     isRunning,
-    trafficState,
   };
 
   return (
@@ -420,7 +415,18 @@ export default function App() {
                     );
                   }}
                   onCheck={() => {}}
-                  onSelect={() => {}}
+                  onSelect={(_, info: any) => {
+                    if (info?.node?.nodeType === "table") {
+                      const raw = String(info.node.title);
+                      const [schema, table] = raw.split(".");
+                      handleOpenTableTab({
+                        backend: "postgres",
+                        schema,
+                        table: table ?? raw,
+                        label: raw,
+                      });
+                    }
+                  }}
                   switcherIcon={({ expanded, isLeaf }: any) => (
                     isLeaf ? (
                       <span className="inline-block w-3 h-3 border border-slate-300 bg-white" />
@@ -483,7 +489,6 @@ export default function App() {
                 <MonitorView
                   logs={logs}
                   isRunning={isRunning}
-                  trafficState={trafficState}
                   activePanelTab={monitorPanelTab}
                   onPanelTabChange={setMonitorPanelTab}
                 />
@@ -499,6 +504,23 @@ export default function App() {
                   onRelationshipHover={setHoverRelationshipId}
                   onRelationshipSelect={setActiveRelationshipId}
                 />
+              )}
+              {activeWorkspaceTab === "Migration Monitor" && (
+                <MigrationMonitoringView
+                  isRunning={isRunning}
+                  onOpenTable={(raw) => {
+                    const [schema, table] = raw.split(".");
+                    handleOpenTableTab({
+                      backend: "postgres",
+                      schema,
+                      table: table ?? raw,
+                      label: raw,
+                    });
+                  }}
+                />
+              )}
+              {tableTabs[activeWorkspaceTab] && (
+                <DynamicTableRenderer table={tableTabs[activeWorkspaceTab]} />
               )}
 
             </div>
@@ -626,20 +648,6 @@ export default function App() {
           {isRunning && (
             <span className="animate-pulse text-yellow-300">Migrating...</span>
           )}
-          {isConnected && (
-            <span
-              className={
-                trafficState === "BLUE_POSTGRES"
-                  ? "text-blue-200"
-                  : "text-green-300 font-bold"
-              }
-            >
-              Traffic:{" "}
-              {trafficState === "BLUE_POSTGRES"
-                ? "Blue (Primary)"
-                : "Green (Target)"}
-            </span>
-          )}
           {advisoryState !== "neutral" && (
             <span
               className={`ml-4 font-bold animate-pulse ${
@@ -647,8 +655,8 @@ export default function App() {
               }`}
             >
               {advisoryState === "ready"
-                ? "READY FOR CUTOVER"
-                : "ROLLBACK ADVISED"}
+                ? "MIGRATION HEALTHY"
+                : "MIGRATION ATTENTION NEEDED"}
             </span>
           )}
         </div>

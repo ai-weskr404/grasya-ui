@@ -329,6 +329,10 @@ export default function App() {
       handleOpenTab("Monitor: PG -> Kafka -> Mongo");
       setMonitorPanelTab("dlq");
     },
+    OPEN_BLUEGREEN: () => {
+      handleOpenTab("Blue/Green Dashboard");
+      setActiveWorkspaceTab("Blue/Green Dashboard");
+    },
   };
 
   const menuContext = {

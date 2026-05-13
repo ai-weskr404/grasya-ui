@@ -90,6 +90,13 @@ export const MenuBar = ({
         >
           <Icon icon="th" size={13} />
         </button>
+        <button
+          className="ribbon-icon-btn app-btn app-icon-btn"
+          title="Blue/Green Dashboard"
+          onClick={commands.OPEN_BLUEGREEN}
+        >
+          <Icon icon="package" size={13} />
+        </button>
       </div>
     </div>
   );

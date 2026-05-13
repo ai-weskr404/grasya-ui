@@ -22,6 +22,7 @@ import {
   type MappingStrategy,
 } from "./components/erd/relationshipMapping";
 import { MonitorView } from "./components/views/MonitorView";
+import { BlueGreenSimulationView } from "./components/views/BlueGreenSimulationView";
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -327,6 +328,10 @@ export default function App() {
       handleOpenTab("Monitor: PG -> Kafka -> Mongo");
       setMonitorPanelTab("dlq");
     },
+    OPEN_BLUEGREEN: () => {
+      handleOpenTab("Blue/Green Dashboard");
+      setActiveWorkspaceTab("Blue/Green Dashboard");
+    },
   };
 
   const menuContext = {
@@ -498,6 +503,10 @@ export default function App() {
                   onRelationshipHover={setHoverRelationshipId}
                   onRelationshipSelect={setActiveRelationshipId}
                 />
+              )}
+
+              {activeWorkspaceTab === "Blue/Green Dashboard" && (
+                <BlueGreenSimulationView />
               )}
             </div>
           </div>

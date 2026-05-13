@@ -161,6 +161,35 @@ export function BlueGreenSimulationView() {
           </div>
         )}
       </div>
+
+      {activeView === "dashboard" && <table className="w-full border-collapse text-[11px]">
+        <thead className="bg-slate-50 text-slate-600"><tr className="border-y border-slate-200"><th></th><th className="text-left">DB identifier</th><th className="text-left">Status</th><th className="text-left">Role</th><th className="text-left">Engine</th><th className="text-left">Region & AZ</th><th className="text-left">Size</th><th className="text-left">Recommendations</th><th className="text-left">CPU</th><th className="text-left">Current connections</th></tr></thead>
+        <tbody>{mockClusters.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())).map((cluster) => <tr key={cluster.id} onClick={() => openCluster(cluster)} className="cursor-pointer border-b border-slate-200 hover:bg-slate-50"><td className="p-1"><input type="checkbox" /></td><td className="p-1 font-medium text-blue-700">{cluster.name}{currentEnvBadge(cluster)}</td><td className="p-1 text-emerald-700"><Icon icon="small-tick" /> Available</td><td className="p-1">{cluster.role}</td><td className="p-1">{cluster.engine}</td><td className="p-1">{cluster.regionAz}</td><td className="p-1">{cluster.size}</td><td className="p-1">{cluster.recommendations}</td><td className="p-1">{cluster.cpu}</td><td className="p-1">{cluster.connections}</td></tr>)}</tbody>
+      </table>}
+
+      {activeView === "schemaList" && selectedCluster && <div>
+        <button className="mb-2 text-blue-700" onClick={() => setActiveView("dashboard")}>&larr; Back</button>
+        <div className="mb-2 font-semibold">{selectedCluster.name} {currentEnvBadge(selectedCluster)}</div>
+        {selectedCluster.folders.map((folder) => <div key={folder.id} className="mb-1">
+          <button className="w-full rounded px-2 py-1 text-left hover:bg-slate-50" onClick={() => setExpandedFolders((p) => ({ ...p, [folder.id]: !p[folder.id] }))}><Icon icon={expandedFolders[folder.id] ? "chevron-down" : "chevron-right"} size={10} /> {folder.name}</button>
+          {expandedFolders[folder.id] && <div className="ml-6">
+            {folder.tables.map((table) => <button key={table.id} className="block w-full rounded px-2 py-1 text-left hover:bg-slate-50" onClick={() => { setSelectedTable(table); setActiveView("tableData"); }}>{table.name}</button>)}
+          </div>}
+        </div>)}
+      </div>}
+
+      {activeView === "tableData" && selectedTable && <div>
+        <button className="mb-2 text-blue-700" onClick={() => setActiveView("schemaList")}>&larr; Back</button>
+        <div className="mb-2 font-semibold">{selectedTable.name}</div>
+        <div className="mb-2 flex gap-2">
+          <input value={tableSearch} onChange={(e) => setTableSearch(e.target.value)} className="flex-1 rounded border border-slate-300 px-2 py-1" placeholder="Search/query table data" />
+          <button onClick={runQuery} className="rounded bg-blue-700 px-3 py-1 text-white">Run Query</button>
+        </div>
+        <table className="w-full border-collapse">
+          <thead><tr className="border-y border-slate-200 bg-slate-50">{columns.map((c) => <th key={c} className="p-1 text-left">{c}</th>)}</tr></thead>
+          <tbody>{filteredRows.map((row, i) => <tr key={i} className="border-b border-slate-200">{columns.map((c) => <td key={c} className="p-1">{String(row[c])}</td>)}</tr>)}</tbody>
+        </table>
+      </div>}
     </div>
-  );
+  </div>;
 }

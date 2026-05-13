@@ -36,6 +36,7 @@ export default function App() {
   const [workspaceTabs, setWorkspaceTabs] = useState<string[]>([
     "Start Page",
     "ERD Diagram",
+    "Blue/Green Dashboard",
   ]);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState("ERD Diagram");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
@@ -457,6 +458,9 @@ export default function App() {
                     : "bg-slate-300 text-slate-600 hover:bg-slate-200 border-r border-slate-400/30"
                 }`}
               >
+                {tab === "Blue/Green Dashboard" && (
+                  <Icon icon="package" size={10} className="text-slate-600" />
+                )}
                 <span>{tab}</span>
                 {tab !== "Start Page" && (
                   <Icon

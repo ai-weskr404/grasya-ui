@@ -129,7 +129,7 @@ export function BlueGreenSimulationView() {
           </table>
         )}
 
-        {view === "schema" && selectedCluster && (
+        {view === "schema" && selectedCluster ? (
           <div>
             <button className="mb-2 text-blue-700" onClick={() => setView("dashboard")}>← Back</button>
             <div className="mb-2 text-sm font-semibold">{selectedCluster.identifier}</div>
@@ -142,9 +142,9 @@ export function BlueGreenSimulationView() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
 
-        {view === "table" && selectedTable && (
+        {view === "table" && selectedTable ? (
           <div>
             <button className="mb-2 text-blue-700" onClick={() => setView("schema")}>← Back</button>
             <div className="mb-2 font-semibold">{selectedTable.name}</div>
@@ -159,7 +159,7 @@ export function BlueGreenSimulationView() {
               </table>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {activeView === "dashboard" && <table className="w-full border-collapse text-[11px]">

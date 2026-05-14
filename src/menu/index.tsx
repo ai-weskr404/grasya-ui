@@ -92,7 +92,7 @@ export const MenuBar = ({
         </button>
         <button
           className="ribbon-icon-btn app-btn app-icon-btn"
-          title="My Tables"
+          title="Databases"
           onClick={commands.OPEN_BLUEGREEN}
         >
           <Icon icon="package" size={13} />

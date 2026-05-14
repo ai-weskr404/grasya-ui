@@ -82,9 +82,9 @@ const buildMockData = (): DashboardData => ({
     },
     {
       id: "pg-green",
-      identifier: "PG-Green",
+      identifier: "MDB",
       role: "Standby",
-      engine: "PostgreSQL 15.4",
+      engine: "MongoDB 8.2",
       regionAz: "us-east-1c",
       size: "db.r6g.large",
       recommendations: 0,

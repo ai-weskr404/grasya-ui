@@ -247,19 +247,20 @@ export function BlueGreenSimulationView() {
         </div>
 
         {view === "dashboard" && (
-          <table className="w-full border-collapse text-[11px]">
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+          <table className="w-full table-fixed border-collapse text-[11px]">
             <thead className="bg-slate-50 text-slate-600">
               <tr className="border-y border-slate-200">
-                <th className="p-1" />
-                <th className="p-1 text-left">DB identifier</th>
-                <th className="p-1 text-left">Health</th>
-                <th className="p-1 text-left">Role</th>
-                <th className="p-1 text-left">Engine</th>
-                <th className="p-1 text-left">Deployment Region</th>
-                <th className="p-1 text-left">Size</th>
-                <th className="p-1 text-left">Insights</th>
-                <th className="p-1 text-left">CPU</th>
-                <th className="p-1 text-left">Connection Usage</th>
+                <th className="w-8 p-2" />
+                <th className="w-[16%] p-2 text-left">DB identifier</th>
+                <th className="w-[10%] p-2 text-left">Health</th>
+                <th className="w-[9%] p-2 text-left">Role</th>
+                <th className="w-[14%] p-2 text-left">Engine</th>
+                <th className="w-[16%] p-2 text-left">Deployment Region</th>
+                <th className="w-[10%] p-2 text-left">Size</th>
+                <th className="w-[17%] p-2 text-left">Insights</th>
+                <th className="w-[8%] p-2 text-left">CPU</th>
+                <th className="w-[16%] p-2 text-left">Connection Usage</th>
               </tr>
             </thead>
             <tbody>
@@ -279,12 +280,12 @@ export function BlueGreenSimulationView() {
                         setSelectedClusterId(cluster.id);
                         setView("schema");
                       }}
-                      className="cursor-pointer border-b border-slate-200 hover:bg-slate-50"
+                      className="cursor-pointer border-b border-slate-200/80 bg-white transition-colors hover:bg-slate-50"
                     >
-                      <td className="p-1">
+                      <td className="p-2 align-top">
                         <input type="checkbox" />
                       </td>
-                      <td className="p-1 font-medium text-blue-700">
+                      <td className="p-2 font-medium text-blue-700 align-top">
                         {cluster.identifier}{" "}
                         {isProd && (
                           <span
@@ -294,7 +295,7 @@ export function BlueGreenSimulationView() {
                           </span>
                         )}
                       </td>
-                      <td className="p-1">
+                      <td className="p-2 align-top">
                         <Tag
                           round
                           minimal
@@ -304,12 +305,12 @@ export function BlueGreenSimulationView() {
                           {cluster.health}
                         </Tag>
                       </td>
-                      <td className="p-1">{cluster.role}</td>
-                      <td className="p-1">{cluster.engine}</td>
-                      <td className="p-1">{cluster.deploymentRegion}</td>
-                      <td className="p-1">{cluster.size}</td>
-                      <td className="p-1">
-                        <div className="flex flex-wrap gap-1">
+                      <td className="p-2 align-top text-slate-700">{cluster.role}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.engine}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.deploymentRegion}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.size}</td>
+                      <td className="p-2 align-top">
+                        <div className="flex flex-wrap gap-1.5">
                           {cluster.insights.map((insight) => (
                             <Tag key={insight} className={insightPill} minimal>
                               {insight}
@@ -317,10 +318,11 @@ export function BlueGreenSimulationView() {
                           ))}
                         </div>
                       </td>
-                      <td className="p-1">{cluster.cpu}%</td>
-                      <td className="p-1">
-                        <div className="min-w-[100px]">
-                          <div className="mb-1 text-[10px] text-slate-600">
+                      <td className="p-2 align-top font-medium text-slate-700">{cluster.cpu}%</td>
+                      <td className="p-2 align-top">
+                        <div className="min-w-[130px]">
+                          <div className="mb-1 flex items-center justify-between text-[10px] text-slate-600">
+                            <span>Free Tier</span>
                             {cluster.activeConnections} / {cluster.connectionLimit}
                           </div>
                           <ProgressBar
@@ -330,6 +332,8 @@ export function BlueGreenSimulationView() {
                                 : "primary"
                             }
                             value={cluster.activeConnections / cluster.connectionLimit}
+                            stripes={false}
+                            animate={false}
                           />
                         </div>
                       </td>
@@ -338,6 +342,7 @@ export function BlueGreenSimulationView() {
                 })}
             </tbody>
           </table>
+          </div>
         )}
 
         {view === "schema" && selectedCluster ? (

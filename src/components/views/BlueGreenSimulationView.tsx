@@ -1,4 +1,4 @@
-import { Icon } from "@blueprintjs/core";
+import { Icon, ProgressBar, Tag } from "@blueprintjs/core";
 import { useMemo, useState } from "react";
 
 type Env = "blue" | "green";
@@ -16,11 +16,13 @@ type ClusterDef = {
   identifier: string;
   role: string;
   engine: string;
-  regionAz: string;
+  deploymentRegion: string;
   size: string;
-  recommendations: number;
+  insights: string[];
+  health: "Healthy" | "Syncing" | "Idle" | "Degraded";
   cpu: number;
-  currentConnections: number;
+  activeConnections: number;
+  connectionLimit: number;
   isGreen: boolean;
   folders: FolderDef[];
 };
@@ -34,11 +36,13 @@ const buildMockData = (): DashboardData => ({
       identifier: "PG",
       role: "Primary",
       engine: "PostgreSQL 15.4",
-      regionAz: "us-east-1a",
+      deploymentRegion: "East US (Virginia)",
       size: "db.r6g.large",
-      recommendations: 2,
+      insights: ["Enable PITR", "Optimize indexes"],
+      health: "Healthy",
       cpu: 31,
-      currentConnections: 124,
+      activeConnections: 42,
+      connectionLimit: 60,
       isGreen: false,
       folders: [
         {
@@ -85,11 +89,13 @@ const buildMockData = (): DashboardData => ({
       identifier: "MDB",
       role: "Standby",
       engine: "MongoDB 8.2",
-      regionAz: "us-east-1c",
+      deploymentRegion: "Southeast Asia (Singapore)",
       size: "db.r6g.large",
-      recommendations: 0,
+      insights: ["Enable connection pooling", "Add read replica"],
+      health: "Syncing",
       cpu: 28,
-      currentConnections: 118,
+      activeConnections: 37,
+      connectionLimit: 60,
       isGreen: true,
       folders: [
         {
@@ -118,6 +124,14 @@ const buildMockData = (): DashboardData => ({
 
 const statusPill =
   "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold";
+const insightPill = "rounded-full border border-slate-200 bg-slate-50 px-2 py-0";
+
+const healthIntentMap: Record<ClusterDef["health"], "success" | "primary" | "warning" | "danger"> = {
+  Healthy: "success",
+  Syncing: "primary",
+  Idle: "warning",
+  Degraded: "danger",
+};
 
 export function BlueGreenSimulationView() {
   const [env, setEnv] = useState<Env>("blue");
@@ -238,14 +252,14 @@ export function BlueGreenSimulationView() {
               <tr className="border-y border-slate-200">
                 <th className="p-1" />
                 <th className="p-1 text-left">DB identifier</th>
-                <th className="p-1 text-left">Status</th>
+                <th className="p-1 text-left">Health</th>
                 <th className="p-1 text-left">Role</th>
                 <th className="p-1 text-left">Engine</th>
-                <th className="p-1 text-left">Region & AZ</th>
+                <th className="p-1 text-left">Deployment Region</th>
                 <th className="p-1 text-left">Size</th>
-                <th className="p-1 text-left">Recommendations</th>
+                <th className="p-1 text-left">Insights</th>
                 <th className="p-1 text-left">CPU</th>
-                <th className="p-1 text-left">Current connections</th>
+                <th className="p-1 text-left">Connection Usage</th>
               </tr>
             </thead>
             <tbody>
@@ -280,16 +294,45 @@ export function BlueGreenSimulationView() {
                           </span>
                         )}
                       </td>
-                      <td className="p-1 text-emerald-700">
-                        <Icon icon="small-tick" /> Available
+                      <td className="p-1">
+                        <Tag
+                          round
+                          minimal
+                          intent={healthIntentMap[cluster.health]}
+                          className="font-semibold"
+                        >
+                          {cluster.health}
+                        </Tag>
                       </td>
                       <td className="p-1">{cluster.role}</td>
                       <td className="p-1">{cluster.engine}</td>
-                      <td className="p-1">{cluster.regionAz}</td>
+                      <td className="p-1">{cluster.deploymentRegion}</td>
                       <td className="p-1">{cluster.size}</td>
-                      <td className="p-1">{cluster.recommendations}</td>
+                      <td className="p-1">
+                        <div className="flex flex-wrap gap-1">
+                          {cluster.insights.map((insight) => (
+                            <Tag key={insight} className={insightPill} minimal>
+                              {insight}
+                            </Tag>
+                          ))}
+                        </div>
+                      </td>
                       <td className="p-1">{cluster.cpu}%</td>
-                      <td className="p-1">{cluster.currentConnections}</td>
+                      <td className="p-1">
+                        <div className="min-w-[100px]">
+                          <div className="mb-1 text-[10px] text-slate-600">
+                            {cluster.activeConnections} / {cluster.connectionLimit}
+                          </div>
+                          <ProgressBar
+                            intent={
+                              cluster.activeConnections / cluster.connectionLimit > 0.85
+                                ? "warning"
+                                : "primary"
+                            }
+                            value={cluster.activeConnections / cluster.connectionLimit}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}

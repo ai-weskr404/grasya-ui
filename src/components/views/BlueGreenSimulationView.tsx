@@ -213,12 +213,6 @@ export function BlueGreenSimulationView() {
           >
             Switch Environment
           </button>
-          <button className="h-8 rounded-md border border-slate-300 bg-white px-4">
-            Modify
-          </button>
-          <button className="h-8 rounded-md border border-slate-300 bg-white px-4">
-            Actions <Icon icon="caret-down" size={10} />
-          </button>
         </div>
       </div>
 

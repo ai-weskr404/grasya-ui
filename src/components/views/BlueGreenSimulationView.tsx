@@ -1,4 +1,4 @@
-import { Icon } from "@blueprintjs/core";
+import { Icon, ProgressBar, Tag } from "@blueprintjs/core";
 import { useMemo, useState } from "react";
 
 type Env = "blue" | "green";
@@ -16,11 +16,13 @@ type ClusterDef = {
   identifier: string;
   role: string;
   engine: string;
-  regionAz: string;
+  deploymentRegion: string;
   size: string;
-  recommendations: number;
+  insights: string[];
+  health: "Healthy" | "Syncing" | "Idle" | "Degraded";
   cpu: number;
-  currentConnections: number;
+  activeConnections: number;
+  connectionLimit: number;
   isGreen: boolean;
   folders: FolderDef[];
 };
@@ -34,11 +36,13 @@ const buildMockData = (): DashboardData => ({
       identifier: "PG",
       role: "Primary",
       engine: "PostgreSQL 15.4",
-      regionAz: "us-east-1a",
+      deploymentRegion: "East US (Virginia)",
       size: "db.r6g.large",
-      recommendations: 2,
+      insights: ["Enable PITR", "Optimize indexes"],
+      health: "Healthy",
       cpu: 31,
-      currentConnections: 124,
+      activeConnections: 42,
+      connectionLimit: 60,
       isGreen: false,
       folders: [
         {
@@ -85,11 +89,13 @@ const buildMockData = (): DashboardData => ({
       identifier: "MDB",
       role: "Standby",
       engine: "MongoDB 8.2",
-      regionAz: "us-east-1c",
+      deploymentRegion: "Southeast Asia (Singapore)",
       size: "db.r6g.large",
-      recommendations: 0,
+      insights: ["Enable connection pooling", "Add read replica"],
+      health: "Syncing",
       cpu: 28,
-      currentConnections: 118,
+      activeConnections: 37,
+      connectionLimit: 60,
       isGreen: true,
       folders: [
         {
@@ -118,6 +124,14 @@ const buildMockData = (): DashboardData => ({
 
 const statusPill =
   "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold";
+const insightPill = "rounded-full border border-slate-200 bg-slate-50 px-2 py-0";
+
+const healthIntentMap: Record<ClusterDef["health"], "success" | "primary" | "warning" | "danger"> = {
+  Healthy: "success",
+  Syncing: "primary",
+  Idle: "warning",
+  Degraded: "danger",
+};
 
 export function BlueGreenSimulationView() {
   const [env, setEnv] = useState<Env>("blue");
@@ -233,19 +247,20 @@ export function BlueGreenSimulationView() {
         </div>
 
         {view === "dashboard" && (
-          <table className="w-full border-collapse text-[11px]">
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+          <table className="w-full table-fixed border-collapse text-[11px]">
             <thead className="bg-slate-50 text-slate-600">
               <tr className="border-y border-slate-200">
-                <th className="p-1" />
-                <th className="p-1 text-left">DB identifier</th>
-                <th className="p-1 text-left">Status</th>
-                <th className="p-1 text-left">Role</th>
-                <th className="p-1 text-left">Engine</th>
-                <th className="p-1 text-left">Region & AZ</th>
-                <th className="p-1 text-left">Size</th>
-                <th className="p-1 text-left">Recommendations</th>
-                <th className="p-1 text-left">CPU</th>
-                <th className="p-1 text-left">Current connections</th>
+                <th className="w-8 p-2" />
+                <th className="w-[16%] p-2 text-left">DB identifier</th>
+                <th className="w-[10%] p-2 text-left">Health</th>
+                <th className="w-[9%] p-2 text-left">Role</th>
+                <th className="w-[14%] p-2 text-left">Engine</th>
+                <th className="w-[16%] p-2 text-left">Deployment Region</th>
+                <th className="w-[10%] p-2 text-left">Size</th>
+                <th className="w-[17%] p-2 text-left">Insights</th>
+                <th className="w-[8%] p-2 text-left">CPU</th>
+                <th className="w-[16%] p-2 text-left">Connection Usage</th>
               </tr>
             </thead>
             <tbody>
@@ -265,12 +280,12 @@ export function BlueGreenSimulationView() {
                         setSelectedClusterId(cluster.id);
                         setView("schema");
                       }}
-                      className="cursor-pointer border-b border-slate-200 hover:bg-slate-50"
+                      className="cursor-pointer border-b border-slate-200/80 bg-white transition-colors hover:bg-slate-50"
                     >
-                      <td className="p-1">
+                      <td className="p-2 align-top">
                         <input type="checkbox" />
                       </td>
-                      <td className="p-1 font-medium text-blue-700">
+                      <td className="p-2 font-medium text-blue-700 align-top">
                         {cluster.identifier}{" "}
                         {isProd && (
                           <span
@@ -280,21 +295,54 @@ export function BlueGreenSimulationView() {
                           </span>
                         )}
                       </td>
-                      <td className="p-1 text-emerald-700">
-                        <Icon icon="small-tick" /> Available
+                      <td className="p-2 align-top">
+                        <Tag
+                          round
+                          minimal
+                          intent={healthIntentMap[cluster.health]}
+                          className="font-semibold"
+                        >
+                          {cluster.health}
+                        </Tag>
                       </td>
-                      <td className="p-1">{cluster.role}</td>
-                      <td className="p-1">{cluster.engine}</td>
-                      <td className="p-1">{cluster.regionAz}</td>
-                      <td className="p-1">{cluster.size}</td>
-                      <td className="p-1">{cluster.recommendations}</td>
-                      <td className="p-1">{cluster.cpu}%</td>
-                      <td className="p-1">{cluster.currentConnections}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.role}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.engine}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.deploymentRegion}</td>
+                      <td className="p-2 align-top text-slate-700">{cluster.size}</td>
+                      <td className="p-2 align-top">
+                        <div className="flex flex-wrap gap-1.5">
+                          {cluster.insights.map((insight) => (
+                            <Tag key={insight} className={insightPill} minimal>
+                              {insight}
+                            </Tag>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="p-2 align-top font-medium text-slate-700">{cluster.cpu}%</td>
+                      <td className="p-2 align-top">
+                        <div className="min-w-[130px]">
+                          <div className="mb-1 flex items-center justify-between text-[10px] text-slate-600">
+                            <span>Free Tier</span>
+                            {cluster.activeConnections} / {cluster.connectionLimit}
+                          </div>
+                          <ProgressBar
+                            intent={
+                              cluster.activeConnections / cluster.connectionLimit > 0.85
+                                ? "warning"
+                                : "primary"
+                            }
+                            value={cluster.activeConnections / cluster.connectionLimit}
+                            stripes={false}
+                            animate={false}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
             </tbody>
           </table>
+          </div>
         )}
 
         {view === "schema" && selectedCluster ? (
